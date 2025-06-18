@@ -1,22 +1,21 @@
-import ContactModel from '../models/contact.model.js'
+import ContactDAO from '../dao/contact.dao.js'
 
-const sendMessage = async ({ name, email, message }) => {
-    const newMessage = await ContactModel.create({ name, email, message })
-    return newMessage
+class ContactService {
+    static async getAllContacts() {
+        return await ContactDAO.getAllContacts()
+    }
+
+    static async getContactById(id) {
+        return await ContactDAO.getContactById(id)
+    }
+
+    static async createContact(contactData) {
+        return await ContactDAO.createContact(contactData)
+    }
+
+    static async deleteContact(id) {
+        return await ContactDAO.deleteContact(id)
+    }
 }
 
-const getAllMessages = async () => {
-    return await ContactModel.find().sort({ createdAt: -1 })
-}
-
-const deleteMessage = async (id) => {
-    const deleted = await ContactModel.findByIdAndDelete(id)
-    if (!deleted) throw new Error('Message not found or delete failed')
-    return deleted
-}
-
-export default {
-    sendMessage,
-    getAllMessages,
-    deleteMessage
-}
+export default ContactService

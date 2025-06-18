@@ -1,35 +1,25 @@
-import LodgingModel from '../models/lodging.model.js'
+import LodgingDAO from '../dao/lodging.dao.js'
 
-const createLodging = async (lodgingData) => {
-    return await LodgingModel.create(lodgingData)
+class LodgingService {
+    static async getAllLodgings() {
+        return await LodgingDAO.getAllLodgings()
+    }
+
+    static async getLodgingById(id) {
+        return await LodgingDAO.getLodgingById(id)
+    }
+
+    static async createLodging(lodgingData) {
+        return await LodgingDAO.createLodging(lodgingData)
+    }
+
+    static async updateLodging(id, updateData) {
+        return await LodgingDAO.updateLodging(id, updateData)
+    }
+
+    static async deleteLodging(id) {
+        return await LodgingDAO.deleteLodging(id)
+    }
 }
 
-const getAllLodgings = async (filters = {}) => {
-    return await LodgingModel.find(filters)
-}
-
-const getLodgingById = async (id) => {
-    const lodging = await LodgingModel.findById(id)
-    if (!lodging) throw new Error('Lodging not found')
-    return lodging
-}
-
-const updateLodging = async (id, updates) => {
-    const lodging = await LodgingModel.findByIdAndUpdate(id, updates, { new: true })
-    if (!lodging) throw new Error('Update failed')
-    return lodging
-}
-
-const deleteLodging = async (id) => {
-    const deleted = await LodgingModel.findByIdAndDelete(id)
-    if (!deleted) throw new Error('Delete failed')
-    return deleted
-}
-
-export default {
-    createLodging,
-    getAllLodgings,
-    getLodgingById,
-    updateLodging,
-    deleteLodging
-}
+export default LodgingService
