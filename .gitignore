@@ -1,0 +1,21 @@
+# node_modules
+node_modules/
+
+# variables de entorno
+.env
+.env.dev
+.env.test
+.env.prod
+.env.local
+.env.development
+
+# logs y archivos temporales
+logs/
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Otros
+coverage/
