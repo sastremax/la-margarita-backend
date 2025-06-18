@@ -1,32 +1,25 @@
-import ReviewModel from '../models/review.model.js'
-import LodgingModel from '../models/lodging.model.js'
+import ReviewDAO from '../dao/review.dao.js'
 
-const createReview = async ({ userId, lodgingId, rating, comment }) => {
-    const lodging = await LodgingModel.findById(lodgingId)
-    if (!lodging) throw new Error('Lodging not found')
+class ReviewService {
+    static async getAllReviews() {
+        return await ReviewDAO.getAllReviews()
+    }
 
-    const review = await ReviewModel.create({
-        user: userId,
-        lodging: lodgingId,
-        rating,
-        comment
-    })
+    static async getReviewById(id) {
+        return await ReviewDAO.getReviewById(id)
+    }
 
-    return review
+    static async getReviewsByLodgingId(lodgingId) {
+        return await ReviewDAO.getReviewsByLodgingId(lodgingId)
+    }
+
+    static async createReview(reviewData) {
+        return await ReviewDAO.createReview(reviewData)
+    }
+
+    static async deleteReview(id) {
+        return await ReviewDAO.deleteReview(id)
+    }
 }
 
-const getReviewsByLodging = async (lodgingId) => {
-    return await ReviewModel.find({ lodging: lodgingId }).populate('user')
-}
-
-const deleteReview = async (reviewId) => {
-    const deleted = await ReviewModel.findByIdAndDelete(reviewId)
-    if (!deleted) throw new Error('Review not found or delete failed')
-    return deleted
-}
-
-export default {
-    createReview,
-    getReviewsByLodging,
-    deleteReview
-}
+export default ReviewService

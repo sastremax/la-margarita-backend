@@ -1,37 +1,29 @@
-import ReservationModel from '../models/reservation.model.js'
-import LodgingModel from '../models/lodging.model.js'
+import ReservationDAO from '../dao/reservation.dao.js'
 
-const createReservation = async ({ userId, lodgingId, startDate, endDate }) => {
-    const lodging = await LodgingModel.findById(lodgingId)
-    if (!lodging) throw new Error('Lodging not found')
+class ReservationService {
+    static async getAllReservations() {
+        return await ReservationDAO.getAllReservations()
+    }
 
-    const reservation = await ReservationModel.create({
-        user: userId,
-        lodging: lodgingId,
-        startDate,
-        endDate
-    })
+    static async getReservationById(id) {
+        return await ReservationDAO.getReservationById(id)
+    }
 
-    return reservation
+    static async getReservationsByUserId(userId) {
+        return await ReservationDAO.getReservationsByUserId(userId)
+    }
+
+    static async createReservation(reservationData) {
+        return await ReservationDAO.createReservation(reservationData)
+    }
+
+    static async updateReservation(id, updateData) {
+        return await ReservationDAO.updateReservation(id, updateData)
+    }
+
+    static async deleteReservation(id) {
+        return await ReservationDAO.deleteReservation(id)
+    }
 }
 
-const getAllReservations = async () => {
-    return await ReservationModel.find().populate('user lodging')
-}
-
-const getReservationsByUser = async (userId) => {
-    return await ReservationModel.find({ user: userId }).populate('lodging')
-}
-
-const cancelReservation = async (reservationId) => {
-    const deleted = await ReservationModel.findByIdAndDelete(reservationId)
-    if (!deleted) throw new Error('Reservation not found or delete failed')
-    return deleted
-}
-
-export default {
-    createReservation,
-    getAllReservations,
-    getReservationsByUser,
-    cancelReservation
-}
+export default ReservationService

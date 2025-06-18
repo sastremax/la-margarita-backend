@@ -1,30 +1,30 @@
-import UserModel from '../models/user.model.js'
+import UserDAO from '../dao/user.dao.js'
 
-const getAllUsers = async () => {
-    return await UserModel.find()
+class UserService {
+
+    static async getAllUsers() {
+        return await UserDAO.getAllUsers()
+    }
+
+    static async getUserById(id) {
+        return await UserDAO.getUserById(id)
+    }
+
+    static async getUserByEmail(email) {
+        return await UserDAO.getUserByEmail(email)
+    }
+
+    static async createUser(userData) {
+        return await UserDAO.createUser(userData)
+    }
+
+    static async updateUser(id, updateData) {
+        return await UserDAO.updateUser(id, updateData)
+    }
+
+    static async deleteUser(id) {
+        return await UserDAO.deleteUser(id)
+    }
 }
 
-const getUserById = async (id) => {
-    const user = await UserModel.findById(id)
-    if (!user) throw new Error('User not found')
-    return user
-}
-
-const updateUser = async (id, updates) => {
-    const user = await UserModel.findByIdAndUpdate(id, updates, { new: true })
-    if (!user) throw new Error('User not found or update failed')
-    return user
-}
-
-const deleteUser = async (id) => {
-    const deleted = await UserModel.findByIdAndDelete(id)
-    if (!deleted) throw new Error('User not found or delete failed')
-    return deleted
-}
-
-export default {
-    getAllUsers,
-    getUserById,
-    updateUser,
-    deleteUser
-}
+export default UserService

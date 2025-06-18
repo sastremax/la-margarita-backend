@@ -1,24 +1,25 @@
-import fs from 'fs/promises'
-import path from 'path'
+import ImageDAO from '../dao/image.dao.js'
 
-const uploadImage = async (file) => {
-    if (!file) throw new Error('No file uploaded')
-    return {
-        filename: file.filename,
-        path: file.path
+class ImageService {
+    static async getAllImages() {
+        return await ImageDAO.getAllImages()
+    }
+
+    static async getImageById(id) {
+        return await ImageDAO.getImageById(id)
+    }
+
+    static async getImagesByLodgingId(lodgingId) {
+        return await ImageDAO.getImagesByLodgingId(lodgingId)
+    }
+
+    static async uploadImage(imageData) {
+        return await ImageDAO.uploadImage(imageData)
+    }
+
+    static async deleteImage(id) {
+        return await ImageDAO.deleteImage(id)
     }
 }
 
-const deleteImage = async (filePath) => {
-    try {
-        await fs.unlink(path.resolve(filePath))
-        return true
-    } catch (err) {
-        throw new Error(`Failed to delete image: ${err.message}`)
-    }
-}
-
-export default {
-    uploadImage,
-    deleteImage
-}
+export default ImageService
