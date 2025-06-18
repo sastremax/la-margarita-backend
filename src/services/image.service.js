@@ -14,7 +14,7 @@ const deleteImage = async (filePath) => {
         await fs.unlink(path.resolve(filePath))
         return true
     } catch (err) {
-        throw new Error('Failed to delete image')
+        throw new Error(`Failed to delete image: ${err.message}`)
     }
 }
 
