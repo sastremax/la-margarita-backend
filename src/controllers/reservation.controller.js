@@ -1,5 +1,15 @@
 import reservationService from '../services/reservation.service.js'
 
+export async function getReservations(req, res, next) {
+    try {
+        const { page = 1, limit = 10, userId, lodgingId, status } = req.query
+        const reservations = await reservationService.getReservationsWithFilters({ page, limit, userId, lodgingId, status })
+        res.status(200).json({ status: 'success', ...reservations })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export async function postReservation(req, res, next) {
     try {
         const userId = req.user._id

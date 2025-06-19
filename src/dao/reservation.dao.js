@@ -37,6 +37,25 @@ class ReservationDAO {
             ]
         })
     }
+
+    async getReservations(query = {}, options = {}) {
+        const { page = 1, limit = 10 } = options
+        const skip = (page - 1) * limit
+
+        const [total, data] = await Promise.all([
+            ReservationModel.countDocuments(query),
+            ReservationModel.find(query)
+                .skip(skip)
+                .limit(limit)
+                .sort({ checkIn: -1 }) // Más recientes primero
+                .populate('user', 'firstName lastName')
+                .populate('lodging', 'title location')
+        ])
+
+        const pages = Math.ceil(total / limit)
+
+        return { total, page, pages, data }
+    }
 }
 
 export default ReservationDAO

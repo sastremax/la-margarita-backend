@@ -34,7 +34,7 @@ class ReservationService {
         }
 
         const priceMap = lodging.pricing
-        
+
         if (!priceMap || priceMap.size === 0) {
             throw new Error('No pricing available for this lodging')
         }
@@ -82,6 +82,16 @@ class ReservationService {
         }
 
         return await ReservationDAO.updateReservation(id, { status: 'cancelled' })
+    }
+
+    static async getReservationsWithFilters({ page = 1, limit = 10, userId, lodgingId, status }) {
+        const query = {}
+
+        if (userId) query.user = userId
+        if (lodgingId) query.lodging = lodgingId
+        if (status) query.status = status
+
+        return await ReservationDAO.getReservations(query, { page, limit })
     }
 }
 
