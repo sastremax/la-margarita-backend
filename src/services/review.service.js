@@ -5,7 +5,7 @@ export async function createReview(data) {
 }
 
 export async function getReviewsByLodging(lodgingId) {
-    return await Review.find({ lodging: lodgingId }).populate('user', 'firstName lastName');
+    return await Review.find({ lodging: lodgingId }).populate('user', 'firstName lastName country');
 }
 
 export async function deleteReview(reviewId, userId, isAdmin) {
