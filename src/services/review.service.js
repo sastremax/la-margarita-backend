@@ -4,8 +4,24 @@ export async function createReview(data) {
     return await Review.create(data)
 }
 
-export async function getReviewsByLodging(lodgingId) {
-    return await Review.find({ lodging: lodgingId }).populate('user', 'firstName lastName')
+export async function getReviewsByLodging(lodgingId, { page = 1, limit = 10 }) {
+    const skip = (page - 1) * limit
+
+    const [total, reviews] = await Promise.all([
+        Review.countDocuments({ lodging: lodgingId }),
+        Review.find({ lodging: lodgingId })
+            .populate('user', 'firstName lastName')
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 })
+    ])
+
+    return {
+        total,
+        page,
+        limit,
+        reviews
+    }
 }
 
 export async function deleteReview(reviewId, userId, isAdmin) {
