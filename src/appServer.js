@@ -1,17 +1,24 @@
 import config from './config/index.js'
-import logger from './utils/logger.js'
+import logger from './config/logger.js'
 import app from './app.js'
-import { connectToDB } from './config/db.js'
+import connectToDB from './config/db.js'
 import passport from './config/passport.config.js'
 
+const PORT = config.port
+
 const startServer = async () => {
+    if (process.env.NODE_ENV === 'test') {
+        logger.info('Skipping startServer() in test mode')
+        return
+    }
+
     try {
         await connectToDB()
 
         app.use(passport.initialize())
 
-        app.listen(config.port, () => {
-            logger.info(`Server listening on port ${config.port}`)
+        app.listen(PORT, () => {
+            logger.info(`Server listening on port ${PORT}`)
         })
     } catch (err) {
         logger.fatal('Failed to start server')
@@ -20,4 +27,4 @@ const startServer = async () => {
     }
 }
 
-startServer()
+export default startServer

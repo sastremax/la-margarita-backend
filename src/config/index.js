@@ -1,5 +1,5 @@
 import dotenvFlow from 'dotenv-flow'
-import logger from '../utils/logger.js'
+import logger from '../config/logger.js'
 
 dotenvFlow.config()
 

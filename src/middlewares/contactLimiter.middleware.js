@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit'
-import logger from '../utils/logger.js'
+import logger from '../config/logger.js'
 
 const contactLimiter = rateLimit({
     windowMs: 60 * 1000,

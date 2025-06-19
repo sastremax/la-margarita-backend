@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit'
-import logger from '../utils/logger.js'
+import logger from '../config/logger.js'
 
 const limiter = rateLimit({
     windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
