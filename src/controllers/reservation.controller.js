@@ -19,6 +19,20 @@ export async function getReservations(req, res, next) {
     }
 }
 
+export async function getReservationSummary(req, res, next) {
+    try {
+        const { lodgingId } = req.query
+        if (!lodgingId) {
+            return res.status(400).json({ status: 'error', message: 'lodgingId is required' })
+        }
+
+        const summary = await reservationService.getReservationSummary(lodgingId)
+        res.status(200).json({ status: 'success', data: summary })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export async function postReservation(req, res, next) {
     try {
         const userId = req.user._id
@@ -46,6 +60,21 @@ export async function deleteReservation(req, res, next) {
         const reservationId = req.params.id
         await reservationService.cancelReservation(reservationId, userId)
         res.status(200).json({ status: 'success', data: { message: 'Reservation cancelled' } })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function getReservationById(req, res, next) {
+    try {
+        const reservationId = req.params.rid
+        const reservation = await reservationService.getReservationById(reservationId)
+
+        if (!reservation) {
+            return res.status(404).json({ status: 'error', message: 'Reservation not found' })
+        }
+
+        res.status(200).json({ status: 'success', data: asPublicReservation(reservation) })
     } catch (error) {
         next(error)
     }

@@ -6,8 +6,9 @@ import { reservationSchema } from '../dto/reservation.dto.js'
 
 const router = express.Router()
 
-router.get('/', passportWithPolicy(['admin']), reservationController.getAllReservations)
+router.get('/', passportWithPolicy(['admin']), reservationController.getReservations)
 router.get('/:rid', passportWithPolicy(['admin']), reservationController.getReservationById)
+router.get('/summary', passportWithPolicy(['admin']), reservationController.getReservationSummary)
 router.post('/', passportWithPolicy(['user']), validateDTO(reservationSchema), reservationController.createReservation)
 router.delete('/:rid', passportWithPolicy(['admin']), reservationController.deleteReservation)
 

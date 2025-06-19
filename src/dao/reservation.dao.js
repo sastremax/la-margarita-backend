@@ -56,6 +56,53 @@ class ReservationDAO {
 
         return { total, page, pages, data }
     }
+
+    async getReservationSummaryByLodging(lodgingId) {
+        const results = await ReservationModel.aggregate([
+            { $match: { lodging: new mongoose.Types.ObjectId(lodgingId), status: 'confirmed' } },
+            {
+                $project: {
+                    nights: {
+                        $dateDiff: {
+                            startDate: '$checkIn',
+                            endDate: '$checkOut',
+                            unit: 'day'
+                        }
+                    },
+                    totalPrice: 1
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalReservations: { $sum: 1 },
+                    totalNights: { $sum: '$nights' },
+                    totalRevenue: { $sum: '$totalPrice' },
+                    averageDuration: { $avg: '$nights' }
+                }
+            }
+        ])
+
+        if (results.length === 0) {
+            return {
+                lodgingId,
+                totalReservations: 0,
+                totalNights: 0,
+                totalRevenue: 0,
+                averageDuration: 0
+            }
+        }
+
+        const summary = results[0]
+        return {
+            lodgingId,
+            totalReservations: summary.totalReservations,
+            totalNights: summary.totalNights,
+            totalRevenue: summary.totalRevenue,
+            averageDuration: Math.round(summary.averageDuration)
+        }
+    }
+
 }
 
 export default ReservationDAO

@@ -93,6 +93,11 @@ class ReservationService {
 
         return await ReservationDAO.getReservations(query, { page, limit })
     }
+
+    static async getReservationSummary(lodgingId) {
+        return await ReservationDAO.getReservationSummaryByLodging(lodgingId)
+    }
+
 }
 
 export default ReservationService
