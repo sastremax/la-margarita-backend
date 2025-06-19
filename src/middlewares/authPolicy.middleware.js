@@ -1,18 +1,23 @@
-import passport from 'passport';
+import passport from 'passport'
+import ApiError from '../utils/apiError.js'
 
 export const passportWithPolicy = (roles = []) => {
     return [
         passport.authenticate('jwt-bearer', { session: false }),
         (req, res, next) => {
-            if (!req.user) {
-                return res.status(401).json({ status: 'error', error: 'Not authenticated' });
-            }
+            try {
+                if (!req.user) {
+                    throw new ApiError(401, 'Not authenticated')
+                }
 
-            if (!roles.includes(req.user.role)) {
-                return res.status(403).json({ status: 'error', error: 'Access denied' });
-            }
+                if (!roles.includes(req.user.role)) {
+                    throw new ApiError(403, 'Access denied')
+                }
 
-            next();
+                next()
+            } catch (error) {
+                next(error)
+            }
         }
-    ];
-};
+    ]
+}
