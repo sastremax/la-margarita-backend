@@ -1,34 +1,40 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const reviewSchema = new mongoose.Schema(
-    {
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        },
-        accommodation: {
-            type: String,
-            required: true
-        },
-        rating: {
-            type: Number,
-            required: true,
-            min: 1,
-            max: 5,
-            validate: {
-                validator: Number.isInteger,
-                message: '{VALUE} is not an integer value'
-            }
-        },
-        comment: {
-            type: String,
-            minlength: 3
-        }
+const reviewSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-    { timestamps: true }
-)
+    lodging: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Lodging',
+        required: true
+    },
+    rating: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5
+    },
+    comment: {
+        type: String,
+        required: true
+    },
+    adminReply: {
+        message: {
+            type: String,
+            default: null
+        },
+        createdAt: {
+            type: Date,
+            default: null
+        }
+    }
+}, {
+    timestamps: true
+});
 
-reviewSchema.index({ user: 1, accommodation: 1 }, { unique: true })
+const Review = mongoose.model('Review', reviewSchema);
 
-export default mongoose.model('Review', reviewSchema)
+export default Review;

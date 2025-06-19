@@ -1,10 +1,17 @@
-import express from 'express'
-import * as reviewController from '../controllers/review.controller.js'
+import { Router } from 'express';
+import {
+    postReview,
+    getReviewsByLodging,
+    deleteReview,
+    putAdminReply
+} from '../controllers/review.controller.js';
+import { passportWithPolicy } from '../middlewares/authPolicy.middleware.js';
 
-const router = express.Router()
+const router = Router();
 
-router.post('/', reviewController.createReview)
-router.get('/lodging/:lid', reviewController.getReviewsByLodging)
-router.delete('/:rid', reviewController.deleteReview)
+router.post('/', passportWithPolicy(['user']), postReview);
+router.get('/:lodgingId', getReviewsByLodging);
+router.delete('/:id', passportWithPolicy(['user', 'admin']), deleteReview);
+router.put('/:id/reply', passportWithPolicy(['admin']), putAdminReply);
 
-export default router
+export default router;
