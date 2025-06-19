@@ -1,17 +1,14 @@
-import { Router } from 'express';
-import {
-    postReview,
-    getReviewsByLodging,
-    deleteReview,
-    putAdminReply
-} from '../controllers/review.controller.js';
-import { passportWithPolicy } from '../middlewares/authPolicy.middleware.js';
+import express from 'express'
+import * as reviewController from '../controllers/review.controller.js'
+import { passportWithPolicy } from '../middlewares/authPolicy.middleware.js'
+import validateDTO from '../middlewares/validateDTO.middleware.js'
+import { reviewSchema } from '../dto/review.dto.js'
 
-const router = Router();
+const router = express.Router()
 
-router.post('/', passportWithPolicy(['user']), postReview);
-router.get('/:lodgingId', getReviewsByLodging);
-router.delete('/:id', passportWithPolicy(['user', 'admin']), deleteReview);
-router.put('/:id/reply', passportWithPolicy(['admin']), putAdminReply);
+router.post('/', passportWithPolicy(['user']), validateDTO(reviewSchema), reviewController.postReview)
+router.get('/:lodgingId', reviewController.getReviewsByLodging)
+router.delete('/:id', passportWithPolicy(['user', 'admin']), reviewController.deleteReview)
+router.put('/:id/reply', passportWithPolicy(['admin']), reviewController.putAdminReply)
 
-export default router;
+export default router
