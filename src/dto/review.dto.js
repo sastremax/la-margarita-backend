@@ -14,14 +14,19 @@ export const reviewSchema = z.object({
 export function asPublicReview(review) {
     return {
         id: review._id,
-        userId: review.user?._id || null,
-        lodgingId: review.lodging?._id || null,
+        lodgingId: review.lodging?._id || review.lodging || null,
+        user: {
+            id: review.user?._id || review.user || null,
+            firstName: review.user?.firstName || null,
+            country: review.user?.country || null
+        },
         rating: review.rating,
         cleanliness: review.cleanliness,
         location: review.location,
         service: review.service,
         valueForMoney: review.valueForMoney,
         comment: review.comment,
+        adminReply: review.adminReply || null,
         createdAt: review.createdAt,
         updatedAt: review.updatedAt
     }
