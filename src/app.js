@@ -1,4 +1,5 @@
 import express from 'express'
+import securityMiddleware from './middlewares/security.middleware.js'
 import corsConfig from './middlewares/corsConfig.middleware.js'
 import requestLogger from './middlewares/requestLogger.middleware.js'
 import rateLimit from './middlewares/rateLimit.middleware.js'
@@ -10,6 +11,7 @@ import router from './routes/index.js'
 
 const app = express()
 
+app.use(securityMiddleware)
 app.use(corsConfig)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
