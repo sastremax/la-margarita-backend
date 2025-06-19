@@ -44,7 +44,7 @@ export async function postReservation(req, res, next) {
     }
 }
 
-export async function getMyReservations(req, res, next) {
+export async function getReservationsByUser(req, res, next) {
     try {
         const userId = req.user._id
         const reservations = await reservationService.getReservationsByUser(userId)
