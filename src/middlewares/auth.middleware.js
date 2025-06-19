@@ -1,7 +1,8 @@
 import jwtUtil from '../utils/jwt.util.js'
 import ApiError from '../utils/apiError.js'
+import UserModel from '../models/user.model.js'
 
-export default function authMiddleware(req, res, next) {
+export default async function authMiddleware(req, res, next) {
     try {
         const authHeader = req.headers.authorization
         if (!authHeader?.startsWith('Bearer ')) {
@@ -11,11 +12,12 @@ export default function authMiddleware(req, res, next) {
         const token = authHeader.split(' ')[1]
         const decoded = jwtUtil.verifyToken(token)
 
-        if (!decoded) {
-            throw new ApiError(401, 'Invalid token')
+        const user = await UserModel.findById(decoded.id)
+        if (!user) {
+            throw new ApiError(401, 'User not found')
         }
 
-        req.user = decoded
+        req.user = user
         next()
     } catch (error) {
         next(error)
