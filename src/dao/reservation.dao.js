@@ -24,6 +24,19 @@ class ReservationDAO {
     async deleteReservation(id) {
         return await ReservationModel.findByIdAndDelete(id)
     }
+
+    async isLodgingAvailable(lodgingId, checkIn, checkOut) {
+        return await ReservationModel.findOne({
+            lodging: lodgingId,
+            status: 'confirmed',
+            $or: [
+                {
+                    checkIn: { $lt: checkOut },
+                    checkOut: { $gt: checkIn }
+                }
+            ]
+        })
+    }
 }
 
 export default ReservationDAO
