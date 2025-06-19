@@ -1,15 +1,16 @@
-import express from 'express'
-import * as cartController from '../controllers/cart.controller.js'
+import express from 'express';
+import * as cartController from '../controllers/cart.controller.js';
+import { passportWithPolicy } from '../middlewares/authPolicy.middleware.js';
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/:cid', cartController.getCartById)
-router.post('/', cartController.createCart)
-router.post('/:cid/product/:pid', cartController.addProductToCart)
-router.delete('/:cid/product/:pid', cartController.removeProductFromCart)
-router.put('/:cid', cartController.updateCartProducts)
-router.put('/:cid/product/:pid', cartController.updateProductQuantity)
-router.delete('/:cid', cartController.clearCart)
-router.post('/:cid/purchase', cartController.purchaseCart)
+router.get('/:cid', passportWithPolicy(['user', 'admin']), cartController.getCartById);
+router.post('/', passportWithPolicy(['user', 'admin']), cartController.createCart);
+router.post('/:cid/product/:pid', passportWithPolicy(['user', 'admin']), cartController.addProductToCart);
+router.delete('/:cid/product/:pid', passportWithPolicy(['user', 'admin']), cartController.removeProductFromCart);
+router.put('/:cid', passportWithPolicy(['user', 'admin']), cartController.updateCartProducts);
+router.put('/:cid/product/:pid', passportWithPolicy(['user', 'admin']), cartController.updateProductQuantity);
+router.delete('/:cid', passportWithPolicy(['user', 'admin']), cartController.clearCart);
+router.post('/:cid/purchase', passportWithPolicy(['user', 'admin']), cartController.purchaseCart);
 
-export default router
+export default router;

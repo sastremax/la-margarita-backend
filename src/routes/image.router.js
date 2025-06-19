@@ -1,9 +1,10 @@
-import express from 'express'
-import * as imageController from '../controllers/image.controller.js'
+import express from 'express';
+import * as imageController from '../controllers/image.controller.js';
+import { passportWithPolicy } from '../middlewares/authPolicy.middleware.js';
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/', imageController.uploadImage)
-router.delete('/:iid', imageController.deleteImage)
+router.post('/', passportWithPolicy(['admin']), imageController.uploadImage);
+router.delete('/:iid', passportWithPolicy(['admin']), imageController.deleteImage);
 
-export default router
+export default router;
