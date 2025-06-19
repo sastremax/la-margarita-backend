@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const reviewSchema = new mongoose.Schema({
     user: {
@@ -17,6 +17,30 @@ const reviewSchema = new mongoose.Schema({
         min: 1,
         max: 5
     },
+    cleanliness: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: null
+    },
+    location: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: null
+    },
+    service: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: null
+    },
+    valueForMoney: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: null
+    },
     comment: {
         type: String,
         required: true
@@ -33,8 +57,8 @@ const reviewSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
-});
+})
 
-const Review = mongoose.model('Review', reviewSchema);
+const Review = mongoose.model('Review', reviewSchema)
 
-export default Review;
+export default Review
