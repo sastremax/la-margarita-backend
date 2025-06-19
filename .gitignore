@@ -3,11 +3,8 @@ node_modules/
 
 # variables de entorno
 .env
-.env.dev
-.env.test
-.env.prod
-.env.local
-.env.development
+.env.*
+!.env.template
 
 # logs y archivos temporales
 logs/
