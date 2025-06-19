@@ -10,7 +10,7 @@ export async function getReviewsByLodging(lodgingId, { page = 1, limit = 10 }) {
     const [total, reviews] = await Promise.all([
         Review.countDocuments({ lodging: lodgingId }),
         Review.find({ lodging: lodgingId })
-            .populate('user', 'firstName lastName')
+            .populate('user', 'firstName lastName country')
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 })
