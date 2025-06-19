@@ -1,23 +1,23 @@
 import ImageModel from '../models/image.model.js'
 
 class ImageDAO {
-    static async getAllImages() {
+    async getAllImages() {
         return await ImageModel.find()
     }
 
-    static async getImageById(id) {
+    async getImageById(id) {
         return await ImageModel.findById(id)
     }
 
-    static async getImagesByLodgingId(lodgingId) {
+    async getImagesByLodgingId(lodgingId) {
         return await ImageModel.find({ lodging: lodgingId })
     }
 
-    static async uploadImage(imageData) {
+    async uploadImage(imageData) {
         return await ImageModel.create(imageData)
     }
 
-    static async deleteImage(id) {
+    async deleteImage(id) {
         return await ImageModel.findByIdAndDelete(id)
     }
 }

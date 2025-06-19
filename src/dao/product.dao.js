@@ -1,27 +1,27 @@
 import ProductModel from '../models/product.model.js'
 
 class ProductDAO {
-    static async getAllProducts() {
+    async getAllProducts() {
         return await ProductModel.find()
     }
 
-    static async getProductById(id) {
+    async getProductById(id) {
         return await ProductModel.findById(id)
     }
 
-    static async getProductByCode(code) {
+    async getProductByCode(code) {
         return await ProductModel.findOne({ code })
     }
 
-    static async createProduct(productData) {
+    async createProduct(productData) {
         return await ProductModel.create(productData)
     }
 
-    static async updateProduct(id, updateData) {
+    async updateProduct(id, updateData) {
         return await ProductModel.findByIdAndUpdate(id, updateData, { new: true })
     }
 
-    static async deleteProduct(id) {
+    async deleteProduct(id) {
         return await ProductModel.findByIdAndDelete(id)
     }
 }

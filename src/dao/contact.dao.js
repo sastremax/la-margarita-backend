@@ -1,19 +1,19 @@
 import ContactModel from '../models/contact.model.js'
 
 class ContactDAO {
-    static async getAllContacts() {
+    async getAllContacts() {
         return await ContactModel.find()
     }
 
-    static async getContactById(id) {
+    async getContactById(id) {
         return await ContactModel.findById(id)
     }
 
-    static async createContact(contactData) {
+    async createContact(contactData) {
         return await ContactModel.create(contactData)
     }
 
-    static async deleteContact(id) {
+    async deleteContact(id) {
         return await ContactModel.findByIdAndDelete(id)
     }
 }
