@@ -30,8 +30,18 @@ export async function addProductToCart(req, res, next) {
 
 export async function deleteCart(req, res, next) {
     try {
-        await cartService.deleteCart(req.params.id)
+        await cartService.deleteCart(req.params.cid)
         res.status(204).end()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function removeProductFromCart(req, res, next) {
+    try {
+        const { cid, pid } = req.params
+        const updatedCart = await cartService.removeProductFromCart(cid, pid)
+        res.status(200).json({ status: 'success', data: updatedCart })
     } catch (error) {
         next(error)
     }

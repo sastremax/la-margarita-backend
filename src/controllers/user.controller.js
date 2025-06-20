@@ -35,3 +35,19 @@ export async function deleteUser(req, res, next) {
         next(error)
     }
 }
+
+export async function updateUserRole(req, res, next) {
+    try {
+        const { uid } = req.params
+        const { role } = req.body
+
+        if (!['user', 'admin'].includes(role)) {
+            return res.status(400).json({ status: 'error', message: 'Invalid role' })
+        }
+
+        const updatedUser = await userService.updateUserRole(uid, role)
+        res.status(200).json({ status: 'success', data: updatedUser })
+    } catch (error) {
+        next(error)
+    }
+}

@@ -15,4 +15,6 @@ export const customLevels = {
         http: 'cyan',
         debug: 'blue'
     }
-}  
+}
+
+export default customLevels 

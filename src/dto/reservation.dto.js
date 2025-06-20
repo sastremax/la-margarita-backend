@@ -26,3 +26,5 @@ export function asPublicReservation(reservation) {
         status: reservation.status
     }
 }
+
+export default asPublicReservation

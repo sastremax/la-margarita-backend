@@ -1,5 +1,5 @@
 import reservationService from '../services/reservation.service.js'
-import { asPublicReservation } from '../dto/reservation.dto.js'
+import asPublicReservation from '../dto/reservation.dto.js'
 
 export async function getReservations(req, res, next) {
     try {

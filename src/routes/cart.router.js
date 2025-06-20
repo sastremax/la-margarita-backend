@@ -12,7 +12,7 @@ router.post('/:cid/product/:pid', passportWithPolicy(['user', 'admin']), validat
 router.delete('/:cid/product/:pid', passportWithPolicy(['user', 'admin']), cartController.removeProductFromCart)
 router.put('/:cid', passportWithPolicy(['user', 'admin']), cartController.updateCartProducts)
 router.put('/:cid/product/:pid', passportWithPolicy(['user', 'admin']), cartController.updateProductQuantity)
-router.delete('/:cid', passportWithPolicy(['user', 'admin']), cartController.clearCart)
+router.delete('/:cid', passportWithPolicy(['user', 'admin']), cartController.deleteCart)
 router.post('/:cid/purchase', passportWithPolicy(['user', 'admin']), cartController.purchaseCart)
 
 export default router
