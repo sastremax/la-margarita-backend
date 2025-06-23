@@ -4,15 +4,24 @@ const lodgingSchema = new mongoose.Schema(
     {
         title: {
             type: String,
-            required: true
+            required: true,
+            minlength: 5,
+            maxlength: 100
         },
         description: {
             type: String,
-            required: true
+            required: true,
+            minlength: 20
         },
         images: {
             type: [String],
-            default: []
+            default: [],
+            validate: {
+                validator: function (arr) {
+                    return arr.every(url => typeof url === 'string')
+                },
+                message: 'All images must be valid strings'
+            }
         },
         location: {
             country: {
@@ -30,12 +39,13 @@ const lodgingSchema = new mongoose.Schema(
         },
         capacity: {
             type: Number,
-            required: true
+            required: true,
+            min: 1
         },
         pricing: {
-            type: Map,
-            of: Number,
-            required: true
+            weekday: { type: Number, required: true, min: 0 },
+            weekend: { type: Number, required: true, min: 0 },
+            holiday: { type: Number, required: false, min: 0 }
         },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
