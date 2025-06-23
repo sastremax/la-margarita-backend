@@ -33,3 +33,37 @@ export async function createReview(req, res, next) {
         next(error)
     }
 }
+
+export async function getReviewSummary(req, res, next) {
+    try {
+        const { lodgingId } = req.params
+        const summary = await reviewService.getReviewSummary(lodgingId)
+        res.status(200).json({ status: 'success', data: summary })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function deleteReview(req, res, next) {
+    try {
+        const reviewId = req.params.id
+        const userId = req.user._id
+        await reviewService.deleteReview(reviewId, userId)
+        res.status(200).json({ status: 'success', message: 'Review deleted' })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function putAdminReply(req, res, next) {
+    try {
+        const reviewId = req.params.id
+        const { message } = req.body
+
+        const updatedReview = await reviewService.replyToReview(reviewId, message)
+
+        res.status(200).json({ status: 'success', data: updatedReview })
+    } catch (error) {
+        next(error)
+    }
+}
