@@ -2,7 +2,8 @@ import config from './config/index.js'
 import logger from './config/logger.js'
 import app from './app.js'
 import connectToDB from './config/db.js'
-import passport from './config/passport.config.js'
+import passport from 'passport'
+import './config/passport.config.js'
 
 const PORT = config.port
 
