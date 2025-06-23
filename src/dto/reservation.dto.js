@@ -17,8 +17,8 @@ export const reservationSchema = z.object({
 export function asPublicReservation(reservation) {
     return {
         id: reservation._id,
-        userId: reservation.user?._id || null,
-        lodgingId: reservation.lodging?._id || null,
+        userId: reservation.user?._id || reservation.user || null,
+        lodgingId: reservation.lodging?._id || reservation.lodging || null,
         startDate: reservation.startDate,
         endDate: reservation.endDate,
         guests: reservation.guests,
