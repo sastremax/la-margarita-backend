@@ -33,7 +33,7 @@ export async function getReservationSummary(req, res, next) {
     }
 }
 
-export async function postReservation(req, res, next) {
+export async function createReservation(req, res, next) {
     try {
         const userId = req.user._id
         const { houseId, checkIn, checkOut } = req.body

@@ -24,3 +24,12 @@ export async function getReviewsByLodging(req, res, next) {
         next(error)
     }
 }
+
+export async function createReview(req, res, next) {
+    try {
+        const review = await reviewService.createReview(req.body)
+        res.status(201).json({ status: 'success', data: review })
+    } catch (error) {
+        next(error)
+    }
+}
