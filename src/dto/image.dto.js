@@ -1,13 +1,13 @@
-import { z } from 'zod'
+import z from 'zod'
 
-export const imageSchema = z.object({
+const imageSchema = z.object({
     url: z.string().url(),
     name: z.string().min(1),
     type: z.enum(['profile', 'product', 'lodging', 'review', 'other']),
     refId: z.string().min(1).optional()
 })
 
-export function asPublicImage(image) {
+function asPublicImage(image) {
     return {
         id: image._id,
         url: image.url,
@@ -19,3 +19,10 @@ export function asPublicImage(image) {
         updatedAt: image.updatedAt
     }
 }
+
+const imageDTO = {
+    imageSchema,
+    asPublicImage
+}
+
+export default imageDTO
