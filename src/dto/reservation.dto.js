@@ -1,6 +1,6 @@
-import { z } from 'zod'
+import z from 'zod'
 
-export const reservationSchema = z.object({
+const reservationSchema = z.object({
     lodgingId: z.string().min(1, { message: 'Lodging ID is required' }),
     checkIn: z.string().refine(date => !isNaN(Date.parse(date)), {
         message: 'Invalid check-in date'
@@ -17,7 +17,7 @@ export const reservationSchema = z.object({
     status: z.enum(['pending', 'confirmed', 'cancelled']).optional()
 })
 
-export function asPublicReservation(reservation) {
+function asPublicReservation(reservation) {
     return {
         id: reservation._id,
         userId: reservation.user?._id || reservation.user || null,
@@ -30,4 +30,9 @@ export function asPublicReservation(reservation) {
     }
 }
 
-export default asPublicReservation
+const reservationDTO = {
+    reservationSchema,
+    asPublicReservation
+}
+
+export default reservationDTO
