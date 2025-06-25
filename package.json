@@ -1,0 +1,55 @@
+{
+  "name": "la-margarita-backend",
+  "version": "1.0.0",
+  "description": "Backend del proyecto LaMargarita (Node.js + Express + MongoDB + JWT)",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "cross-env NODE_ENV=dev nodemon src/index.js",
+    "prod": "cross-env NODE_ENV=prod node src/index.js",
+    "test": "cross-env NODE_ENV=test mocha \"tests/**/*.test.js\" --timeout 10000",
+    "test:unit": "cross-env NODE_ENV=test mocha \"tests/unit/**/*.test.js\" --timeout 5000",
+    "test:api": "cross-env NODE_ENV=test mocha \"tests/api/**/*.test.js\" --timeout 5000",
+    "lint": "eslint . --ext .js --ignore-path .gitignore"
+  },
+  "keywords": [
+    "backend",
+    "express",
+    "nodejs",
+    "mongo",
+    "lamargarita",
+    "jwt"
+  ],
+  "author": "Maxi Sastre Bocalon",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.5.0",
+    "dotenv-flow": "^4.1.0",
+    "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.17.0",
+    "xss-clean": "^0.1.4",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "chai": "^5.2.0",
+    "chai-as-promised": "^8.0.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.1",
+    "mocha": "^11.7.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
+  }
+}
