@@ -9,7 +9,8 @@ const imageSchema = new mongoose.Schema(
         },
         public_id: {
             type: String,
-            maxlength: 255
+            maxlength: 255,
+            default: null
         },
         associatedType: {
             type: String,
