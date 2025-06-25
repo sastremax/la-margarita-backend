@@ -1,12 +1,12 @@
-import express from 'express';
-import * as userController from '../controllers/user.controller.js';
-import { passportWithPolicy } from '../middlewares/authPolicy.middleware.js';
+import express from 'express'
+import userController from '../controllers/user.controller.js'
+import authPolicy from '../middlewares/authPolicy.middleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
-router.get('/', passportWithPolicy(['admin']), userController.getAllUsers);
-router.get('/:uid', passportWithPolicy(['admin']), userController.getUserById);
-router.delete('/:uid', passportWithPolicy(['admin']), userController.deleteUser);
-router.put('/:uid/role', passportWithPolicy(['admin']), userController.updateUserRole);
+router.get('/', authPolicy(['admin']), userController.getAllUsers)
+router.get('/:uid', authPolicy(['admin']), userController.getUserById)
+router.delete('/:uid', authPolicy(['admin']), userController.deleteUser)
+router.put('/:uid/role', authPolicy(['admin']), userController.updateUserRole)
 
-export default router;
+export default router
