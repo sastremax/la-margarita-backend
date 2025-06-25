@@ -1,4 +1,4 @@
-export const swaggerOptions = {
+const swaggerOptions = {
     definition: {
         openapi: '3.0.1',
         info: {
@@ -14,4 +14,6 @@ export const swaggerOptions = {
         ]
     },
     apis: ['./src/docs/**/*.yaml']
-}  
+}
+
+export default swaggerOptions

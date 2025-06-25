@@ -1,6 +1,6 @@
 import LodgingService from '../services/lodging.service.js'
 
-export async function getAllLodgings(req, res, next) {
+const getAllLodgings = async (req, res, next) => {
     try {
         const filters = req.query
         const lodgings = await LodgingService.getAllLodgings(filters)
@@ -10,7 +10,7 @@ export async function getAllLodgings(req, res, next) {
     }
 }
 
-export async function getLodgingById(req, res, next) {
+const getLodgingById = async (req, res, next) => {
     try {
         const { lid } = req.params
         const lodging = await LodgingService.getLodgingById(lid)
@@ -20,7 +20,7 @@ export async function getLodgingById(req, res, next) {
     }
 }
 
-export async function createLodging(req, res, next) {
+const createLodging = async (req, res, next) => {
     try {
         const lodgingData = req.body
         const lodging = await LodgingService.createLodging(lodgingData)
@@ -30,7 +30,7 @@ export async function createLodging(req, res, next) {
     }
 }
 
-export async function updateLodging(req, res, next) {
+const updateLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
         const data = req.body
@@ -41,7 +41,7 @@ export async function updateLodging(req, res, next) {
     }
 }
 
-export async function deleteLodging(req, res, next) {
+const deleteLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
         await LodgingService.deleteLodging(lid)
@@ -49,4 +49,12 @@ export async function deleteLodging(req, res, next) {
     } catch (error) {
         next(error)
     }
+}
+
+export default {
+    getAllLodgings,
+    getLodgingById,
+    createLodging,
+    updateLodging,
+    deleteLodging
 }

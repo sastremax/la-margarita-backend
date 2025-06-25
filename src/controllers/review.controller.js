@@ -1,6 +1,6 @@
-import * as reviewService from '../services/review.service.js'
+import reviewService from '../services/review.service.js'
 
-export async function getReviewsByLodging(req, res, next) {
+const getReviewsByLodging = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, hasReply, minRating } = req.query
 
@@ -25,7 +25,7 @@ export async function getReviewsByLodging(req, res, next) {
     }
 }
 
-export async function createReview(req, res, next) {
+const createReview = async (req, res, next) => {
     try {
         const review = await reviewService.createReview(req.body)
         res.status(201).json({ status: 'success', data: review })
@@ -34,7 +34,7 @@ export async function createReview(req, res, next) {
     }
 }
 
-export async function getReviewSummary(req, res, next) {
+const getReviewSummary = async (req, res, next) => {
     try {
         const { lodgingId } = req.params
         const summary = await reviewService.getReviewSummary(lodgingId)
@@ -44,7 +44,7 @@ export async function getReviewSummary(req, res, next) {
     }
 }
 
-export async function deleteReview(req, res, next) {
+const deleteReview = async (req, res, next) => {
     try {
         const reviewId = req.params.id
         const userId = req.user._id
@@ -55,7 +55,7 @@ export async function deleteReview(req, res, next) {
     }
 }
 
-export async function putAdminReply(req, res, next) {
+const putAdminReply = async (req, res, next) => {
     try {
         const reviewId = req.params.id
         const { message } = req.body
@@ -66,4 +66,12 @@ export async function putAdminReply(req, res, next) {
     } catch (error) {
         next(error)
     }
+}
+
+export default {
+    getReviewsByLodging,
+    createReview,
+    getReviewSummary,
+    deleteReview,
+    putAdminReply
 }

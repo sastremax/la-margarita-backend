@@ -1,4 +1,4 @@
-export const customLevels = {
+const customLevels = {
     levels: {
         fatal: 0,
         error: 1,

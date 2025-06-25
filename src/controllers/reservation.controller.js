@@ -1,7 +1,7 @@
 import reservationService from '../services/reservation.service.js'
 import asPublicReservation from '../dto/reservation.dto.js'
 
-export async function getReservations(req, res, next) {
+const getReservations = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, userId, lodgingId, status } = req.query
         const reservations = await reservationService.getReservationsWithFilters({ page, limit, userId, lodgingId, status })
@@ -19,7 +19,7 @@ export async function getReservations(req, res, next) {
     }
 }
 
-export async function getReservationSummary(req, res, next) {
+const getReservationSummary = async (req, res, next) => {
     try {
         const { lodgingId } = req.query
         if (!lodgingId) {
@@ -33,7 +33,7 @@ export async function getReservationSummary(req, res, next) {
     }
 }
 
-export async function createReservation(req, res, next) {
+const createReservation = async (req, res, next) => {
     try {
         const userId = req.user._id
         const { houseId, checkIn, checkOut } = req.body
@@ -44,7 +44,7 @@ export async function createReservation(req, res, next) {
     }
 }
 
-export async function getReservationsByUser(req, res, next) {
+const getReservationsByUser = async (req, res, next) => {
     try {
         const userId = req.user._id
         const reservations = await reservationService.getReservationsByUser(userId)
@@ -54,7 +54,7 @@ export async function getReservationsByUser(req, res, next) {
     }
 }
 
-export async function deleteReservation(req, res, next) {
+const deleteReservation = async (req, res, next) => {
     try {
         const userId = req.user._id
         const reservationId = req.params.id
@@ -65,7 +65,7 @@ export async function deleteReservation(req, res, next) {
     }
 }
 
-export async function getReservationById(req, res, next) {
+const getReservationById = async (req, res, next) => {
     try {
         const reservationId = req.params.rid
         const reservation = await reservationService.getReservationById(reservationId)
@@ -78,4 +78,13 @@ export async function getReservationById(req, res, next) {
     } catch (error) {
         next(error)
     }
+}
+
+export default {
+    getReservations,
+    getReservationSummary,
+    createReservation,
+    getReservationsByUser,
+    deleteReservation,
+    getReservationById
 }

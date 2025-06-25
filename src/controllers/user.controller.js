@@ -1,6 +1,6 @@
 import userService from '../services/user.service.js'
 
-export async function getAllUsers(req, res, next) {
+const getAllUsers = async (req, res, next) => {
     try {
         const users = await userService.getAllUsers()
         res.status(200).json({ status: 'success', data: users })
@@ -9,7 +9,7 @@ export async function getAllUsers(req, res, next) {
     }
 }
 
-export async function getUserById(req, res, next) {
+const getUserById = async (req, res, next) => {
     try {
         const user = await userService.getUserById(req.params.id)
         res.status(200).json({ status: 'success', data: user })
@@ -18,7 +18,7 @@ export async function getUserById(req, res, next) {
     }
 }
 
-export async function updateUser(req, res, next) {
+const updateUser = async (req, res, next) => {
     try {
         const updatedUser = await userService.updateUser(req.params.id, req.body)
         res.status(200).json({ status: 'success', data: updatedUser })
@@ -27,7 +27,7 @@ export async function updateUser(req, res, next) {
     }
 }
 
-export async function deleteUser(req, res, next) {
+const deleteUser = async (req, res, next) => {
     try {
         await userService.deleteUser(req.params.id)
         res.status(204).end()
@@ -36,7 +36,7 @@ export async function deleteUser(req, res, next) {
     }
 }
 
-export async function updateUserRole(req, res, next) {
+const updateUserRole = async (req, res, next) => {
     try {
         const { uid } = req.params
         const { role } = req.body
@@ -50,4 +50,12 @@ export async function updateUserRole(req, res, next) {
     } catch (error) {
         next(error)
     }
+}
+
+export default {
+    getAllUsers,
+    getUserById,
+    updateUser,
+    deleteUser,
+    updateUserRole
 }

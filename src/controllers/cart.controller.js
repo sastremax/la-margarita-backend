@@ -1,6 +1,6 @@
 import cartService from '../services/cart.service.js'
 
-export async function createCart(req, res, next) {
+const createCart = async (req, res, next) => {
     try {
         const cart = await cartService.createCart()
         res.status(201).json({ status: 'success', data: cart })
@@ -9,7 +9,7 @@ export async function createCart(req, res, next) {
     }
 }
 
-export async function getCartById(req, res, next) {
+const getCartById = async (req, res, next) => {
     try {
         const cart = await cartService.getCartById(req.params.id)
         res.status(200).json({ status: 'success', data: cart })
@@ -18,7 +18,7 @@ export async function getCartById(req, res, next) {
     }
 }
 
-export async function addProductToCart(req, res, next) {
+const addProductToCart = async (req, res, next) => {
     try {
         const { cid, pid } = req.params
         const cart = await cartService.addProductToCart(cid, pid)
@@ -28,7 +28,7 @@ export async function addProductToCart(req, res, next) {
     }
 }
 
-export async function deleteCart(req, res, next) {
+const deleteCart = async (req, res, next) => {
     try {
         await cartService.deleteCart(req.params.cid)
         res.status(204).end()
@@ -37,7 +37,7 @@ export async function deleteCart(req, res, next) {
     }
 }
 
-export async function removeProductFromCart(req, res, next) {
+const removeProductFromCart = async (req, res, next) => {
     try {
         const { cid, pid } = req.params
         const updatedCart = await cartService.removeProductFromCart(cid, pid)
@@ -47,7 +47,7 @@ export async function removeProductFromCart(req, res, next) {
     }
 }
 
-export async function updateCartProducts(req, res, next) {
+const updateCartProducts = async (req, res, next) => {
     try {
         const { cid } = req.params
         const { products } = req.body
@@ -58,7 +58,7 @@ export async function updateCartProducts(req, res, next) {
     }
 }
 
-export async function updateProductQuantity(req, res, next) {
+const updateProductQuantity = async (req, res, next) => {
     try {
         const { cid, pid } = req.params
         const { quantity } = req.body
@@ -69,7 +69,7 @@ export async function updateProductQuantity(req, res, next) {
     }
 }
 
-export async function purchaseCart(req, res, next) {
+const purchaseCart = async (req, res, next) => {
     try {
         const { cid } = req.params
         const user = req.user
@@ -78,4 +78,15 @@ export async function purchaseCart(req, res, next) {
     } catch (error) {
         next(error)
     }
+}
+
+export default {
+    createCart,
+    getCartById,
+    addProductToCart,
+    deleteCart,
+    removeProductFromCart,
+    updateCartProducts,
+    updateProductQuantity,
+    purchaseCart
 }
