@@ -1,4 +1,4 @@
-export default function trimBody(req, res, next) {
+function trimBody(req, res, next) {
     try {
         if (req.body && typeof req.body === 'object') {
             for (const key in req.body) {
@@ -12,4 +12,6 @@ export default function trimBody(req, res, next) {
         next(error)
     }
 }
+
+export default trimBody
 
