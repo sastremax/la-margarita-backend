@@ -1,12 +1,12 @@
-import { z } from 'zod'
+import z from 'zod'
 
-export const contactSchema = z.object({
-    name: z.string().min(1),
-    email: z.string().email(),
-    message: z.string().min(1)
+const contactSchema = z.object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Must be a valid email'),
+    message: z.string().min(10, 'Message must be at least 10 characters')
 })
 
-export function asPublicContact(contact) {
+function asPublicContact(contact) {
     return {
         id: contact._id,
         name: contact.name,
@@ -15,3 +15,10 @@ export function asPublicContact(contact) {
         createdAt: contact.createdAt
     }
 }
+
+const contactDTO = {
+    contactSchema,
+    asPublicContact
+}
+
+export default contactDTO
