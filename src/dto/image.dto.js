@@ -14,6 +14,7 @@ export function asPublicImage(image) {
         name: image.name,
         type: image.type,
         refId: image.refId || null,
+        publicId: image.public_id || null,
         createdAt: image.createdAt,
         updatedAt: image.updatedAt
     }
