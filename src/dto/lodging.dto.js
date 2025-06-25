@@ -26,7 +26,7 @@ function asPublicLodging(lodging) {
         capacity: lodging.capacity,
         pricing: lodging.pricing,
         ownerId: lodging.owner?._id || lodging.owner || null,
-        isActive: lodging.isActive
+        isActive: lodging.isActive,
         pricing: lodging.pricing,
         ownerId: lodging.owner?._id || lodging.owner || null,
         isActive: lodging.isActive
