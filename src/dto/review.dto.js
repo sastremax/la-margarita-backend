@@ -1,6 +1,6 @@
-import { z } from 'zod'
+import z from 'zod'
 
-export const reviewSchema = z.object({
+const reviewSchema = z.object({
     user: z.string().min(1),
     lodging: z.string().min(1),
     rating: z.number().int().min(1).max(5),
@@ -11,7 +11,7 @@ export const reviewSchema = z.object({
     comment: z.string().min(1)
 })
 
-export function asPublicReview(review) {
+function asPublicReview(review) {
     return {
         id: review._id,
         lodgingId: review.lodging?._id || review.lodging || null,
@@ -31,3 +31,10 @@ export function asPublicReview(review) {
         updatedAt: review.updatedAt
     }
 }
+
+const reviewDTO = {
+    reviewSchema,
+    asPublicReview
+}
+
+export default reviewDTO
