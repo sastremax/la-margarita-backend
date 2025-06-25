@@ -8,6 +8,7 @@ import trimBody from './middlewares/trimBody.middleware.js'
 import notFound from './middlewares/notFound.middleware.js'
 import errorHandler from './middlewares/errorHandler.middleware.js'
 import router from './routes/index.js'
+import logger from './config/logger.js'
 
 const app = express()
 
@@ -24,5 +25,7 @@ app.use('/api', router)
 
 app.use(notFound)
 app.use(errorHandler)
+
+logger.debug('Express app initialized')
 
 export default app

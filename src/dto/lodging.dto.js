@@ -21,8 +21,12 @@ function asPublicLodging(lodging) {
         title: lodging.title,
         description: lodging.description,
         images: lodging.images || [],
+        images: lodging.images || [],
         location: lodging.location,
         capacity: lodging.capacity,
+        pricing: lodging.pricing,
+        ownerId: lodging.owner?._id || lodging.owner || null,
+        isActive: lodging.isActive
         pricing: lodging.pricing,
         ownerId: lodging.owner?._id || lodging.owner || null,
         isActive: lodging.isActive

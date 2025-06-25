@@ -21,3 +21,12 @@ export async function postRegister(req, res, next) {
         next(error)
     }
 }
+
+export async function postLogout(req, res, next) {
+    try {
+
+        res.status(200).json({ status: 'success', message: 'User logged out' })
+    } catch (error) {
+        next(error)
+    }
+}

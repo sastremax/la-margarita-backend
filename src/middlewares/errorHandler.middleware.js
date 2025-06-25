@@ -1,4 +1,4 @@
-import logger from '../utils/logger.js'
+import logger from '../config/logger.js'
 
 function errorHandler(err, req, res, next) {
     const statusCode = typeof err.statusCode === 'number' ? err.statusCode : 500
