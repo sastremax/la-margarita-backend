@@ -11,7 +11,8 @@ export const lodgingSchema = z.object({
     }),
     capacity: z.number().int().positive(),
     pricing: z.record(z.string(), z.number().positive()),
-    owner: z.string().min(1).optional()
+    owner: z.string().min(1).optional(),
+    isActive: z.boolean().optional()
 })
 
 export function asPublicLodging(lodging) {
