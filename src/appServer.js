@@ -1,31 +1,22 @@
-import config from './config/index.js'
-import logger from './config/logger.js'
-import app from './app.js'
-import connectToDB from './config/db.js'
-import passport from 'passport'
-import './config/passport.config.js'
-
-const PORT = config.port
+import mongoose from 'mongoose';
+import config from './config/index.js';
+import logger from './utils/logger.js';
+import app from './app.js';
 
 const startServer = async () => {
-    if (process.env.NODE_ENV === 'test') {
-        logger.info('Skipping startServer() in test mode')
-        return
-    }
-
     try {
-        await connectToDB()
+        await mongoose.connect(config.mongoUri);
+        logger.info('Connected to MongoDB');
 
-        app.use(passport.initialize())
-
-        app.listen(PORT, () => {
-            logger.info(`Server listening on port ${PORT}`)
-        })
+        app.listen(config.port, () => {
+            logger.info(`Server listening on port ${config.port}`);
+        });
     } catch (err) {
-        logger.fatal('Failed to start server')
-        logger.fatal(err)
-        process.exit(1)
+        logger.error('Failed to start server');
+        logger.error(err);
+        process.exit(1);
     }
-}
+};
 
-export default startServer
+startServer();
+

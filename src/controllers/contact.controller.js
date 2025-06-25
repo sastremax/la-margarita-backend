@@ -1,16 +1,10 @@
 import contactService from '../services/contact.service.js'
 
-async function submitContactForm(req, res, next) {
+export async function submitContactForm(req, res, next) {
     try {
-        const result = await contactService.createContact(req.body)
+        const result = await contactService.submitContactForm(req.body)
         res.status(201).json({ status: 'success', data: result })
     } catch (error) {
         next(error)
     }
 }
-
-const contactController = {
-    submitContactForm
-}
-
-export default contactController

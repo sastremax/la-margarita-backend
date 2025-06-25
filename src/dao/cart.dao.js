@@ -1,27 +1,27 @@
 import CartModel from '../models/cart.model.js'
 
 class CartDAO {
-    async getAllCarts() {
+    static async getAllCarts() {
         return await CartModel.find()
     }
 
-    async getCartById(id) {
+    static async getCartById(id) {
         return await CartModel.findById(id).populate('products.product')
     }
 
-    async getCartByUserId(userId) {
+    static async getCartByUserId(userId) {
         return await CartModel.findOne({ user: userId }).populate('products.product')
     }
 
-    async createCart(cartData) {
+    static async createCart(cartData) {
         return await CartModel.create(cartData)
     }
 
-    async updateCart(id, updateData) {
+    static async updateCart(id, updateData) {
         return await CartModel.findByIdAndUpdate(id, updateData, { new: true })
     }
 
-    async deleteCart(id) {
+    static async deleteCart(id) {
         return await CartModel.findByIdAndDelete(id)
     }
 }

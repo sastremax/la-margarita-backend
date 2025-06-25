@@ -1,17 +1,31 @@
-import logger from '../config/logger.js'
+import logger from '../utils/logger.js'
 
-export default function requestLogger(req, res, next) {
+function requestLogger(req, res, next) {
     const start = Date.now()
-    const user = req.user?.email || req.user?.id || 'Guest'
-    const ip = req.ip || req.connection?.remoteAddress || 'Unknown IP'
+    const user = (req.user && req.user.email) ? req.user.email : (req.user && req.user.id) ? req.user.id : 'Guest'
+    const ip = req.ip || (req.connection && req.connection.remoteAddress) || 'Unknown IP'
+    const requestId = req.requestId || 'no-request-id'
+    let logged = false
 
     function logRequest() {
+        if (logged) return
+        logged = true
         const duration = Date.now() - start
-        const message = `${req.method} ${req.originalUrl} - Status: ${res.statusCode} - User: ${user} - IP: ${ip} - Duration: ${duration}ms`
+        const logEntry = {
+            requestId: requestId,
+            method: req.method,
+            url: req.originalUrl,
+            statusCode: res.statusCode,
+            user: user,
+            ip: ip,
+            durationMs: duration,
+            timestamp: new Date().toISOString()
+        }
+
         if (res.statusCode >= 400) {
-            logger.error(message)
+            logger.error('[REQUEST]', logEntry)
         } else {
-            logger.info(message)
+            logger.info('[REQUEST]', logEntry)
         }
     }
 
@@ -20,3 +34,5 @@ export default function requestLogger(req, res, next) {
 
     next()
 }
+
+export default requestLogger

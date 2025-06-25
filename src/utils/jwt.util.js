@@ -1,20 +1,10 @@
 import jwt from 'jsonwebtoken'
-import config from '../config/index.js'
-import ApiError from './apiError.js'
 
-function createToken(payload, expiresIn = config.jwtExpiresIn) {
-    return jwt.sign(payload, config.jwtSecret, { expiresIn })
-}
+const secret = process.env.JWT_SECRET || 'defaultsecret'
 
 function verifyToken(token) {
-    try {
-        return jwt.verify(token, config.jwtSecret)
-    } catch {
-        throw new ApiError(401, 'Invalid or expired token')
-    }
+    return jwt.verify(token, secret)
 }
 
-export default {
-    createToken,
-    verifyToken
-}
+export default verifyToken
+
