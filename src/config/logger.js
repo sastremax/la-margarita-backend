@@ -1,8 +1,10 @@
-import { nodeEnv, logLevel } from './index.js'
-import { addColors } from 'winston/lib/winston/config'
-import { customLevels } from './customLevels.js'
+import config from './index.js'
+import { addColors } from 'winston/lib/winston/config/index.js'
+import customLevels from './customLevels.js'
 import devLogger from './devLogger.js'
 import prodLogger from './prodLogger.js'
+
+const { nodeEnv, logLevel } = config
 
 addColors(customLevels.colors)
 
@@ -12,4 +14,3 @@ const logger =
 logger.level = logLevel
 
 export default logger
-

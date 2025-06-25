@@ -3,7 +3,9 @@ import xss from 'xss-clean'
 
 const sanitizeMiddleware = [
     mongoSanitize({
-        replaceWith: '_'
+        replaceWith: '_',
+        onSanitize: function (req, key) {
+        }
     }),
     xss()
 ]

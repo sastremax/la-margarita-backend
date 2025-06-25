@@ -1,18 +1,14 @@
 import mongoose from 'mongoose'
 import config from './index.js'
-import logger from './logger.js'
 
-export async function connectToDB() {
+async function connectToDB() {
     try {
-        await mongoose.connect(config.mongoUri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        })
-
-        logger.info(`Connected to MongoDB [${config.nodeEnv}]`)
+        await mongoose.connect(config.mongoUri)
+        console.log('MongoDB connected')
     } catch (error) {
-        logger.fatal('Failed to connect to MongoDB')
-        logger.fatal(error.message)
+        console.error('DB connection error:', error)
         process.exit(1)
     }
 }
+
+export default connectToDB

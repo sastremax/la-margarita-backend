@@ -1,15 +1,15 @@
-import { z } from 'zod'
+import z from 'zod'
 
-export const cartItemSchema = z.object({
+const cartItemSchema = z.object({
     productId: z.string().min(1),
     quantity: z.number().int().positive()
 })
 
-export const cartSchema = z.object({
+const cartSchema = z.object({
     items: z.array(cartItemSchema).min(1)
 })
 
-export function asPublicCart(cart) {
+function asPublicCart(cart) {
     return {
         id: cart._id,
         userId: cart.user?._id || null,
@@ -21,3 +21,11 @@ export function asPublicCart(cart) {
         }))
     }
 }
+
+const cartDTO = {
+    cartSchema,
+    cartItemSchema,
+    asPublicCart
+}
+
+export default cartDTO
