@@ -1,9 +1,9 @@
-import verifyToken from '../utils/jwt.util.js'
+import jwtUtil from '../utils/jwt.util.js'
 import ApiError from '../utils/apiError.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-export default async function authMiddleware(req, res, next) {
+function authMiddleware(req, res, next) {
     try {
         const authHeader = req.headers.authorization
         if (!authHeader || authHeader.indexOf('Bearer ') !== 0) {
@@ -15,7 +15,7 @@ export default async function authMiddleware(req, res, next) {
             throw new ApiError(401, 'No token provided')
         }
 
-        const decoded = verifyToken(token)
+        const decoded = jwtUtil.verifyToken(token)
         req.user = decoded
         next()
     } catch (error) {
@@ -28,3 +28,5 @@ export default async function authMiddleware(req, res, next) {
         next(error)
     }
 }
+
+export default authMiddleware

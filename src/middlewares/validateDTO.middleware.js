@@ -1,14 +1,16 @@
-export default function validateDTO(schema) {
-    return (req, res, next) => {
+function validateDTO(schema) {
+    return function (req, res, next) {
         const result = schema.safeParse(req.body)
 
         if (!result.success) {
             return res.status(400).json({
                 status: 'error',
-                errors: result.error.errors.map(e => ({
-                    path: e.path.join('.'),
-                    message: e.message
-                }))
+                errors: result.error.errors.map(function (e) {
+                    return {
+                        path: e.path.join('.'),
+                        message: e.message
+                    }
+                })
             })
         }
 
@@ -16,3 +18,5 @@ export default function validateDTO(schema) {
         next()
     }
 }
+
+export default validateDTO  

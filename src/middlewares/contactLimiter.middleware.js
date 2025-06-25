@@ -1,12 +1,28 @@
 import rateLimit from 'express-rate-limit'
-import logger from '../config/logger.js'
+import logger from '../utils/logger.js'
+
+const windowMs = Number(process.env.CONTACT_RATE_LIMIT_WINDOW_MS) || 60000
+const maxRequests = Number(process.env.CONTACT_RATE_LIMIT_MAX) || 3
 
 const contactLimiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 3,
-    message: { status: 'error', message: 'Too many contact form submissions. Please try again later.' },
-    handler: (req, res, next, options) => {
-        logger.warn(`Contact rate limit exceeded for IP ${req.ip} on ${req.originalUrl}`)
+    windowMs: windowMs,
+    max: maxRequests,
+    message: {
+        status: 'error',
+        message: 'Too many contact form submissions. Please try again later.'
+    },
+    headers: true,
+    handler: function (req, res, next, options) {
+        const requestId = req.requestId || 'no-request-id'
+        logger.warn(
+            new Date().toISOString() +
+            ' - ' +
+            requestId +
+            ' - Contact rate limit exceeded for IP ' +
+            req.ip +
+            ' on ' +
+            req.originalUrl
+        )
         res.status(options.statusCode).json(options.message)
     }
 })
