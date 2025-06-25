@@ -1,8 +1,8 @@
 import express from 'express'
-import * as reservationController from '../controllers/reservation.controller.js'
+import reservationController from '../controllers/reservation.controller.js'
 import { passportWithPolicy } from '../middlewares/authPolicy.middleware.js'
 import validateDTO from '../middlewares/validateDTO.middleware.js'
-import { reservationSchema } from '../dto/reservation.dto.js'
+import reservationDTO from '../dto/reservation.dto.js'
 
 const router = express.Router()
 
@@ -13,7 +13,7 @@ router.get('/:rid', passportWithPolicy(['admin']), reservationController.getRese
 router.post(
     '/',
     passportWithPolicy(['user']),
-    validateDTO(reservationSchema),
+    validateDTO(reservationDTO.reservationSchema),
     reservationController.createReservation
 )
 router.delete(

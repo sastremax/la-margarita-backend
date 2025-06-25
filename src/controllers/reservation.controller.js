@@ -1,7 +1,9 @@
 import reservationService from '../services/reservation.service.js'
-import asPublicReservation from '../dto/reservation.dto.js'
+import reservationDTO from '../dto/reservation.dto.js'
 
-export async function getReservations(req, res, next) {
+const { asPublicReservation } = reservationDTO
+
+async function getReservations(req, res, next) {
     try {
         const { page = 1, limit = 10, userId, lodgingId, status } = req.query
         const reservations = await reservationService.getReservationsWithFilters({ page, limit, userId, lodgingId, status })
@@ -19,7 +21,7 @@ export async function getReservations(req, res, next) {
     }
 }
 
-export async function getReservationSummary(req, res, next) {
+async function getReservationSummary(req, res, next) {
     try {
         const { lodgingId } = req.query
         if (!lodgingId) {
@@ -33,7 +35,7 @@ export async function getReservationSummary(req, res, next) {
     }
 }
 
-export async function createReservation(req, res, next) {
+async function createReservation(req, res, next) {
     try {
         const userId = req.user._id
         const { lodgingId, checkIn, checkOut } = req.body
@@ -51,7 +53,7 @@ export async function createReservation(req, res, next) {
     }
 }
 
-export async function getReservationsByUser(req, res, next) {
+async function getReservationsByUser(req, res, next) {
     try {
         const userId = req.user._id
         const reservations = await reservationService.getReservationsByUser(userId)
@@ -61,7 +63,7 @@ export async function getReservationsByUser(req, res, next) {
     }
 }
 
-export async function cancelReservation(req, res, next) {
+async function cancelReservation(req, res, next) {
     try {
         const userId = req.user._id
         const reservationId = req.params.rid
@@ -77,7 +79,7 @@ export async function cancelReservation(req, res, next) {
     }
 }
 
-export async function getReservationById(req, res, next) {
+async function getReservationById(req, res, next) {
     try {
         const reservationId = req.params.rid
         const reservation = await reservationService.getReservationById(reservationId)
@@ -86,3 +88,14 @@ export async function getReservationById(req, res, next) {
         next(error)
     }
 }
+
+const reservationController = {
+    getReservations,
+    getReservationSummary,
+    createReservation,
+    getReservationsByUser,
+    cancelReservation,
+    getReservationById
+}
+
+export default reservationController
