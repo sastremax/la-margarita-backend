@@ -1,6 +1,6 @@
 import Review from '../models/review.model.js'
 
-export async function getReviewsByLodging(lodgingId, { page = 1, limit = 10, filters = {} }) {
+const getReviewsByLodging = async (lodgingId, { page = 1, limit = 10, filters = {} }) => {
     const skip = (page - 1) * limit
     const query = { lodging: lodgingId }
 
@@ -29,7 +29,7 @@ export async function getReviewsByLodging(lodgingId, { page = 1, limit = 10, fil
     }
 }
 
-export async function getReviewSummary(lodgingId) {
+const getReviewSummary = async (lodgingId) => {
     const reviews = await Review.find({ lodging: lodgingId })
 
     const total = reviews.length
@@ -40,7 +40,7 @@ export async function getReviewSummary(lodgingId) {
     return { totalReviews: total, averageRating: averageRating.toFixed(2) }
 }
 
-export async function deleteReview(reviewId, userId) {
+const deleteReview = async (reviewId, userId) => {
     const review = await Review.findById(reviewId)
 
     if (!review) {
@@ -58,7 +58,7 @@ export async function deleteReview(reviewId, userId) {
     await Review.findByIdAndDelete(reviewId)
 }
 
-export async function replyToReview(reviewId, message) {
+const replyToReview = async (reviewId, message) => {
     const review = await Review.findById(reviewId)
 
     if (!review) {
@@ -74,4 +74,11 @@ export async function replyToReview(reviewId, message) {
 
     await review.save()
     return review
+}
+
+export default {
+    getReviewsByLodging,
+    getReviewSummary,
+    deleteReview,
+    replyToReview
 }
