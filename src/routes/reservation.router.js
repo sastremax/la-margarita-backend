@@ -10,7 +10,16 @@ router.get('/', passportWithPolicy(['admin']), reservationController.getReservat
 router.get('/summary', passportWithPolicy(['admin']), reservationController.getReservationSummary)
 router.get('/user', passportWithPolicy(['user']), reservationController.getReservationsByUser)
 router.get('/:rid', passportWithPolicy(['admin']), reservationController.getReservationById)
-router.post('/', passportWithPolicy(['user']), validateDTO(reservationSchema), reservationController.createReservation)
-router.delete('/:rid', passportWithPolicy(['admin']), reservationController.deleteReservation)
+router.post(
+    '/',
+    passportWithPolicy(['user']),
+    validateDTO(reservationSchema),
+    reservationController.createReservation
+)
+router.delete(
+    '/:rid',
+    passportWithPolicy(['user', 'admin']),
+    reservationController.cancelReservation
+)
 
 export default router

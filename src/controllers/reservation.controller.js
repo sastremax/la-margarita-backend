@@ -36,8 +36,15 @@ export async function getReservationSummary(req, res, next) {
 export async function createReservation(req, res, next) {
     try {
         const userId = req.user._id
-        const { houseId, checkIn, checkOut } = req.body
-        const reservation = await reservationService.createReservation({ userId, houseId, checkIn, checkOut })
+        const { lodgingId, checkIn, checkOut } = req.body
+
+        const reservation = await reservationService.createReservation({
+            userId,
+            lodgingId,
+            checkIn,
+            checkOut
+        })
+
         res.status(201).json({ status: 'success', data: asPublicReservation(reservation) })
     } catch (error) {
         next(error)
@@ -54,12 +61,17 @@ export async function getReservationsByUser(req, res, next) {
     }
 }
 
-export async function deleteReservation(req, res, next) {
+export async function cancelReservation(req, res, next) {
     try {
         const userId = req.user._id
-        const reservationId = req.params.id
+        const reservationId = req.params.rid
+
         await reservationService.cancelReservation(reservationId, userId)
-        res.status(200).json({ status: 'success', data: { message: 'Reservation cancelled' } })
+
+        res.status(200).json({
+            status: 'success',
+            data: { message: 'Reservation cancelled' }
+        })
     } catch (error) {
         next(error)
     }
@@ -69,11 +81,6 @@ export async function getReservationById(req, res, next) {
     try {
         const reservationId = req.params.rid
         const reservation = await reservationService.getReservationById(reservationId)
-
-        if (!reservation) {
-            return res.status(404).json({ status: 'error', message: 'Reservation not found' })
-        }
-
         res.status(200).json({ status: 'success', data: asPublicReservation(reservation) })
     } catch (error) {
         next(error)
