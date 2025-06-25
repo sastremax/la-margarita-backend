@@ -13,7 +13,8 @@ export const reservationSchema = z.object({
     }, {
         message: 'Check-out must be after check-in'
     }),
-    guests: z.number().int().positive().max(20).default(1)
+    guests: z.number().int().positive().max(20).default(1),
+    status: z.enum(['pending', 'confirmed', 'cancelled']).optional()
 })
 
 export function asPublicReservation(reservation) {
