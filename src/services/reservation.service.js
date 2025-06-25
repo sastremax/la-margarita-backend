@@ -25,25 +25,25 @@ class ReservationService {
             throw new Error('Lodging not found or inactive')
         }
 
-        const conflict = await ReservationDAO.isLodgingAvailable(lodgingId, checkIn, checkOut)
-        if (conflict) {
-            throw new Error('The lodging is not available for the selected dates')
-        }
-
         const nights = dayjs(checkOut).diff(dayjs(checkIn), 'day')
         if (nights < 1) {
             throw new Error('Reservation must be at least 1 night')
         }
 
+        const conflict = await ReservationDAO.isLodgingAvailable(lodgingId, checkIn, checkOut)
+        if (conflict) {
+            throw new Error('The lodging is not available for the selected dates')
+        }
+
         const priceMap = lodging.pricing
-        if (!priceMap || typeof priceMap !== 'object' || Object.keys(priceMap).length === 0) {
+        if (!priceMap || typeof priceMap !== 'object' || !Object.keys(priceMap).length) {
             throw new Error('No pricing available for this lodging')
         }
 
         let totalPrice = 0
         const priceKey = String(nights)
 
-        if (priceKey in priceMap) {
+        if (priceMap[priceKey]) {
             totalPrice = priceMap[priceKey]
         } else {
             const numericKeys = Object.keys(priceMap).map(Number)

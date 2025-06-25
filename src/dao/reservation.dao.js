@@ -32,6 +32,7 @@ class ReservationDAO {
 
     async isLodgingAvailable(lodgingId, checkIn, checkOut) {
         if (!mongoose.Types.ObjectId.isValid(lodgingId)) return false
+
         return await ReservationModel.findOne({
             lodging: lodgingId,
             status: 'confirmed',
@@ -54,7 +55,7 @@ class ReservationDAO {
                 .skip(skip)
                 .limit(limit)
                 .sort({ checkIn: -1 })
-                .populate('user', 'firstName lastName')
+                .populate('user', 'firstName lastName country')
                 .populate('lodging', 'title location')
         ])
 
@@ -67,7 +68,12 @@ class ReservationDAO {
         if (!mongoose.Types.ObjectId.isValid(lodgingId)) return null
 
         const results = await ReservationModel.aggregate([
-            { $match: { lodging: new mongoose.Types.ObjectId(lodgingId), status: 'confirmed' } },
+            {
+                $match: {
+                    lodging: new mongoose.Types.ObjectId(lodgingId),
+                    status: 'confirmed'
+                }
+            },
             {
                 $project: {
                     nights: {
@@ -91,7 +97,7 @@ class ReservationDAO {
             }
         ])
 
-        if (results.length === 0) {
+        if (!results.length) {
             return {
                 lodgingId,
                 totalReservations: 0,
@@ -102,6 +108,7 @@ class ReservationDAO {
         }
 
         const summary = results[0]
+
         return {
             lodgingId,
             totalReservations: summary.totalReservations,
