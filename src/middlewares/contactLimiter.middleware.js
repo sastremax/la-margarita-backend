@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit'
-import logger from '../utils/logger.js'
+import logger from '../config/logger.js'
 
 const windowMs = Number(process.env.CONTACT_RATE_LIMIT_WINDOW_MS) || 60000
 const maxRequests = Number(process.env.CONTACT_RATE_LIMIT_MAX) || 3
