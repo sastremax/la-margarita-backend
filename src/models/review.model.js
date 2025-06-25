@@ -50,7 +50,7 @@ const reviewSchema = new mongoose.Schema({
             type: String,
             default: null
         },
-        createdAt: {
+        repliedAt: {
             type: Date,
             default: null
         }

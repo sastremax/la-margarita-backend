@@ -1,4 +1,4 @@
-import * as reviewService from '../services/review.service.js'
+import reviewService from '../services/review.service.js'
 
 export async function getReviewsByLodging(req, res, next) {
     try {
@@ -55,7 +55,7 @@ export async function deleteReview(req, res, next) {
     }
 }
 
-export async function putAdminReply(req, res, next) {
+export async function replyToReview(req, res, next) {
     try {
         const reviewId = req.params.id
         const { message } = req.body
