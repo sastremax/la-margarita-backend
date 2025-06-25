@@ -1,14 +1,11 @@
-import { z } from 'zod'
+import z from 'zod'
+import passwordSchema from './common.schema.js'
 
 export const userSchemaRegister = z.object({
     firstName: z.string().min(1),
     lastName: z.string().min(1),
     email: z.string().email(),
-    password: z.string()
-        .min(8)
-        .regex(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).+$/, {
-            message: 'Password must contain at least one letter, one number, and one special character'
-        }),
+    password: passwordSchema,
     role: z.enum(['user', 'admin']).optional(),
     age: z.number().int().positive().optional()
 })
@@ -30,4 +27,3 @@ export function asPublicUser(user) {
         cartId: user.cart?._id || null
     }
 }
-
