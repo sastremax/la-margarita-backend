@@ -1,7 +1,8 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import securityMiddleware from './middlewares/security.middleware.js'
-import corsMiddleware from './middlewares/cors.middleware.js'
+import cors from 'cors'
+import corsConfig from './middlewares/corsConfig.middleware.js'
 import rateLimit from './middlewares/rateLimit.middleware.js'
 import sanitize from './middlewares/sanitize.middleware.js'
 import trimBody from './middlewares/trimBody.middleware.js'
@@ -16,7 +17,7 @@ const app = express()
 app.use(cookieParser())
 app.use(loggerMiddleware)
 app.use(securityMiddleware)
-app.use(corsMiddleware)
+app.use(cors(corsConfig))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(trimBody)
