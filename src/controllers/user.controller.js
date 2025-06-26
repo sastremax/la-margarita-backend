@@ -1,5 +1,6 @@
 import userService from '../services/user.service.js'
 import userDTO from '../dto/user.dto.js'
+import cartService from '../services/cart.service.js'
 
 const getAllUsers = async (req, res, next) => {
     try {
@@ -54,10 +55,50 @@ const updateUserRole = async (req, res, next) => {
     }
 }
 
+const getCurrentUser = (req, res) => {
+    res.json({
+        status: 'success',
+        data: {
+            user: req.user
+        }
+    })
+}
+
+const getCurrentUserReservations = async (req, res, next) => {
+    try {
+        const reservations = await reservationService.getReservationsByUserId(req.user.id)
+        res.json({
+            status: 'success',
+            data: {
+                reservations
+            }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const getCurrentUserCart = async (req, res, next) => {
+    try {
+        const cart = await cartService.getCartByUserId(req.user.id)
+        res.json({
+            status: 'success',
+            data: {
+                cart
+            }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export default {
     getAllUsers,
     getUserById,
     updateUser,
     deleteUser,
-    updateUserRole
+    updateUserRole,
+    getCurrentUser,
+    getCurrentUserReservations,
+    getCurrentUserCart
 }
