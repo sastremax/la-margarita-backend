@@ -23,7 +23,7 @@ class ReservationService {
         const { userId, lodgingId, checkIn, checkOut } = reservationData
 
         const lodging = await LodgingDAO.getLodgingById(lodgingId)
-        if (!lodging || !lodging.isActive) {
+        if (!lodging?.isActive) {
             throw new Error('Lodging not found or inactive')
         }
 
