@@ -9,7 +9,7 @@
     "dev": "cross-env NODE_ENV=dev nodemon src/index.js",
     "prod": "cross-env NODE_ENV=prod node src/index.js",
     "test": "cross-env NODE_ENV=test mocha \"tests/**/*.test.js\" --timeout 10000",
-    "test:unit": "cross-env NODE_ENV=test mocha \"tests/unit/**/*.test.js\" --timeout 5000",
+    "test:unit": "cross-env NODE_ENV=test mocha --import=./tests/setup.js \"tests/unit/**/*.test.js\" --timeout 5000",
     "test:api": "cross-env NODE_ENV=test mocha \"tests/api/**/*.test.js\" --timeout 5000",
     "lint": "eslint . --ext .js --ignore-path .gitignore"
   },
@@ -50,8 +50,9 @@
     "chai-as-promised": "^8.0.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
-    "mocha": "^11.7.0",
+    "mocha": "^11.7.1",
     "nodemon": "^3.1.10",
+    "sinon": "^21.0.0",
     "supertest": "^7.1.1"
   }
 }

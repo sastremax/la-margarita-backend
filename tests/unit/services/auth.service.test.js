@@ -1,14 +1,9 @@
 import mongoose from 'mongoose'
-import * as chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
 import UserModel from '../../../src/models/user.model.js'
 import authService from '../../../src/services/auth.service.js'
 import dotenv from 'dotenv'
 
 dotenv.config({ path: '.env.test' })
-
-chai.default.use(chaiAsPromised)
-const expect = chai.expect
 
 before(async () => {
     await mongoose.connect(process.env.MONGO_URI_TEST)
