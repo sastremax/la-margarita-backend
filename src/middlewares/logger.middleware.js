@@ -1,27 +1,31 @@
-import uuid from 'uuid'
-
-const v4 = uuid.v4
-
+import { v4 as uuidv4 } from 'uuid'
 import logger from '../utils/logger.js'
 
-export default function auditLogger(req, res, next) {
-    const requestId = v4()
+function loggerMiddleware(req, res, next) {
+    const requestId = uuidv4()
     const start = Date.now()
-
     req.requestId = requestId
 
     res.on('finish', () => {
         try {
             const duration = Date.now() - start
-            const user = req.user && req.user.email ? req.user.email : req.user && req.user.id ? req.user.id : 'Guest'
-            const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info'
+            const userEmail = req.user?.email
+            const userId = req.user?.id
+            const user = userEmail || userId || 'Guest'
+
+            let level = 'info'
+            if (res.statusCode >= 500) {
+                level = 'error'
+            } else if (res.statusCode >= 400) {
+                level = 'warn'
+            }
 
             const logEntry = {
-                requestId: requestId,
+                requestId,
                 method: req.method,
                 url: req.originalUrl,
                 statusCode: res.statusCode,
-                user: user,
+                user,
                 ip: req.ip,
                 durationMs: duration,
                 userAgent: req.headers['user-agent'] || '',
@@ -36,3 +40,5 @@ export default function auditLogger(req, res, next) {
 
     next()
 }
+
+export default loggerMiddleware
