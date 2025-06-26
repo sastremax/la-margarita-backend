@@ -30,8 +30,17 @@ function asPublicReservation(reservation) {
     }
 }
 
+const reservationQuerySchema = z.object({
+    page: z.string().regex(/^\d+$/).transform(Number).optional(),
+    limit: z.string().regex(/^\d+$/).transform(Number).optional(),
+    userId: z.string().optional(),
+    lodgingId: z.string().optional(),
+    status: z.enum(['pending', 'confirmed', 'cancelled']).optional()
+})
+
 const reservationDTO = {
     reservationSchema,
+    reservationQuerySchema,
     asPublicReservation
 }
 
