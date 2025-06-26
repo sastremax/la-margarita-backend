@@ -1,6 +1,7 @@
 import authService from '../services/auth.service.js'
 import jwtUtil from '../utils/jwt.util.js'
 import userDTO from '../dto/user.dto.js'
+import auditService from '../services/audit.service.js'
 
 const postLogin = async (req, res, next) => {
     try {
@@ -24,8 +25,23 @@ const postLogin = async (req, res, next) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
+        await auditService.logEvent({
+            userId: user._id,
+            event: 'login',
+            success: true,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
+
         res.status(200).json({ status: 'success', data: { user: userDTO.asPublicUser(user) } })
     } catch (error) {
+        await auditService.logEvent({
+            userId: null,
+            event: 'login',
+            success: false,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
         next(error)
     }
 }
@@ -44,6 +60,15 @@ const postLogout = async (req, res, next) => {
     try {
         res.clearCookie('token')
         res.clearCookie('refreshToken')
+
+        await auditService.logEvent({
+            userId: req.user?._id,
+            event: 'logout',
+            success: true,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
+
         res.status(200).json({ status: 'success', message: 'User logged out successfully' })
     } catch (error) {
         next(error)
