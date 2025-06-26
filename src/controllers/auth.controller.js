@@ -5,8 +5,25 @@ const postLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body
         const user = await authService.loginUser(email, password)
-        const token = jwtUtil.createToken(user)
-        res.status(200).json({ status: 'success', data: { user, token } })
+
+        const accessToken = jwtUtil.createAccessToken(user)
+        const refreshToken = jwtUtil.createRefreshToken(user)
+
+        res.cookie('token', accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000
+        })
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+
+        res.status(200).json({ status: 'success', data: { user } })
     } catch (error) {
         next(error)
     }
@@ -24,7 +41,9 @@ const postRegister = async (req, res, next) => {
 
 const postLogout = async (req, res, next) => {
     try {
-        res.status(200).json({ status: 'success', message: 'User logged out' })
+        res.clearCookie('token')
+        res.clearCookie('refreshToken')
+        res.status(200).json({ status: 'success', message: 'User logged out successfully' })
     } catch (error) {
         next(error)
     }
