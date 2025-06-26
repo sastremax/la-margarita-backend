@@ -1,6 +1,7 @@
 import reservationService from '../services/reservation.service.js'
 import reservationDTO from '../dto/reservation.dto.js'
 import ApiError from '../utils/apiError.js'
+import auditService from '../services/audit.service.js'
 
 const getReservations = async (req, res, next) => {
     try {
@@ -59,7 +60,17 @@ const deleteReservation = async (req, res, next) => {
     try {
         const userId = req.user._id
         const reservationId = req.params.id
+
         await reservationService.cancelReservation(reservationId, userId)
+
+        await auditService.logEvent({
+            userId,
+            event: 'cancel_reservation',
+            success: true,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
+
         res.status(200).json({ status: 'success', data: { message: 'Reservation cancelled' } })
     } catch (error) {
         next(error)

@@ -1,6 +1,7 @@
 import userService from '../services/user.service.js'
 import userDTO from '../dto/user.dto.js'
 import cartService from '../services/cart.service.js'
+import auditService from '../services/audit.service.js'
 
 const getAllUsers = async (req, res, next) => {
     try {
@@ -49,6 +50,15 @@ const updateUserRole = async (req, res, next) => {
         }
 
         const updatedUser = await userService.updateUserRole(uid, role)
+
+        await auditService.logEvent({
+            userId: req.user?._id,
+            event: 'update_user_role',
+            success: true,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
+
         res.status(200).json({ status: 'success', data: userDTO.asPublicUser(updatedUser) })
     } catch (error) {
         next(error)
