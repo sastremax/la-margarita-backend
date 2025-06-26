@@ -4,7 +4,7 @@ const auditLogSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
     event: {
         type: String,
-        enum: ['login', 'logout', 'cancel_reservation', 'update_user_role'],
+        enum: ['login', 'logout', 'cancel_reservation', 'update_user_role', 'update_lodging'],
         required: true
     },
     success: { type: Boolean, required: true },

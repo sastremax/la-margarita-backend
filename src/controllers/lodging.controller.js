@@ -1,5 +1,6 @@
 import LodgingService from '../services/lodging.service.js'
 import lodgingDTO from '../dto/lodging.dto.js'
+import auditService from '../services/audit.service.js'
 
 const getAllLodgings = async (req, res, next) => {
     try {
@@ -37,6 +38,15 @@ const updateLodging = async (req, res, next) => {
         const { lid } = req.params
         const data = req.body
         const updated = await LodgingService.updateLodging(lid, data)
+
+        await auditService.logEvent({
+            userId: req.user._id,
+            event: 'update_lodging',
+            success: true,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
+
         res.status(200).json({ status: 'success', data: lodgingDTO.asPublicLodging(updated) })
     } catch (error) {
         next(error)
