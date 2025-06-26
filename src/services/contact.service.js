@@ -1,26 +1,27 @@
 import ContactDAO from '../dao/contact.dao.js'
+import asContactPublic from '../dto/contact.dto.js'
 
 const contactDAO = new ContactDAO()
 
-const createContact = async (contactData) => {
-    return await contactDAO.createContact(contactData)
+class ContactService {
+    static async createContact(contactData) {
+        const contact = await contactDAO.createContact(contactData)
+        return asContactPublic(contact)
+    }
+
+    static async getAllContacts() {
+        const contacts = await contactDAO.getAllContacts()
+        return contacts.map(asContactPublic)
+    }
+
+    static async getContactById(id) {
+        const contact = await contactDAO.getContactById(id)
+        return asContactPublic(contact)
+    }
+
+    static async deleteContact(id) {
+        return await contactDAO.deleteContact(id)
+    }
 }
 
-const getAllContacts = async () => {
-    return await contactDAO.getAllContacts()
-}
-
-const getContactById = async (id) => {
-    return await contactDAO.getContactById(id)
-}
-
-const deleteContact = async (id) => {
-    return await contactDAO.deleteContact(id)
-}
-
-export default {
-    createContact,
-    getAllContacts,
-    getContactById,
-    deleteContact
-}
+export default ContactService

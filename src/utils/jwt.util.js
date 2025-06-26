@@ -2,37 +2,40 @@ import jwt from 'jsonwebtoken'
 import config from '../config/index.js'
 import ApiError from './apiError.js'
 
-const createAccessToken = (user) => {
+const createAccessToken = (user, expiresIn = '15m') => {
     const payload = {
         id: user._id,
         role: user.role
     }
 
-    return jwt.sign(payload, config.jwtSecret, {
-        expiresIn: '15m'
-    })
+    return jwt.sign(payload, config.jwtSecret, { expiresIn })
 }
 
-const createRefreshToken = (user) => {
-    const payload = {
-        id: user._id
-    }
+const createRefreshToken = (user, expiresIn = '7d') => {
+    const payload = { id: user._id }
 
-    return jwt.sign(payload, config.jwtRefreshSecret, {
-        expiresIn: '7d'
-    })
+    return jwt.sign(payload, config.jwtRefreshSecret, { expiresIn })
 }
 
-const verifyToken = (token, secret = config.jwtSecret) => {
+const verifyAccessToken = (token) => {
     try {
-        return jwt.verify(token, secret)
+        return jwt.verify(token, config.jwtSecret)
     } catch {
-        throw new ApiError(401, 'Invalid or expired token')
+        throw new ApiError(401, 'Invalid or expired access token')
+    }
+}
+
+const verifyRefreshToken = (token) => {
+    try {
+        return jwt.verify(token, config.jwtRefreshSecret)
+    } catch {
+        throw new ApiError(401, 'Invalid or expired refresh token')
     }
 }
 
 export default {
     createAccessToken,
     createRefreshToken,
-    verifyToken
+    verifyAccessToken,
+    verifyRefreshToken
 }

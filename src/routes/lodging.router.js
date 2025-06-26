@@ -3,13 +3,14 @@ import lodgingController from '../controllers/lodging.controller.js'
 import authPolicy from '../middlewares/authPolicy.middleware.js'
 import validateDTO from '../middlewares/validateDTO.middleware.js'
 import lodgingDTO from '../dto/lodging.dto.js'
+import existsLodging from '../middlewares/existsLodging.middleware.js'
 
 const router = express.Router()
 
 router.get('/', lodgingController.getAllLodgings)
-router.get('/:lid', lodgingController.getLodgingById)
+router.get('/:lid', existsLodging, lodgingController.getLodgingById)
 router.post('/', authPolicy(['admin']), validateDTO(lodgingDTO.lodgingSchema), lodgingController.createLodging)
-router.put('/:lid', authPolicy(['admin']), validateDTO(lodgingDTO.lodgingSchema), lodgingController.updateLodging)
-router.delete('/:lid', authPolicy(['admin']), lodgingController.deleteLodging)
+router.put('/:lid', authPolicy(['admin']), existsLodging, validateDTO(lodgingDTO.lodgingSchema), lodgingController.updateLodging)
+router.delete('/:lid', authPolicy(['admin']), existsLodging, lodgingController.deleteLodging)
 
 export default router

@@ -1,24 +1,30 @@
 import CartDAO from '../dao/cart.dao.js'
+import asCartPublic from '../dto/cart.dto.js'
 
 class CartService {
     static async getAllCarts() {
-        return await CartDAO.getAllCarts()
+        const carts = await CartDAO.getAllCarts()
+        return carts.map(asCartPublic)
     }
 
     static async getCartById(id) {
-        return await CartDAO.getCartById(id)
+        const cart = await CartDAO.getCartById(id)
+        return asCartPublic(cart)
     }
 
     static async getCartByUserId(userId) {
-        return await CartDAO.getCartByUserId(userId)
+        const cart = await CartDAO.getCartByUserId(userId)
+        return asCartPublic(cart)
     }
 
     static async createCart(cartData) {
-        return await CartDAO.createCart(cartData)
+        const cart = await CartDAO.createCart(cartData)
+        return asCartPublic(cart)
     }
 
     static async updateCart(id, updateData) {
-        return await CartDAO.updateCart(id, updateData)
+        const cart = await CartDAO.updateCart(id, updateData)
+        return asCartPublic(cart)
     }
 
     static async deleteCart(id) {
@@ -26,23 +32,28 @@ class CartService {
     }
 
     static async addProductToCart(cartId, productId, quantity = 1) {
-        return await CartDAO.addProductToCart(cartId, productId, quantity)
+        const cart = await CartDAO.addProductToCart(cartId, productId, quantity)
+        return asCartPublic(cart)
     }
 
     static async removeProductFromCart(cartId, productId) {
-        return await CartDAO.removeProductFromCart(cartId, productId)
+        const cart = await CartDAO.removeProductFromCart(cartId, productId)
+        return asCartPublic(cart)
     }
 
     static async updateCartProducts(cartId, products) {
-        return await CartDAO.updateCartProducts(cartId, products)
+        const cart = await CartDAO.updateCartProducts(cartId, products)
+        return asCartPublic(cart)
     }
 
     static async updateProductQuantity(cartId, productId, quantity) {
-        return await CartDAO.updateProductQuantity(cartId, productId, quantity)
+        const cart = await CartDAO.updateProductQuantity(cartId, productId, quantity)
+        return asCartPublic(cart)
     }
 
     static async purchaseCart(cartId, user) {
-        return await CartDAO.purchaseCart(cartId, user)
+        const cart = await CartDAO.purchaseCart(cartId, user)
+        return asCartPublic(cart)
     }
 }
 

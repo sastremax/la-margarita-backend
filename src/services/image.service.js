@@ -1,20 +1,25 @@
 import ImageDAO from '../dao/image.dao.js'
+import asImagePublic from '../dto/image.dto.js'
 
 class ImageService {
     static async getAllImages() {
-        return await ImageDAO.getAllImages()
+        const images = await ImageDAO.getAllImages()
+        return images.map(asImagePublic)
     }
 
     static async getImageById(id) {
-        return await ImageDAO.getImageById(id)
+        const image = await ImageDAO.getImageById(id)
+        return asImagePublic(image)
     }
 
     static async getImagesByLodgingId(lodgingId) {
-        return await ImageDAO.getImagesByLodgingId(lodgingId)
+        const images = await ImageDAO.getImagesByLodgingId(lodgingId)
+        return images.map(asImagePublic)
     }
 
     static async uploadImage(imageData) {
-        return await ImageDAO.uploadImage(imageData)
+        const image = await ImageDAO.uploadImage(imageData)
+        return asImagePublic(image)
     }
 
     static async deleteImage(id) {
