@@ -1,4 +1,5 @@
 import ReservationModel from '../models/reservation.model.js'
+import mongoose from 'mongoose'
 
 class ReservationDAO {
     async getAllReservations() {

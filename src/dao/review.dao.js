@@ -20,6 +20,23 @@ class ReviewDAO {
     async deleteReview(id) {
         return await ReviewModel.findByIdAndDelete(id)
     }
+
+    async getReviewsWithReplyByLodging(lodgingId) {
+        return await ReviewModel.find({
+            lodging: lodgingId,
+            'adminReply.message': { $exists: true, $ne: null }
+        })
+    }
+
+    async getAverageRatingByLodging(lodgingId) {
+        const result = await ReviewModel.aggregate([
+            { $match: { lodging: new mongoose.Types.ObjectId(lodgingId) } },
+            { $group: { _id: null, avgRating: { $avg: '$rating' } } }
+        ])
+
+        return result[0]?.avgRating || 0
+    }
+
 }
 
 export default ReviewDAO
