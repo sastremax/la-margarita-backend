@@ -1,9 +1,10 @@
 import imageService from '../services/image.service.js'
+import imageDTO from '../dto/image.dto.js'
 
 const uploadImage = async (req, res, next) => {
     try {
         const image = await imageService.uploadImage(req.file)
-        res.status(201).json({ status: 'success', data: image })
+        res.status(201).json({ status: 'success', data: imageDTO.asPublicImage(image) })
     } catch (error) {
         next(error)
     }

@@ -1,4 +1,5 @@
 import reviewService from '../services/review.service.js'
+import reviewDTO from '../dto/review.dto.js'
 
 const getReviewsByLodging = async (req, res, next) => {
     try {
@@ -19,7 +20,12 @@ const getReviewsByLodging = async (req, res, next) => {
             filters
         })
 
-        res.status(200).json({ status: 'success', data: result })
+        const publicData = {
+            ...result,
+            reviews: result.reviews.map(reviewDTO.asPublicReview)
+        }
+
+        res.status(200).json({ status: 'success', data: publicData })
     } catch (error) {
         next(error)
     }
@@ -28,7 +34,7 @@ const getReviewsByLodging = async (req, res, next) => {
 const createReview = async (req, res, next) => {
     try {
         const review = await reviewService.createReview(req.body)
-        res.status(201).json({ status: 'success', data: review })
+        res.status(201).json({ status: 'success', data: reviewDTO.asPublicReview(review) })
     } catch (error) {
         next(error)
     }
@@ -62,7 +68,7 @@ const putAdminReply = async (req, res, next) => {
 
         const updatedReview = await reviewService.replyToReview(reviewId, message)
 
-        res.status(200).json({ status: 'success', data: updatedReview })
+        res.status(200).json({ status: 'success', data: reviewDTO.asPublicReview(updatedReview) })
     } catch (error) {
         next(error)
     }
