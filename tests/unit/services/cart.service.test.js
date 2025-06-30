@@ -8,43 +8,107 @@ describe('Cart Service', () => {
     })
 
     it('debería obtener todos los carritos', async () => {
-        const fakeCarts = [{ id: '1' }, { id: '2' }]
+        const fakeCarts = [
+            {
+                _id: '1',
+                user: { _id: 'u1' },
+                products: []
+            },
+            {
+                _id: '2',
+                user: { _id: 'u2' },
+                products: []
+            }
+        ]
+
         sinon.stub(factory.CartDAO, 'getAllCarts').resolves(fakeCarts)
 
         const result = await CartService.getAllCarts()
-        expect(result).to.deep.equal(fakeCarts)
+
+        expect(result).to.deep.equal([
+            {
+                id: '1',
+                userId: 'u1',
+                products: []
+            },
+            {
+                id: '2',
+                userId: 'u2',
+                products: []
+            }
+        ])
     })
 
     it('debería obtener un carrito por ID', async () => {
-        const fakeCart = { id: '123' }
-        sinon.stub(factory.CartDAO, 'getCartById').resolves(fakeCart)
+        const cart = {
+            _id: '123',
+            user: { _id: 'u123' },
+            products: []
+        }
+
+        sinon.stub(factory.CartDAO, 'getCartById').resolves(cart)
 
         const result = await CartService.getCartById('123')
-        expect(result).to.deep.equal(fakeCart)
+
+        expect(result).to.deep.equal({
+            id: '123',
+            userId: 'u123',
+            products: []
+        })
     })
 
     it('debería obtener un carrito por userId', async () => {
-        const fakeCart = { id: 'xyz', userId: 'abc' }
-        sinon.stub(factory.CartDAO, 'getCartByUserId').resolves(fakeCart)
+        const cart = {
+            _id: 'xyz',
+            user: { _id: 'abc' },
+            products: []
+        }
+
+        sinon.stub(factory.CartDAO, 'getCartByUserId').resolves(cart)
 
         const result = await CartService.getCartByUserId('abc')
-        expect(result).to.deep.equal(fakeCart)
+
+        expect(result).to.deep.equal({
+            id: 'xyz',
+            userId: 'abc',
+            products: []
+        })
     })
 
     it('debería crear un carrito', async () => {
-        const fakeCart = { id: 'new123' }
-        sinon.stub(factory.CartDAO, 'createCart').resolves(fakeCart)
+        const cart = {
+            _id: 'new123',
+            user: { _id: 'u1' },
+            products: []
+        }
 
-        const result = await CartService.createCart({})
-        expect(result).to.deep.equal(fakeCart)
+        sinon.stub(factory.CartDAO, 'createCart').resolves(cart)
+
+        const result = await CartService.createCart({ user: 'u1' })
+
+        expect(result).to.deep.equal({
+            id: 'new123',
+            userId: 'u1',
+            products: []
+        })
     })
 
     it('debería actualizar un carrito', async () => {
-        const updatedCart = { id: 'update1', total: 10 }
+        const updatedCart = {
+            _id: 'update1',
+            user: { _id: 'u1' },
+            products: []
+        }
+
         sinon.stub(factory.CartDAO, 'updateCart').resolves(updatedCart)
 
-        const result = await CartService.updateCart('update1', { total: 10 })
-        expect(result).to.deep.equal(updatedCart)
+        const result = await CartService.updateCart('update1', { products: [] })
+
+        expect(result).to.deep.equal({
+            id: 'update1',
+            userId: 'u1',
+            products: []
+        })
     })
 
     it('debería eliminar un carrito', async () => {
@@ -55,26 +119,87 @@ describe('Cart Service', () => {
     })
 
     it('debería agregar un producto al carrito', async () => {
-        const resultCart = { id: 'cart1', products: [{ product: 'p1', quantity: 2 }] }
-        sinon.stub(factory.CartDAO, 'addProductToCart').resolves(resultCart)
+        const updatedCart = {
+            _id: 'cart1',
+            user: { _id: 'u1' },
+            products: [
+                {
+                    product: {
+                        _id: 'p1',
+                        title: 'Producto 1',
+                        price: 100
+                    },
+                    quantity: 2
+                }
+            ]
+        }
+
+        sinon.stub(factory.CartDAO, 'addProductToCart').resolves(updatedCart)
 
         const result = await CartService.addProductToCart('cart1', 'p1', 2)
-        expect(result).to.deep.equal(resultCart)
+
+        expect(result).to.deep.equal({
+            id: 'cart1',
+            userId: 'u1',
+            products: [
+                {
+                    productId: 'p1',
+                    title: 'Producto 1',
+                    price: 100,
+                    quantity: 2
+                }
+            ]
+        })
     })
 
     it('debería eliminar un producto del carrito', async () => {
-        const resultCart = { id: 'cart1', products: [] }
-        sinon.stub(factory.CartDAO, 'removeProductFromCart').resolves(resultCart)
+        const updatedCart = {
+            _id: 'cart1',
+            user: { _id: 'u1' },
+            products: [] // ya sin productos
+        }
+
+        sinon.stub(factory.CartDAO, 'removeProductFromCart').resolves(updatedCart)
 
         const result = await CartService.removeProductFromCart('cart1', 'p1')
-        expect(result).to.deep.equal(resultCart)
+
+        expect(result).to.deep.equal({
+            id: 'cart1',
+            userId: 'u1',
+            products: []
+        })
     })
 
     it('debería actualizar los productos del carrito', async () => {
-        const updatedCart = { id: 'cart1', products: [{ product: 'pX', quantity: 1 }] }
+        const updatedCart = {
+            _id: 'cart1',
+            user: { _id: 'u1' },
+            products: [
+                {
+                    product: { _id: 'pX', title: 'Producto X', price: 100 },
+                    quantity: 1
+                }
+            ]
+        }
+
         sinon.stub(factory.CartDAO, 'updateCartProducts').resolves(updatedCart)
 
-        const result = await CartService.updateCartProducts('cart1', [{ product: 'pX', quantity: 1 }])
-        expect(result).to.deep.equal(updatedCart)
+        const result = await CartService.updateCartProducts('cart1', [
+            { productId: 'pX', quantity: 1 }
+        ])
+
+        expect(result).to.deep.equal({
+            id: 'cart1',
+            userId: 'u1',
+            products: [
+                {
+                    productId: 'pX',
+                    title: 'Producto X',
+                    price: 100,
+                    quantity: 1
+                }
+            ]
+        })
     })
+
 })

@@ -1,5 +1,8 @@
-import CartDAO from '../dao/cart.dao.js'
-import asCartPublic from '../dto/cart.dto.js'
+import factory from '../dao/factory.js'
+import cartDTO from '../dto/cart.dto.js'
+
+const asCartPublic = cartDTO.asPublicCart
+const CartDAO = factory.CartDAO
 
 class CartService {
     static async getAllCarts() {
