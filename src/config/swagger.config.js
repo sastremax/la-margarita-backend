@@ -1,4 +1,7 @@
-const swaggerOptions = {
+import swaggerJsdoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
+
+const options = {
     definition: {
         openapi: '3.0.1',
         info: {
@@ -16,4 +19,9 @@ const swaggerOptions = {
     apis: ['./src/docs/**/*.yaml']
 }
 
-export default swaggerOptions
+const specs = swaggerJsdoc(options)
+
+export default {
+    swaggerUi,
+    specs
+}

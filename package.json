@@ -9,7 +9,7 @@
     "dev": "cross-env NODE_ENV=dev nodemon src/index.js",
     "prod": "cross-env NODE_ENV=prod node src/index.js",
     "test": "cross-env NODE_ENV=test mocha \"tests/**/*.test.js\" --timeout 10000",
-    "test:unit": "cross-env NODE_ENV=test mocha --import=./tests/setup.js \"tests/unit/**/*.test.js\" --timeout 5000",
+    "test:unit": "cross-env NODE_ENV=test mocha --import=./tests/setup.js \"./tests/unit/**/*.test.js\" --timeout 5000",
     "test:api": "cross-env NODE_ENV=test mocha \"tests/api/**/*.test.js\" --timeout 5000",
     "lint": "eslint . --ext .js --ignore-path .gitignore"
   },

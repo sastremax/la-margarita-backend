@@ -1,9 +1,6 @@
 import mongoose from 'mongoose'
 import UserModel from '../../../src/models/user.model.js'
 import authService from '../../../src/services/auth.service.js'
-import dotenv from 'dotenv'
-
-dotenv.config({ path: '.env.test' })
 
 before(async () => {
     await mongoose.connect(process.env.MONGO_URI_TEST)
@@ -14,36 +11,40 @@ after(async () => {
 })
 
 afterEach(async () => {
-    await UserModel.deleteMany({ email: /testuser/i })
+    await UserModel.deleteMany({ email: { $regex: /^testuser/i } })
 })
+
+
+const testEmail = 'testuser@example.com'
+const testPassword = '12345678'
 
 describe('Auth Service', () => {
     it('debería registrar un nuevo usuario correctamente', async () => {
         const user = await authService.registerUser({
             firstName: 'Test',
             lastName: 'User',
-            email: 'testuser@example.com',
-            password: '12345678'
+            email: testEmail,
+            password: testPassword
         })
 
         expect(user).to.have.property('_id')
-        expect(user.email).to.equal('testuser@example.com')
+        expect(user.email).to.equal(testEmail)
     })
 
     it('debería lanzar error si el email ya está registrado', async () => {
         await authService.registerUser({
             firstName: 'Test',
             lastName: 'User',
-            email: 'testuser@example.com',
-            password: '12345678'
+            email: testEmail,
+            password: testPassword
         })
 
         await expect(
             authService.registerUser({
                 firstName: 'Otro',
                 lastName: 'Usuario',
-                email: 'testuser@example.com',
-                password: '12345678'
+                email: testEmail,
+                password: testPassword
             })
         ).to.be.rejectedWith('Email already registered')
     })
@@ -52,25 +53,25 @@ describe('Auth Service', () => {
         await authService.registerUser({
             firstName: 'Test',
             lastName: 'User',
-            email: 'testuser@example.com',
-            password: '12345678'
+            email: testEmail,
+            password: testPassword
         })
 
         const result = await authService.loginUser({
-            email: 'testuser@example.com',
-            password: '12345678'
+            email: testEmail,
+            password: testPassword
         })
 
         expect(result).to.have.property('token')
         expect(result).to.have.property('user')
-        expect(result.user.email).to.equal('testuser@example.com')
+        expect(result.user.email).to.equal(testEmail)
     })
 
     it('debería lanzar error si el email es inválido', async () => {
         await expect(
             authService.loginUser({
                 email: 'noexiste@example.com',
-                password: '12345678'
+                password: testPassword
             })
         ).to.be.rejectedWith('Invalid credentials')
     })
@@ -79,13 +80,13 @@ describe('Auth Service', () => {
         await authService.registerUser({
             firstName: 'Test',
             lastName: 'User',
-            email: 'testuser@example.com',
-            password: '12345678'
+            email: testEmail,
+            password: testPassword
         })
 
         await expect(
             authService.loginUser({
-                email: 'testuser@example.com',
+                email: testEmail,
                 password: 'wrongpassword'
             })
         ).to.be.rejectedWith('Invalid credentials')

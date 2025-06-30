@@ -1,12 +1,8 @@
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
+import * as chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+import dotenv from 'dotenv'
 
-const chai = require('chai')
-const chaiAsPromised = require('chai-as-promised').default
+dotenv.config({ path: '.env.test' })
 
 chai.use(chaiAsPromised)
 global.expect = chai.expect
-
-
-
-

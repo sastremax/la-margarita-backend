@@ -20,4 +20,17 @@ passport.use(
     })
 )
 
+passport.serializeUser((user, done) => {
+    done(null, user._id)
+})
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await UserModel.findById(id)
+        done(null, user)
+    } catch (error) {
+        done(error)
+    }
+})
+
 export default passport

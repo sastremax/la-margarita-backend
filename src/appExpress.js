@@ -11,6 +11,8 @@ import errorHandler from './middlewares/errorHandler.middleware.js'
 import router from './routes/index.js'
 import logger from './config/logger.js'
 import loggerMiddleware from './middlewares/logger.middleware.js'
+import swagger from './config/swagger.config.js'
+import config from './config/index.js'
 
 const app = express()
 
@@ -23,6 +25,9 @@ app.use(express.urlencoded({ extended: true }))
 app.use(trimBody)
 app.use(sanitize)
 app.use(rateLimit)
+if (config.mode !== 'test') {
+    app.use('/apidocs', swagger.swaggerUi.serve, swagger.swaggerUi.setup(swagger.specs))
+}
 
 app.use('/api', router)
 
