@@ -1,0 +1,8 @@
+import './services/auth.service.test.js'
+import './services/product.service.test.js'
+import './services/cart.service.test.js'
+import './services/user.service.test.js'
+import './services/reservation.service.test.js'
+import './services/review.service.test.js'
+import './services/contact.service.test.js'
+import './services/lodging.service.test.js'

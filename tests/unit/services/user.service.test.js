@@ -1,6 +1,12 @@
 import sinon from 'sinon'
 import UserService from '../../../src/services/user.service.js'
-import factory from '../../../src/dao/factory.js'
+import getFactory from '../../../src/dao/factory.js'
+
+let factory
+
+before(async () => {
+    factory = await getFactory()
+})
 
 describe('User Service', () => {
     afterEach(() => {

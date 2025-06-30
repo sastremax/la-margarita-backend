@@ -1,6 +1,12 @@
 import sinon from 'sinon'
 import CartService from '../../../src/services/cart.service.js'
-import factory from '../../../src/dao/factory.js'
+import getFactory from '../../../src/dao/factory.js'
+
+let factory
+
+before(async () => {
+    factory = await getFactory()
+})
 
 describe('Cart Service', () => {
     afterEach(() => {
