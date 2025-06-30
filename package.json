@@ -9,8 +9,8 @@
     "dev": "cross-env NODE_ENV=dev nodemon src/index.js",
     "prod": "cross-env NODE_ENV=prod node src/index.js",
     "test": "NODE_ENV=test mocha --import=./tests/setup.js tests/**/*.test.js",
-    "test:unit": "NODE_ENV=test mocha --import=./tests/setup.js tests/unit/**/*.test.js",
-    "test:func": "NODE_ENV=test mocha --import=./tests/setup.js tests/functional/**/*.test.js",
+    "test:unit": "cross-env NODE_ENV=test node --no-warnings ./node_modules/mocha/bin/mocha.js --import=./tests/setup.js tests/unit/services/auth.service.test.js",
+    "test:func": "cross-env NODE_ENV=test mocha --import=./tests/setup.js tests/functional/**/*.test.js",
     "lint": "eslint . --ext .js --ignore-path .gitignore"
   },
   "keywords": [
