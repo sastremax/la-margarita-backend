@@ -1,12 +1,13 @@
 import userService from '../services/user.service.js'
-import userDTO from '../dto/user.dto.js'
+import asUserPublic from '../dto/user.dto.js'
 import cartService from '../services/cart.service.js'
 import auditService from '../services/audit.service.js'
+import reservationService from '../services/reservation.service.js'
 
 const getAllUsers = async (req, res, next) => {
     try {
         const users = await userService.getAllUsers()
-        const publicUsers = users.map(userDTO.asPublicUser)
+        const publicUsers = users.map(asUserPublic)
         res.status(200).json({ status: 'success', data: publicUsers })
     } catch (error) {
         next(error)
@@ -16,7 +17,7 @@ const getAllUsers = async (req, res, next) => {
 const getUserById = async (req, res, next) => {
     try {
         const user = await userService.getUserById(req.params.id)
-        res.status(200).json({ status: 'success', data: userDTO.asPublicUser(user) })
+        res.status(200).json({ status: 'success', data: asUserPublic(user) })
     } catch (error) {
         next(error)
     }
@@ -25,7 +26,7 @@ const getUserById = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
     try {
         const updatedUser = await userService.updateUser(req.params.id, req.body)
-        res.status(200).json({ status: 'success', data: userDTO.asPublicUser(updatedUser) })
+        res.status(200).json({ status: 'success', data: asUserPublic(updatedUser) })
     } catch (error) {
         next(error)
     }
@@ -59,7 +60,7 @@ const updateUserRole = async (req, res, next) => {
             userAgent: req.headers['user-agent']
         })
 
-        res.status(200).json({ status: 'success', data: userDTO.asPublicUser(updatedUser) })
+        res.status(200).json({ status: 'success', data: asUserPublic(updatedUser) })
     } catch (error) {
         next(error)
     }

@@ -1,7 +1,7 @@
 import authService from '../services/auth.service.js'
 import jwtUtil from '../utils/jwt.util.js'
-import userDTO from '../dto/user.dto.js'
 import auditService from '../services/audit.service.js'
+import asUserPublic from '../dto/user.dto.js'
 
 const postLogin = async (req, res, next) => {
     try {
@@ -33,7 +33,7 @@ const postLogin = async (req, res, next) => {
             userAgent: req.headers['user-agent']
         })
 
-        res.status(200).json({ status: 'success', data: { user: userDTO.asPublicUser(user) } })
+        res.status(200).json({ status: 'success', data: { user: asUserPublic(user) } })
     } catch (error) {
         await auditService.logEvent({
             userId: null,
@@ -50,7 +50,7 @@ const postRegister = async (req, res, next) => {
     try {
         const { firstName, lastName, email, password } = req.body
         const user = await authService.registerUser({ firstName, lastName, email, password })
-        res.status(201).json({ status: 'success', data: userDTO.asPublicUser(user) })
+        res.status(201).json({ status: 'success', data: asUserPublic(user) })
     } catch (error) {
         next(error)
     }
