@@ -8,10 +8,9 @@
     "start": "node src/index.js",
     "dev": "cross-env NODE_ENV=dev nodemon src/index.js",
     "prod": "cross-env NODE_ENV=prod node src/index.js",
-    "test": "cross-env NODE_ENV=test mocha \"tests/**/*.test.js\" --timeout 10000",
+    "test": "NODE_ENV=test mocha --import=./tests/setup.js tests/**/*.test.js",
     "test:unit": "NODE_ENV=test mocha --import=./tests/setup.js tests/unit/**/*.test.js",
     "test:func": "NODE_ENV=test mocha --import=./tests/setup.js tests/functional/**/*.test.js",
-    "test:api": "cross-env NODE_ENV=test mocha \"tests/api/**/*.test.js\" --timeout 5000",
     "lint": "eslint . --ext .js --ignore-path .gitignore"
   },
   "keywords": [
