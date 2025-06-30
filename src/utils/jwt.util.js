@@ -8,18 +8,18 @@ const createAccessToken = (user, expiresIn = '15m') => {
         role: user.role
     }
 
-    return jwt.sign(payload, config.jwtSecret, { expiresIn })
+    return jwt.sign(payload, config.jwt.secret, { expiresIn })
 }
 
 const createRefreshToken = (user, expiresIn = '7d') => {
     const payload = { id: user._id }
 
-    return jwt.sign(payload, config.jwtRefreshSecret, { expiresIn })
+    return jwt.sign(payload, config.jwt.refreshSecret, { expiresIn })
 }
 
 const verifyAccessToken = (token) => {
     try {
-        return jwt.verify(token, config.jwtSecret)
+        return jwt.verify(token, config.jwt.secret)
     } catch {
         throw new ApiError(401, 'Invalid or expired access token')
     }
@@ -27,7 +27,7 @@ const verifyAccessToken = (token) => {
 
 const verifyRefreshToken = (token) => {
     try {
-        return jwt.verify(token, config.jwtRefreshSecret)
+        return jwt.verify(token, config.jwt.refreshSecret) // 🔧 CORREGIDO
     } catch {
         throw new ApiError(401, 'Invalid or expired refresh token')
     }

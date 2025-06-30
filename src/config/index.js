@@ -9,6 +9,7 @@ const config = {
     mongoUri: process.env.NODE_ENV === 'test' ? process.env.MONGO_URI_TEST : process.env.MONGO_URI,
     jwt: {
         secret: process.env.JWT_SECRET,
+        refreshSecret: process.env.JWT_REFRESH_SECRET,
         expires: process.env.JWT_EXPIRES
     },
     mail: {
@@ -21,7 +22,8 @@ const config = {
         cloudName: process.env.CLOUDINARY_CLOUD_NAME,
         apiKey: process.env.CLOUDINARY_API_KEY,
         apiSecret: process.env.CLOUDINARY_API_SECRET
-    }
+    },
+    persistence: process.env.PERSISTENCE
 }
 
 export default config

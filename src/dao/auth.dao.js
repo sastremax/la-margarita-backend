@@ -2,11 +2,14 @@ import UserModel from '../models/user.model.js'
 
 class AuthDAO {
     async findUserByEmail(email) {
-        return await UserModel.findOne({ email })
+        const user = await UserModel.findOne({ email }).select('+password')
+        console.log('DAO user found:', user)
+        return user
     }
 
     async createUser(userData) {
-        return await UserModel.create(userData)
+        const createdUser = await UserModel.create(userData)
+        return await UserModel.findOne({ _id: createdUser._id }).select('+password')
     }
 }
 

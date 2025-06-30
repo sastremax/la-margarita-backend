@@ -1,15 +1,19 @@
-import jwtUtil from '../utils/jwt.util.js'
+import jwt from 'jsonwebtoken'
+import config from '../config/index.js'
+import ApiError from '../utils/apiError.js'
 
-const generateAccessToken = (payload, expiresIn = '15m') => {
-    return jwtUtil.createAccessToken(payload, expiresIn)
+const generateAccessToken = (payload) => {
+    if (!config.jwt.secret) throw new ApiError(500, 'JWT secret is missing')
+    return jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expires || '15m' })
 }
 
-const generateRefreshToken = (payload, expiresIn = '7d') => {
-    return jwtUtil.createRefreshToken(payload, expiresIn)
+const generateRefreshToken = (payload) => {
+    if (!config.jwt.secret) throw new ApiError(500, 'JWT secret is missing')
+    return jwt.sign(payload, config.jwt.secret, { expiresIn: '7d' })
 }
 
 const verifyAccessToken = (token) => {
-    return jwtUtil.verifyAccessToken(token)
+    return jwt.verify(token, config.jwt.secret)
 }
 
 export default {

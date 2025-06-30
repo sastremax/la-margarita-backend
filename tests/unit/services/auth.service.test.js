@@ -26,8 +26,8 @@ describe('Auth Service', () => {
             email: testEmail,
             password: testPassword
         })
-
-        expect(user).to.have.property('_id')
+        console.log('user created:', user)
+        expect(user).to.have.property('id')
         expect(user.email).to.equal(testEmail)
     })
 

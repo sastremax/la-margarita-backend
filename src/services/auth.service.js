@@ -10,12 +10,11 @@ const registerUser = async ({ firstName, lastName, email, password }) => {
     const existingUser = await authDAO.findUserByEmail(email)
     if (existingUser) throw new ApiError(400, 'Email already registered')
 
-    const hashedPassword = await bcrypt.hash(password, 10)
     const newUser = await authDAO.createUser({
         firstName,
         lastName,
         email,
-        password: hashedPassword
+        password
     })
 
     return asUserPublic(newUser)
@@ -24,6 +23,9 @@ const registerUser = async ({ firstName, lastName, email, password }) => {
 const loginUser = async ({ email, password }) => {
     const user = await authDAO.findUserByEmail(email)
     if (!user) throw new ApiError(401, 'Invalid credentials')
+
+    console.log('Login input password:', password)
+    console.log('Stored hash:', user.password)
 
     const validPassword = await bcrypt.compare(password, user.password)
     if (!validPassword) throw new ApiError(401, 'Invalid credentials')
