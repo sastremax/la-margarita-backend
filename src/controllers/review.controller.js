@@ -93,7 +93,23 @@ const putAdminReply = async (req, res, next) => {
     }
 }
 
+const getReviewById = async (req, res, next) => {
+    try {
+        const reviewId = req.params.id
+        const review = await reviewService.getReviewById(reviewId)
+
+        if (!review) {
+            return res.status(404).json({ status: 'error', message: 'Review not found' })
+        }
+
+        res.status(200).json({ status: 'success', data: review })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export default {
+    getReviewById,
     getAllReviews,
     getReviewsByLodging,
     createReview,

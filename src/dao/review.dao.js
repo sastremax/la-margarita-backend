@@ -21,6 +21,8 @@ class ReviewDAO {
 
     async getReviewById(id) {
         return await ReviewModel.findById(id)
+            .populate('user', 'firstName lastName country')
+            .populate('lodging', 'title location')
     }
 
     async getReviewsByLodgingId(lodgingId) {

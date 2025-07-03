@@ -11,6 +11,7 @@ router.post('/', authPolicy(['user']), validateDTO(reviewDTO.reviewSchema), revi
 router.get('/', authPolicy(['admin']), reviewController.getAllReviews)
 router.get('/summary/:lodgingId', reviewController.getReviewSummary)
 router.get('/:lodgingId', reviewController.getReviewsByLodging)
+router.get('/detail/:id', authPolicy(['admin']), reviewController.getReviewById)
 router.delete('/:id', authPolicy(['user', 'admin']), reviewController.deleteReview)
 router.put('/:id/reply', authPolicy(['admin']), reviewController.putAdminReply)
 

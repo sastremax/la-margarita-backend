@@ -3,6 +3,12 @@ import ReviewModel from '../models/review.model.js'
 import asReviewPublic from '../dto/review.dto.js'
 
 class ReviewService {
+
+    static async getReviewById(id) {
+        const review = await ReviewDAO.getReviewById(id)
+        return asReviewPublic(review)
+    }
+    
     static async getReviewsByLodging(lodgingId, { page = 1, limit = 10, filters = {} }) {
         const skip = (page - 1) * limit
         const query = { lodging: lodgingId }
