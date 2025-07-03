@@ -6,7 +6,9 @@ import reviewDTO from '../dto/review.dto.js'
 
 const router = express.Router()
 
+
 router.post('/', authPolicy(['user']), validateDTO(reviewDTO.reviewSchema), reviewController.createReview)
+router.get('/', authPolicy(['admin']), reviewController.getAllReviews)
 router.get('/summary/:lodgingId', reviewController.getReviewSummary)
 router.get('/:lodgingId', reviewController.getReviewsByLodging)
 router.delete('/:id', authPolicy(['user', 'admin']), reviewController.deleteReview)

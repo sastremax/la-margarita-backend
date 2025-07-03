@@ -1,6 +1,25 @@
 import reviewService from '../services/review.service.js'
 import reviewDTO from '../dto/review.dto.js'
 
+const getAllReviews = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+
+        const result = await reviewService.getAllReviews({ page, limit })
+
+        res.status(200).json({
+            status: 'success',
+            total: result.total,
+            page: result.page,
+            pages: result.pages,
+            data: result.data
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const getReviewsByLodging = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, hasReply, minRating } = req.query
@@ -75,6 +94,7 @@ const putAdminReply = async (req, res, next) => {
 }
 
 export default {
+    getAllReviews,
     getReviewsByLodging,
     createReview,
     getReviewSummary,

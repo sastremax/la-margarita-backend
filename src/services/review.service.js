@@ -76,6 +76,13 @@ class ReviewService {
         await review.save()
         return asReviewPublic(review)
     }
+
+    static async getAllReviews({ page = 1, limit = 10 }) {
+        const result = await ReviewDAO.getAllReviews({ page, limit })
+        result.data = result.data.map(asReviewPublic)
+        return result
+    }
+    
 }
 
 export default ReviewService
