@@ -12,6 +12,7 @@ router.get('/', authPolicy(['admin']), reviewController.getAllReviews)
 router.get('/summary/:lodgingId', reviewController.getReviewSummary)
 router.get('/:lodgingId', reviewController.getReviewsByLodging)
 router.get('/detail/:id', authPolicy(['admin']), reviewController.getReviewById)
+router.get('/replied/:lodgingId', authPolicy(['admin']), reviewController.getRepliedReviewsByLodging)
 router.delete('/:id', authPolicy(['user', 'admin']), reviewController.deleteReview)
 router.put('/:id/reply', authPolicy(['admin']), reviewController.putAdminReply)
 

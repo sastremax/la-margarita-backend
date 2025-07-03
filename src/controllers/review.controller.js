@@ -108,7 +108,22 @@ const getReviewById = async (req, res, next) => {
     }
 }
 
+const getRepliedReviewsByLodging = async (req, res, next) => {
+    try {
+        const { lodgingId } = req.params
+        const reviews = await ReviewDAO.getReviewsWithReplyByLodging(lodgingId)
+
+        res.status(200).json({
+            status: 'success',
+            data: reviews
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export default {
+    getRepliedReviewsByLodging,
     getReviewById,
     getAllReviews,
     getReviewsByLodging,
