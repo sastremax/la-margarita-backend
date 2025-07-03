@@ -24,6 +24,11 @@ class UserDAO {
     async deleteUser(id) {
         return await UserModel.findByIdAndDelete(id)
     }
+
+    async updateUserRole(id, role) {
+        return await UserModel.findByIdAndUpdate(id, { role }, { new: true })
+    }
+    
 }
 
 export default UserDAO

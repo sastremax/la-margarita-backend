@@ -30,6 +30,11 @@ class UserService {
     static async deleteUser(id) {
         return await UserDAO.deleteUser(id)
     }
+
+    static async updateUserRole(id, role) {
+        const user = await UserDAO.updateUserRole(id, role)
+        return asUserPublic(user)
+    }
 }
 
 export default UserService
