@@ -7,7 +7,7 @@ const productSchema = z.object({
     code: z.string().min(1),
     category: z.string().min(1),
     stock: z.number().int().nonnegative(),
-    thumbnails: z.array(z.string().url()).optional()
+    images: z.array(z.string().url()).optional()
 })
 
 function asPublicProduct(product) {
@@ -19,7 +19,7 @@ function asPublicProduct(product) {
         code: product.code,
         category: product.category,
         stock: product.stock,
-        thumbnails: product.thumbnails || []
+        images: product.images || []
     }
 }
 
