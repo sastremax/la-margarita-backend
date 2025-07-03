@@ -13,12 +13,14 @@ function asPublicCart(cart) {
     return {
         id: cart._id,
         userId: cart.user?._id || null,
-        products: cart.products.map(p => ({
-            productId: p.product?._id || null,
-            title: p.product?.title || '',
-            price: p.product?.price || 0,
-            quantity: p.quantity
-        }))
+        products: Array.isArray(cart.products)
+            ? cart.products.map(p => ({
+                productId: p.product?._id || null,
+                title: p.product?.title || '',
+                price: p.product?.price || 0,
+                quantity: p.quantity
+            }))
+            : []
     }
 }
 
