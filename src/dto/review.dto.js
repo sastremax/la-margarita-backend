@@ -3,6 +3,7 @@ import z from 'zod'
 const reviewSchema = z.object({
     user: z.string().min(1),
     lodging: z.string().min(1),
+    reservation: z.string().min(1),
     rating: z.number().int().min(1).max(5),
     cleanliness: z.number().min(1).max(5).optional(),
     location: z.number().min(1).max(5).optional(),
@@ -15,6 +16,7 @@ function asPublicReview(review) {
     return {
         id: review._id,
         lodgingId: review.lodging?._id || review.lodging || null,
+        reservationId: review.reservation?._id || review.reservation || null,
         user: {
             id: review.user?._id || review.user || null,
             firstName: review.user?.firstName || null,

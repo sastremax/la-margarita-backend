@@ -11,6 +11,12 @@ const reviewSchema = new mongoose.Schema({
         ref: 'Lodging',
         required: true
     },
+    reservation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Reservation',
+        required: true,
+        unique: true
+    },
     rating: {
         type: Number,
         required: true,
@@ -59,6 +65,7 @@ const reviewSchema = new mongoose.Schema({
     timestamps: true
 })
 
-const Review = mongoose.model('Review', reviewSchema)
+reviewSchema.index({ reservation: 1 }, { unique: true })
 
+const Review = mongoose.model('Review', reviewSchema)
 export default Review

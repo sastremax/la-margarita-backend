@@ -1,14 +1,54 @@
 import ReviewDAO from '../dao/review.dao.js'
 import ReviewModel from '../models/review.model.js'
+import ReservationModel from '../models/reservation.model.js'
 import asReviewPublic from '../dto/review.dto.js'
 
 class ReviewService {
 
+    static async createReview(reviewData) {
+        const { user, lodging, reservation, ...rest } = reviewData
+
+        const existing = await ReviewModel.findOne({ reservation })
+        if (existing) {
+            const error = new Error('You already reviewed this reservation')
+            error.statusCode = 400
+            throw error
+        }
+
+        const resv = await ReservationModel.findById(reservation)
+        if (!resv) {
+            const error = new Error('Reservation not found')
+            error.statusCode = 404
+            throw error
+        }
+
+        if (resv.user.toString() !== user) {
+            const error = new Error('Forbidden: This reservation is not yours')
+            error.statusCode = 403
+            throw error
+        }
+
+        if (new Date(resv.checkOut) > new Date()) {
+            const error = new Error('You can only review after your check-out date')
+            error.statusCode = 400
+            throw error
+        }
+
+        const review = await ReviewDAO.createReview({
+            user,
+            lodging,
+            reservation,
+            ...rest
+        })
+
+        return asReviewPublic(review)
+    }
+    
     static async getReviewById(id) {
         const review = await ReviewDAO.getReviewById(id)
         return asReviewPublic(review)
     }
-    
+
     static async getReviewsByLodging(lodgingId, { page = 1, limit = 10, filters = {} }) {
         const skip = (page - 1) * limit
         const query = { lodging: lodgingId }
