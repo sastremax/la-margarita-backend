@@ -4,8 +4,9 @@ import asLodgingPublic from '../dto/lodging.dto.js'
 const lodgingDAO = new LodgingDAO()
 
 class LodgingService {
-    static async getAllLodgings() {
-        const lodgings = await lodgingDAO.getAllLodgings()
+    
+    static async getAllLodgings(filters = {}) {
+        const lodgings = await lodgingDAO.getAllLodgings(filters)
         return lodgings.map(asLodgingPublic)
     }
 
