@@ -18,7 +18,23 @@ class ImageService {
     }
 
     static async uploadImage(imageData) {
-        const image = await ImageDAO.uploadImage(imageData)
+        const {
+            url,
+            name,
+            type,
+            refId,
+            publicId
+        } = imageData
+
+        const dbImage = {
+            url,
+            name,
+            associatedType: type,
+            associatedId: refId,
+            public_id: publicId || null
+        }
+
+        const image = await ImageDAO.uploadImage(dbImage)
         return asImagePublic(image)
     }
 
