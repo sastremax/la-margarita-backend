@@ -3,11 +3,7 @@ import LodgingDAO from '../dao/lodging.dao.js'
 import dayjs from 'dayjs'
 import asReservationPublic from '../dto/reservation.dto.js'
 
-class ReservationService {
-    static async getAllReservations() {
-        const reservations = await ReservationDAO.getAllReservations()
-        return reservations.map(asReservationPublic)
-    }
+class ReservationService {    
 
     static async getReservationById(id) {
         const reservation = await ReservationDAO.getReservationById(id)

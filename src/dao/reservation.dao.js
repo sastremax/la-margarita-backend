@@ -1,10 +1,7 @@
 import ReservationModel from '../models/reservation.model.js'
 import mongoose from 'mongoose'
 
-class ReservationDAO {
-    async getAllReservations() {
-        return await ReservationModel.find()
-    }
+class ReservationDAO {    
 
     async getReservationById(id) {
         return await ReservationModel.findById(id)
@@ -20,11 +17,7 @@ class ReservationDAO {
 
     async updateReservation(id, updateData) {
         return await ReservationModel.findByIdAndUpdate(id, updateData, { new: true })
-    }
-
-    async deleteReservation(id) {
-        return await ReservationModel.findByIdAndDelete(id)
-    }
+    }    
 
     async isLodgingAvailable(lodgingId, checkIn, checkOut) {
         return await ReservationModel.findOne({
