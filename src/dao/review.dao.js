@@ -40,15 +40,6 @@ class ReviewDAO {
         })
     }
 
-    async getAverageRatingByLodging(lodgingId) {
-        const result = await ReviewModel.aggregate([
-            { $match: { lodging: new mongoose.Types.ObjectId(lodgingId) } },
-            { $group: { _id: null, avgRating: { $avg: '$rating' } } }
-        ])
-
-        return result[0]?.avgRating || 0
-    }
-
 }
 
 export default ReviewDAO

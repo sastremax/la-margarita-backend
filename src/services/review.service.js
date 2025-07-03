@@ -2,6 +2,7 @@ import ReviewDAO from '../dao/review.dao.js'
 import ReviewModel from '../models/review.model.js'
 import ReservationModel from '../models/reservation.model.js'
 import asReviewPublic from '../dto/review.dto.js'
+import mongoose from 'mongoose'
 
 class ReviewService {
     static async createReview(reviewData) {
@@ -62,18 +63,31 @@ class ReviewService {
     }
 
     static async getReviewSummary(lodgingId) {
-        const reviews = await ReviewModel.find({ lodging: lodgingId, isDeleted: false })
+        const [totalReviews, avgResult] = await Promise.all([
+            ReviewModel.countDocuments({ lodging: lodgingId, isDeleted: false }),
+            ReviewModel.aggregate([
+                {
+                    $match: {
+                        lodging: new mongoose.Types.ObjectId(lodgingId),
+                        isDeleted: false
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        avgRating: { $avg: '$rating' }
+                    }
+                }
+            ])
+        ])
 
-        const total = reviews.length
-        const averageRating = total > 0
-            ? reviews.reduce((sum, r) => sum + r.rating, 0) / total
-            : 0
+        const averageRating = avgResult[0]?.avgRating || 0
 
         return {
-            totalReviews: total,
+            totalReviews,
             averageRating: averageRating.toFixed(2)
         }
-    }
+    }    
 
     static async getReviewsByLodging(lodgingId, { page = 1, limit = 10, filters = {} }) {
         const skip = (page - 1) * limit
