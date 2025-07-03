@@ -33,10 +33,6 @@ class ReviewDAO {
         return await ReviewModel.create(reviewData)
     }
 
-    async deleteReview(id) {
-        return await ReviewModel.findByIdAndDelete(id)
-    }
-
     async getReviewsWithReplyByLodging(lodgingId) {
         return await ReviewModel.find({
             lodging: lodgingId,

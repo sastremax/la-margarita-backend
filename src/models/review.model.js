@@ -50,7 +50,7 @@ const reviewSchema = new mongoose.Schema({
     comment: {
         type: String,
         required: true
-    },
+    },    
     adminReply: {
         message: {
             type: String,
@@ -60,6 +60,10 @@ const reviewSchema = new mongoose.Schema({
             type: Date,
             default: null
         }
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true
