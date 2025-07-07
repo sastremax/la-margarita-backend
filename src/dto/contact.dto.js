@@ -6,6 +6,11 @@ const contactSchema = z.object({
     message: z.string().min(10, 'Message must be at least 10 characters')
 })
 
+const replySchema = z.object({
+    replied: z.boolean(),
+    replyNote: z.string().max(1000).optional()
+})
+
 function asPublicContact(contact) {
     return {
         id: contact._id,
@@ -18,6 +23,7 @@ function asPublicContact(contact) {
 
 const contactDTO = {
     contactSchema,
+    replySchema,
     asPublicContact
 }
 

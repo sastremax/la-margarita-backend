@@ -19,6 +19,11 @@ class ContactService {
         return asContactPublic(contact)
     }
 
+    static async updateReplyStatus(id, updateData) {
+        const contact = await contactDAO.updateReplyStatus(id, updateData)
+        return asContactPublic(contact)
+    }
+
     static async deleteContact(id) {
         return await contactDAO.deleteContact(id)
     }
