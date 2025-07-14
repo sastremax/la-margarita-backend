@@ -13,11 +13,13 @@ import logger from './config/logger.js'
 import loggerMiddleware from './middlewares/logger.middleware.js'
 import swagger from './config/swagger.config.js'
 import config from './config/index.js'
+import auditLogger from './middlewares/auditLogger.js'
 
 const app = express()
 
 app.use(cookieParser())
 app.use(loggerMiddleware)
+app.use(auditLogger)
 app.use(securityMiddleware)
 app.use(cors(corsConfig))
 app.use(express.json())
