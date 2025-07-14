@@ -4,12 +4,16 @@ import refreshController from '../controllers/refresh.controller.js'
 import validateDTO from '../middlewares/validateDTO.middleware.js'
 import userSchema from '../dto/user.schema.js'
 import universalAuth from '../middlewares/universalAuth.middleware.js'
+import rateLimiter from '../middlewares/rateLimiter.js'
 
 const router = express.Router()
 
-router.post('/login', authController.postLogin)
+router.post('/login', rateLimiter.loginLimiter, authController.postLogin)
+
 router.post('/register', validateDTO(userSchema.userSchemaRegister), authController.postRegister)
+
 router.post('/logout', universalAuth, authController.postLogout)
+
 router.post('/refresh', universalAuth, refreshController.postRefresh)
 
 export default router
