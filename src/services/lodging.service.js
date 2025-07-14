@@ -4,7 +4,6 @@ import asLodgingPublic from '../dto/lodging.dto.js'
 const lodgingDAO = new LodgingDAO()
 
 class LodgingService {
-    
     static async getAllLodgings(filters = {}) {
         const lodgings = await lodgingDAO.getAllLodgings(filters)
         return lodgings.map(asLodgingPublic)
@@ -15,6 +14,11 @@ class LodgingService {
         return asLodgingPublic(lodging)
     }
 
+    static async getLodgingsByOwner(ownerId) {
+        const lodgings = await lodgingDAO.getLodgingsByOwner(ownerId)
+        return lodgings.map(asLodgingPublic)
+    }
+
     static async createLodging(lodgingData) {
         const lodging = await lodgingDAO.createLodging(lodgingData)
         return asLodgingPublic(lodging)
@@ -22,6 +26,11 @@ class LodgingService {
 
     static async updateLodging(id, updateData) {
         const lodging = await lodgingDAO.updateLodging(id, updateData)
+        return asLodgingPublic(lodging)
+    }
+
+    static async disableLodging(id) {
+        const lodging = await lodgingDAO.disableLodging(id)
         return asLodgingPublic(lodging)
     }
 

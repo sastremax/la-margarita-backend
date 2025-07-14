@@ -23,6 +23,17 @@ const getLodgingById = async (req, res, next) => {
     }
 }
 
+const getLodgingsByOwner = async (req, res, next) => {
+    try {
+        const { uid } = req.params
+        const lodgings = await LodgingService.getLodgingsByOwner(uid)
+        const data = lodgings.map(lodgingDTO.asPublicLodging)
+        res.status(200).json({ status: 'success', data })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const createLodging = async (req, res, next) => {
     try {
         const lodgingData = req.body
@@ -53,6 +64,16 @@ const updateLodging = async (req, res, next) => {
     }
 }
 
+const disableLodging = async (req, res, next) => {
+    try {
+        const { lid } = req.params
+        const updated = await LodgingService.disableLodging(lid)
+        res.status(200).json({ status: 'success', data: lodgingDTO.asPublicLodging(updated) })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const deleteLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
@@ -66,7 +87,9 @@ const deleteLodging = async (req, res, next) => {
 export default {
     getAllLodgings,
     getLodgingById,
+    getLodgingsByOwner,
     createLodging,
     updateLodging,
+    disableLodging,
     deleteLodging
 }

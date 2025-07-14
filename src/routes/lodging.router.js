@@ -9,8 +9,35 @@ const router = express.Router()
 
 router.get('/', lodgingController.getAllLodgings)
 router.get('/:lid', existsLodging, lodgingController.getLodgingById)
-router.post('/', authPolicy(['admin']), validateDTO(lodgingDTO.lodgingSchema), lodgingController.createLodging)
-router.put('/:lid', authPolicy(['admin']), existsLodging, validateDTO(lodgingDTO.lodgingSchema), lodgingController.updateLodging)
-router.delete('/:lid', authPolicy(['admin']), existsLodging, lodgingController.deleteLodging)
+router.get('/owner/:uid', authPolicy(['admin', 'user']), lodgingController.getLodgingsByOwner)
+
+router.post(
+    '/',
+    authPolicy(['admin']),
+    validateDTO(lodgingDTO.lodgingSchema),
+    lodgingController.createLodging
+)
+
+router.put(
+    '/:lid',
+    authPolicy(['admin']),
+    existsLodging,
+    validateDTO(lodgingDTO.lodgingSchema),
+    lodgingController.updateLodging
+)
+
+router.put(
+    '/:lid/disable',
+    authPolicy(['admin']),
+    existsLodging,
+    lodgingController.disableLodging
+)
+
+router.delete(
+    '/:lid',
+    authPolicy(['admin']),
+    existsLodging,
+    lodgingController.deleteLodging
+)
 
 export default router
