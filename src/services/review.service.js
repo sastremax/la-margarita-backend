@@ -1,146 +1,48 @@
 import ReviewDAO from '../dao/review.dao.js'
-import ReviewModel from '../models/review.model.js'
-import ReservationModel from '../models/reservation.model.js'
-import asReviewPublic from '../dto/review.dto.js'
-import mongoose from 'mongoose'
+import reviewDTO from '../dto/review.dto.js'
+
+const reviewDAO = new ReviewDAO()
+const asReviewPublic = reviewDTO.asPublicReview
 
 class ReviewService {
-    static async createReview(reviewData) {
-        const { user, lodging, reservation, ...rest } = reviewData
-
-        const existing = await ReviewModel.findOne({ reservation })
-        if (existing) {
-            const error = new Error('You already reviewed this reservation')
-            error.statusCode = 400
-            throw error
-        }
-
-        const resv = await ReservationModel.findById(reservation)
-        if (!resv) {
-            const error = new Error('Reservation not found')
-            error.statusCode = 404
-            throw error
-        }
-
-        if (resv.user.toString() !== user) {
-            const error = new Error('Forbidden: This reservation is not yours')
-            error.statusCode = 403
-            throw error
-        }
-
-        if (new Date(resv.checkOut) > new Date()) {
-            const error = new Error('You can only review after your check-out date')
-            error.statusCode = 400
-            throw error
-        }
-
-        const review = await ReviewDAO.createReview({
-            user,
-            lodging,
-            reservation,
-            ...rest
-        })
-
-        return asReviewPublic(review)
-    }
-
-    static async deleteReview(reviewId, userId) {
-        const review = await ReviewModel.findById(reviewId)
-        if (!review) {
-            const error = new Error('Review not found')
-            error.statusCode = 404
-            throw error
-        }
-
-        if (review.user.toString() !== userId.toString()) {
-            const error = new Error('Forbidden')
-            error.statusCode = 403
-            throw error
-        }
-
-        review.isDeleted = true
-        await review.save()
-    }
-
-    static async getReviewSummary(lodgingId) {
-        const [totalReviews, avgResult] = await Promise.all([
-            ReviewModel.countDocuments({ lodging: lodgingId, isDeleted: false }),
-            ReviewModel.aggregate([
-                {
-                    $match: {
-                        lodging: new mongoose.Types.ObjectId(lodgingId),
-                        isDeleted: false
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        avgRating: { $avg: '$rating' }
-                    }
-                }
-            ])
-        ])
-
-        const averageRating = avgResult[0]?.avgRating || 0
-
-        return {
-            totalReviews,
-            averageRating: averageRating.toFixed(2)
-        }
-    }    
-
-    static async getReviewsByLodging(lodgingId, { page = 1, limit = 10, filters = {} }) {
-        const skip = (page - 1) * limit
-        const query = { lodging: lodgingId, isDeleted: false }
-
-        if (filters.hasReply) query['adminReply.message'] = { $ne: null }
-        if (filters.minRating !== null && !isNaN(filters.minRating)) {
-            query.rating = { $gte: filters.minRating }
-        }
-
-        const [total, reviews] = await Promise.all([
-            ReviewModel.countDocuments(query),
-            ReviewModel.find(query)
-                .populate('user', 'firstName lastName country')
-                .skip(skip)
-                .limit(limit)
-                .sort({ createdAt: -1 })
-        ])
-
-        return {
-            total,
-            page,
-            limit,
-            reviews: reviews.map(asReviewPublic)
-        }
-    }
-
     static async getAllReviews({ page = 1, limit = 10 }) {
-        const result = await ReviewDAO.getAllReviews({ page, limit })
+        const result = await reviewDAO.getAllReviews({ page, limit })
         result.data = result.data.map(asReviewPublic)
         return result
     }
 
     static async getReviewById(id) {
-        const review = await ReviewDAO.getReviewById(id)
+        const review = await reviewDAO.getReviewById(id)
         return asReviewPublic(review)
     }
 
-    static async replyToReview(reviewId, message) {
-        const review = await ReviewModel.findById(reviewId)
-        if (!review) {
-            const error = new Error('Review not found')
-            error.statusCode = 404
-            throw error
-        }
+    static async getReviewsByLodgingId(lodgingId, { page = 1, limit = 10, filters = {} }) {
+        const result = await reviewDAO.getReviewsByLodgingWithFilters(lodgingId, { page, limit, filters })
+        result.reviews = result.reviews.map(asReviewPublic)
+        return result
+    }
 
-        review.adminReply = {
-            message,
-            createdAt: new Date()
-        }
+    static async getReviewByReservation(reservationId) {
+        return await reviewDAO.getReviewByReservationId(reservationId)
+    }
 
-        await review.save()
-        return asReviewPublic(review)
+    static async createReview(data) {
+        const created = await reviewDAO.createReview(data)
+        return asReviewPublic(created)
+    }
+
+    static async deleteReview(id) {
+        const deleted = await reviewDAO.deleteReview(id)
+        return asReviewPublic(deleted)
+    }
+
+    static async replyToReview(id, message) {
+        const replied = await reviewDAO.replyToReview(id, message)
+        return asReviewPublic(replied)
+    }
+
+    static async getReviewSummary(lodgingId) {
+        return await reviewDAO.getReviewSummary(lodgingId)
     }
 }
 

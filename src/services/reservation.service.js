@@ -1,29 +1,33 @@
 import ReservationDAO from '../dao/reservation.dao.js'
 import LodgingDAO from '../dao/lodging.dao.js'
 import dayjs from 'dayjs'
-import asReservationPublic from '../dto/reservation.dto.js'
+import reservationDTO from '../dto/reservation.dto.js'
+
+const reservationDAO = new ReservationDAO()
+const lodgingDAO = new LodgingDAO()
+const asReservationPublic = reservationDTO.asPublicReservation
 
 class ReservationService {    
 
     static async getReservationById(id) {
-        const reservation = await ReservationDAO.getReservationById(id)
+        const reservation = await reservationDAO.getReservationById(id)
         return asReservationPublic(reservation)
     }
 
     static async getReservationsByUserId(userId) {
-        const reservations = await ReservationDAO.getReservationsByUserId(userId)
+        const reservations = await reservationDAO.getReservationsByUserId(userId)
         return reservations.map(asReservationPublic)
     }
 
     static async createReservation(reservationData) {
         const { userId, lodgingId, checkIn, checkOut } = reservationData
 
-        const lodging = await LodgingDAO.getLodgingById(lodgingId)
+        const lodging = await lodgingDAO.getLodgingById(lodgingId)
         if (!lodging?.isActive) {
             throw new Error('Lodging not found or inactive')
         }
 
-        const conflict = await ReservationDAO.isLodgingAvailable(lodgingId, checkIn, checkOut)
+        const conflict = await reservationDAO.isLodgingAvailable(lodgingId, checkIn, checkOut)
         if (conflict) {
             throw new Error('The lodging is not available for the selected dates')
         }
@@ -59,17 +63,17 @@ class ReservationService {
             totalPrice
         }
 
-        const created = await ReservationDAO.createReservation(finalReservation)
+        const created = await reservationDAO.createReservation(finalReservation)
         return asReservationPublic(created)
     }
 
     static async updateReservation(id, updateData) {
-        const reservation = await ReservationDAO.updateReservation(id, updateData)
+        const reservation = await reservationDAO.updateReservation(id, updateData)
         return asReservationPublic(reservation)
     }
 
     static async cancelReservation(id, userId) {
-        const reservation = await ReservationDAO.getReservationById(id)
+        const reservation = await reservationDAO.getReservationById(id)
         if (!reservation) throw new Error('Reservation not found')
 
         if (String(reservation.user) !== String(userId)) {
@@ -80,7 +84,7 @@ class ReservationService {
             throw new Error('Reservation already cancelled')
         }
 
-        const updated = await ReservationDAO.updateReservation(id, { status: 'cancelled' })
+        const updated = await reservationDAO.updateReservation(id, { status: 'cancelled' })
         return asReservationPublic(updated)
     }
 
@@ -90,13 +94,13 @@ class ReservationService {
         if (lodgingId) query.lodging = lodgingId
         if (status) query.status = status
 
-        const result = await ReservationDAO.getReservations(query, { page, limit })
+        const result = await reservationDAO.getReservations(query, { page, limit })
         result.data = result.data.map(asReservationPublic)
         return result
     }
 
     static async getReservationSummary(lodgingId) {
-        return await ReservationDAO.getReservationSummaryByLodging(lodgingId)
+        return await reservationDAO.getReservationSummaryByLodging(lodgingId)
     }
 }
 
