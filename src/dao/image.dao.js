@@ -10,7 +10,7 @@ class ImageDAO {
     }
 
     async getImagesByLodgingId(lodgingId) {
-        return await ImageModel.find({ lodging: lodgingId })
+        return await ImageModel.find({ associatedId: lodgingId, associatedType: 'lodging' })
     }
 
     async uploadImage(imageData) {

@@ -1,10 +1,18 @@
-import ImageDAO from '../dao/image.dao.js'
+import getFactory from '../dao/factory.js'
 import imageDTO from '../dto/image.dto.js'
 
-const imageDAO = new ImageDAO()
+let imageDAO
+
+const init = async () => {
+    if (!imageDAO) {
+        const daos = await getFactory()
+        imageDAO = daos.ImageDAO
+    }
+}
 
 class ImageService {
     static async getAllImages() {
+        await init()
         const images = await imageDAO.getAllImages()
         return images.map(imageDTO.asPublicImage)
     }
