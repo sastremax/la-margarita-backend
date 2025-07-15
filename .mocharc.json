@@ -1,4 +1,5 @@
 {
-    "extension": ["js"],
-    "loader": "module"
+  "extension": ["js"],
+  "recursive": true,
+  "timeout": 5000
 }

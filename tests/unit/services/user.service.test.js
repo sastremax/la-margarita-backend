@@ -1,46 +1,70 @@
+import { expect } from 'chai'
 import sinon from 'sinon'
 import UserService from '../../../src/services/user.service.js'
-import getFactory from '../../../src/dao/factory.js'
-
-let factory
-
-before(async () => {
-    factory = await getFactory()
-})
+import UserDAO from '../../../src/dao/user.dao.js'
+import asUserPublic from '../../../src/dto/user.dto.js'
 
 describe('User Service', () => {
-    afterEach(() => {
+    const fakeUser = {
+        _id: '1',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        role: 'user',
+        cart: null
+    }
+
+    const publicUser = {
+        id: '1',
+        fullName: 'John Doe',
+        email: 'john@example.com',
+        role: 'user',
+        cartId: null
+    }
+
+    beforeEach(() => {
         sinon.restore()
     })
 
-    it('debería obtener todos los usuarios', async () => {
-        const users = [{ id: 'u1' }, { id: 'u2' }]
-        sinon.stub(factory.UserDAO, 'getAllUsers').resolves(users)
-
+    it('should get all users', async () => {
+        sinon.stub(UserDAO.prototype, 'getAllUsers').resolves([fakeUser])
         const result = await UserService.getAllUsers()
-        expect(result).to.deep.equal(users)
+        expect(result).to.deep.equal([publicUser])
     })
 
-    it('debería obtener un usuario por ID', async () => {
-        const user = { id: 'u1', name: 'Test User' }
-        sinon.stub(factory.UserDAO, 'getUserById').resolves(user)
-
-        const result = await UserService.getUserById('u1')
-        expect(result).to.deep.equal(user)
+    it('should get user by ID', async () => {
+        sinon.stub(UserDAO.prototype, 'getUserById').resolves(fakeUser)
+        const result = await UserService.getUserById('1')
+        expect(result).to.deep.equal(publicUser)
     })
 
-    it('debería eliminar un usuario por ID', async () => {
-        sinon.stub(factory.UserDAO, 'deleteUser').resolves(true)
+    it('should get user by email', async () => {
+        sinon.stub(UserDAO.prototype, 'getUserByEmail').resolves(fakeUser)
+        const result = await UserService.getUserByEmail('john@example.com')
+        expect(result).to.deep.equal(publicUser)
+    })
 
-        const result = await UserService.deleteUser('u1')
+    it('should create a new user', async () => {
+        sinon.stub(UserDAO.prototype, 'createUser').resolves(fakeUser)
+        const result = await UserService.createUser(fakeUser)
+        expect(result).to.deep.equal(publicUser)
+    })
+
+    it('should update a user', async () => {
+        sinon.stub(UserDAO.prototype, 'updateUser').resolves(fakeUser)
+        const result = await UserService.updateUser('1', { firstName: 'Jane' })
+        expect(result).to.deep.equal(publicUser)
+    })
+
+    it('should delete a user', async () => {
+        sinon.stub(UserDAO.prototype, 'deleteUser').resolves(true)
+        const result = await UserService.deleteUser('1')
         expect(result).to.be.true
     })
 
-    it('debería actualizar el rol de un usuario', async () => {
-        const updated = { id: 'u1', role: 'admin' }
-        sinon.stub(factory.UserDAO, 'updateUserRole').resolves(updated)
-
-        const result = await UserService.updateUserRole('u1', 'admin')
-        expect(result).to.deep.equal(updated)
+    it('should update user role', async () => {
+        sinon.stub(UserDAO.prototype, 'updateUserRole').resolves(fakeUser)
+        const result = await UserService.updateUserRole('1', 'admin')
+        expect(result).to.deep.equal(publicUser)
     })
 })

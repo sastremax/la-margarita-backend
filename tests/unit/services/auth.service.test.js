@@ -1,94 +1,103 @@
-import mongoose from 'mongoose'
-import UserModel from '../../../src/models/user.model.js'
-import authService from '../../../src/services/auth.service.js'
+import { expect } from 'chai'
+import sinon from 'sinon'
+import bcrypt from 'bcrypt'
+import AuthService from '../../../src/services/auth.service.js'
+import AuthDAO from '../../../src/dao/auth.dao.js'
+import tokenService from '../../../src/services/token.service.js'
+import asUserPublic from '../../../src/dto/user.dto.js'
+import ApiError from '../../../src/utils/apiError.js'
 
-before(async () => {
-    await mongoose.connect(process.env.MONGO_URI_TEST)
-})
+const dto = { asUserPublic }
 
-after(async () => {
-    await mongoose.connection.close()
-})
+const fakeUser = {
+    _id: '1',
+    firstName: 'Jane',
+    lastName: 'Doe',
+    email: 'jane@example.com',
+    password: 'hashedpass',
+    role: 'user',
+    cart: null
+}
 
-afterEach(async () => {
-    await UserModel.deleteMany({ email: { $regex: /^testuser/i } })
-})
-
-
-const testEmail = 'testuser@example.com'
-const testPassword = '12345678'
+const publicUser = {
+    id: '1',
+    fullName: 'Jane Doe',
+    email: 'jane@example.com',
+    role: 'user',
+    cartId: null
+}
 
 describe('Auth Service', () => {
-    it('debería registrar un nuevo usuario correctamente', async () => {
-        const user = await authService.registerUser({
-            firstName: 'Test',
-            lastName: 'User',
-            email: testEmail,
-            password: testPassword
-        })
-        console.log('user created:', user)
-        expect(user).to.have.property('id')
-        expect(user.email).to.equal(testEmail)
+    beforeEach(() => {
+        sinon.restore()
     })
 
-    it('debería lanzar error si el email ya está registrado', async () => {
-        await authService.registerUser({
-            firstName: 'Test',
-            lastName: 'User',
-            email: testEmail,
-            password: testPassword
+    describe('registerUser', () => {
+        it('should throw error if user already exists', async () => {
+            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(fakeUser)
+
+            try {
+                await AuthService.registerUser({
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    email: 'jane@example.com',
+                    password: '12345678'
+                })
+            } catch (error) {
+                expect(error).to.be.instanceOf(ApiError)
+                expect(error.statusCode).to.equal(400)
+            }
         })
 
-        await expect(
-            authService.registerUser({
-                firstName: 'Otro',
-                lastName: 'Usuario',
-                email: testEmail,
-                password: testPassword
+        it('should register and return public user if not existing', async () => {
+            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(null)
+            sinon.stub(AuthDAO.prototype, 'createUser').resolves(fakeUser)
+            sinon.stub(dto, 'asUserPublic').returns(publicUser)
+
+            const result = await AuthService.registerUser({
+                firstName: 'Jane',
+                lastName: 'Doe',
+                email: 'jane@example.com',
+                password: '12345678'
             })
-        ).to.be.rejectedWith('Email already registered')
+
+            expect(result).to.deep.equal(publicUser)
+        })
     })
 
-    it('debería hacer login correctamente con credenciales válidas', async () => {
-        await authService.registerUser({
-            firstName: 'Test',
-            lastName: 'User',
-            email: testEmail,
-            password: testPassword
+    describe('loginUser', () => {
+        it('should throw error if user not found', async () => {
+            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(null)
+
+            try {
+                await AuthService.loginUser({ email: 'jane@example.com', password: '12345678' })
+            } catch (error) {
+                expect(error).to.be.instanceOf(ApiError)
+                expect(error.statusCode).to.equal(401)
+            }
         })
 
-        const result = await authService.loginUser({
-            email: testEmail,
-            password: testPassword
+        it('should throw error if password invalid', async () => {
+            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(fakeUser)
+            sinon.stub(bcrypt, 'compare').resolves(false)
+
+            try {
+                await AuthService.loginUser({ email: 'jane@example.com', password: 'wrongpass' })
+            } catch (error) {
+                expect(error).to.be.instanceOf(ApiError)
+                expect(error.statusCode).to.equal(401)
+            }
         })
 
-        expect(result).to.have.property('token')
-        expect(result).to.have.property('user')
-        expect(result.user.email).to.equal(testEmail)
-    })
+        it('should return token and public user if login successful', async () => {
+            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(fakeUser)
+            sinon.stub(bcrypt, 'compare').resolves(true)
+            sinon.stub(tokenService, 'generateAccessToken').returns('fake-token')
+            sinon.stub(dto, 'asUserPublic').returns(publicUser)
 
-    it('debería lanzar error si el email es inválido', async () => {
-        await expect(
-            authService.loginUser({
-                email: 'noexiste@example.com',
-                password: testPassword
-            })
-        ).to.be.rejectedWith('Invalid credentials')
-    })
+            const result = await AuthService.loginUser({ email: 'jane@example.com', password: '12345678' })
 
-    it('debería lanzar error si la contraseña es incorrecta', async () => {
-        await authService.registerUser({
-            firstName: 'Test',
-            lastName: 'User',
-            email: testEmail,
-            password: testPassword
+            expect(result).to.deep.equal({ token: 'fake-token', user: publicUser })
         })
-
-        await expect(
-            authService.loginUser({
-                email: testEmail,
-                password: 'wrongpassword'
-            })
-        ).to.be.rejectedWith('Invalid credentials')
     })
 })

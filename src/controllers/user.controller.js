@@ -1,8 +1,8 @@
 import userService from '../services/user.service.js'
 import asUserPublic from '../dto/user.dto.js'
 import cartService from '../services/cart.service.js'
-import auditService from '../services/audit.service.js'
 import reservationService from '../services/reservation.service.js'
+import AuditService from '../services/audit.service.js'
 
 const getAllUsers = async (req, res, next) => {
     try {
@@ -52,7 +52,7 @@ const updateUserRole = async (req, res, next) => {
 
         const updatedUser = await userService.updateUserRole(uid, role)
 
-        await auditService.logEvent({
+        await AuditService.logEvent({
             userId: req.user?._id,
             event: 'update_user_role',
             success: true,

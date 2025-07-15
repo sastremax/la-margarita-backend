@@ -1,40 +1,103 @@
+import { expect } from 'chai'
 import sinon from 'sinon'
 import ContactService from '../../../src/services/contact.service.js'
-import getFactory from '../../../src/dao/factory.js'
-
-let factory
-
-before(async () => {
-    factory = await getFactory()
-})
+import ContactDAO from '../../../src/dao/contact.dao.js'
+import contactDTO from '../../../src/dto/contact.dto.js'
 
 describe('Contact Service', () => {
-    afterEach(() => {
+    const fakeContact = {
+        _id: 'contact123',
+        name: 'Juan',
+        email: 'juan@example.com',
+        message: 'Hola, quiero más info',
+        replied: false
+    }
+
+    const fakePublicContact = {
+        id: 'contact123',
+        name: 'Juan',
+        email: 'juan@example.com',
+        message: 'Hola, quiero más info',
+        replied: false
+    }
+
+    beforeEach(() => {
         sinon.restore()
     })
 
-    it('debería crear un contacto', async () => {
-        const contactData = { name: 'John', email: 'john@example.com', message: 'Hello' }
-        const createdContact = { id: '1', ...contactData }
+    describe('createContact', () => {
+        it('debería crear un contacto y devolverlo en formato público', async () => {
+            sinon.stub(ContactDAO.prototype, 'createContact').resolves(fakeContact)
+            sinon.stub(contactDTO, 'asPublicContact').returns(fakePublicContact)
 
-        sinon.stub(factory.ContactDAO, 'createContact').resolves(createdContact)
+            const result = await ContactService.createContact({
+                name: 'Juan',
+                email: 'juan@example.com',
+                message: 'Hola'
+            })
 
-        const result = await ContactService.createContact(contactData)
-        expect(result).to.deep.equal(createdContact)
+            expect(result).to.deep.equal(fakePublicContact)
+        })
     })
 
-    it('debería obtener todos los contactos', async () => {
-        const fakeContacts = [{ id: '1' }, { id: '2' }]
-        sinon.stub(factory.ContactDAO, 'getAllContacts').resolves(fakeContacts)
+    describe('getAllContacts', () => {
+        it('debería devolver todos los contactos en formato público', async () => {
+            sinon.stub(ContactDAO.prototype, 'getAllContacts').resolves([fakeContact])
+            sinon.stub(contactDTO, 'asPublicContact').callsFake((c) => ({ id: c._id, name: c.name }))
 
-        const result = await ContactService.getAllContacts()
-        expect(result).to.deep.equal(fakeContacts)
+            const result = await ContactService.getAllContacts()
+
+            expect(result).to.deep.equal([{ id: 'contact123', name: 'Juan' }])
+        })
     })
 
-    it('debería eliminar un contacto por ID', async () => {
-        sinon.stub(factory.ContactDAO, 'deleteContact').resolves(true)
+    describe('getContactById', () => {
+        it('debería devolver un contacto por ID', async () => {
+            sinon.stub(ContactDAO.prototype, 'getContactById').resolves(fakeContact)
+            sinon.stub(contactDTO, 'asPublicContact').returns(fakePublicContact)
 
-        const result = await ContactService.deleteContact('contact123')
-        expect(result).to.be.true
+            const result = await ContactService.getContactById('contact123')
+
+            expect(result).to.deep.equal(fakePublicContact)
+        })
+
+        it('debería devolver null si el ID no existe', async () => {
+            sinon.stub(ContactDAO.prototype, 'getContactById').resolves(null)
+
+            const result = await ContactService.getContactById('noexistente')
+
+            expect(result).to.be.null
+        })
+    })
+
+    describe('updateReplyStatus', () => {
+        it('debería actualizar el estado replied y devolver el contacto actualizado', async () => {
+            const updated = { ...fakeContact, replied: true }
+
+            sinon.stub(ContactDAO.prototype, 'updateReplyStatus').resolves(updated)
+            sinon.stub(contactDTO, 'asPublicContact').returns({ ...fakePublicContact, replied: true })
+
+            const result = await ContactService.updateReplyStatus('contact123', { replied: true })
+
+            expect(result.replied).to.be.true
+        })
+
+        it('debería devolver null si el ID no existe', async () => {
+            sinon.stub(ContactDAO.prototype, 'updateReplyStatus').resolves(null)
+
+            const result = await ContactService.updateReplyStatus('noexistente', { replied: true })
+
+            expect(result).to.be.null
+        })
+    })
+
+    describe('deleteContact', () => {
+        it('debería eliminar el contacto por ID', async () => {
+            const stub = sinon.stub(ContactDAO.prototype, 'deleteContact').resolves()
+
+            await ContactService.deleteContact('contact123')
+
+            expect(stub.calledOnceWith('contact123')).to.be.true
+        })
     })
 })

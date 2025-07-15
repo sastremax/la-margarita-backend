@@ -1,6 +1,6 @@
 import authService from '../services/auth.service.js'
 import jwtUtil from '../utils/jwt.util.js'
-import auditService from '../services/audit.service.js'
+import AuditService from '../services/audit.service.js'
 import asUserPublic from '../dto/user.dto.js'
 
 const postLogin = async (req, res, next) => {
@@ -25,7 +25,7 @@ const postLogin = async (req, res, next) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        await auditService.logEvent({
+        await AuditService.logEvent({
             userId: user._id,
             event: 'login',
             success: true,
@@ -35,7 +35,7 @@ const postLogin = async (req, res, next) => {
 
         res.status(200).json({ status: 'success', data: { user: asUserPublic(user) } })
     } catch (error) {
-        await auditService.logEvent({
+        await AuditService.logEvent({
             userId: null,
             event: 'login',
             success: false,
@@ -61,7 +61,7 @@ const postLogout = async (req, res, next) => {
         res.clearCookie('token')
         res.clearCookie('refreshToken')
 
-        await auditService.logEvent({
+        await AuditService.logEvent({
             userId: req.user?._id,
             event: 'logout',
             success: true,
