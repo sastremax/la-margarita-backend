@@ -1,34 +1,36 @@
 import ProductDAO from '../dao/product.dao.js'
-import asProductPublic from '../dto/product.dto.js'
+import productDTO from '../dto/product.dto.js'
+
+const productDAO = new ProductDAO()
 
 class ProductService {
     static async getAllProducts() {
-        const products = await ProductDAO.getAllProducts()
-        return products.map(asProductPublic)
+        const products = await productDAO.getAllProducts()
+        return products.map(productDTO.asPublicProduct)
     }
 
     static async getProductById(id) {
-        const product = await ProductDAO.getProductById(id)
-        return asProductPublic(product)
+        const product = await productDAO.getProductById(id)
+        return productDTO.asPublicProduct(product)
     }
 
     static async getProductByCode(code) {
-        const product = await ProductDAO.getProductByCode(code)
-        return asProductPublic(product)
+        const product = await productDAO.getProductByCode(code)
+        return productDTO.asPublicProduct(product)
     }
 
     static async createProduct(productData) {
-        const product = await ProductDAO.createProduct(productData)
-        return asProductPublic(product)
+        const product = await productDAO.createProduct(productData)
+        return productDTO.asPublicProduct(product)
     }
 
     static async updateProduct(id, updateData) {
-        const product = await ProductDAO.updateProduct(id, updateData)
-        return asProductPublic(product)
+        const product = await productDAO.updateProduct(id, updateData)
+        return productDTO.asPublicProduct(product)
     }
 
     static async deleteProduct(id) {
-        return await ProductDAO.deleteProduct(id)
+        return await productDAO.deleteProduct(id)
     }
 }
 

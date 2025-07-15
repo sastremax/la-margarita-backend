@@ -1,63 +1,72 @@
-import factory from '../dao/factory.js'
+import getFactory from '../dao/factory.js'
 import cartDTO from '../dto/cart.dto.js'
 
 const asCartPublic = cartDTO.asPublicCart
-const CartDAO = factory.CartDAO
 
 class CartService {
-    static async getAllCarts() {
-        const carts = await CartDAO.getAllCarts()
+    constructor(dao) {
+        this.dao = dao
+    }
+
+    async getAllCarts() {
+        const carts = await this.dao.getAllCarts()
         return carts.map(asCartPublic)
     }
 
-    static async getCartById(id) {
-        const cart = await CartDAO.getCartById(id)
+    async getCartById(id) {
+        const cart = await this.dao.getCartById(id)
         return asCartPublic(cart)
     }
 
-    static async getCartByUserId(userId) {
-        const cart = await CartDAO.getCartByUserId(userId)
+    async getCartByUserId(userId) {
+        const cart = await this.dao.getCartByUserId(userId)
         return asCartPublic(cart)
     }
 
-    static async createCart(cartData) {
-        const cart = await CartDAO.createCart(cartData)
+    async createCart(cartData) {
+        const cart = await this.dao.createCart(cartData)
         return asCartPublic(cart)
     }
 
-    static async updateCart(id, updateData) {
-        const cart = await CartDAO.updateCart(id, updateData)
+    async updateCart(id, updateData) {
+        const cart = await this.dao.updateCart(id, updateData)
         return asCartPublic(cart)
     }
 
-    static async deleteCart(id) {
-        return await CartDAO.deleteCart(id)
+    async deleteCart(id) {
+        return await this.dao.deleteCart(id)
     }
 
-    static async addProductToCart(cartId, productId, quantity = 1) {
-        const cart = await CartDAO.addProductToCart(cartId, productId, quantity)
+    async addProductToCart(cartId, productId, quantity = 1) {
+        const cart = await this.dao.addProductToCart(cartId, productId, quantity)
         return asCartPublic(cart)
     }
 
-    static async removeProductFromCart(cartId, productId) {
-        const cart = await CartDAO.removeProductFromCart(cartId, productId)
+    async removeProductFromCart(cartId, productId) {
+        const cart = await this.dao.removeProductFromCart(cartId, productId)
         return asCartPublic(cart)
     }
 
-    static async updateCartProducts(cartId, products) {
-        const cart = await CartDAO.updateCartProducts(cartId, products)
+    async updateCartProducts(cartId, products) {
+        const cart = await this.dao.updateCartProducts(cartId, products)
         return asCartPublic(cart)
     }
 
-    static async updateProductQuantity(cartId, productId, quantity) {
-        const cart = await CartDAO.updateProductQuantity(cartId, productId, quantity)
+    async updateProductQuantity(cartId, productId, quantity) {
+        const cart = await this.dao.updateProductQuantity(cartId, productId, quantity)
         return asCartPublic(cart)
     }
 
-    static async purchaseCart(cartId, user) {
-        const cart = await CartDAO.purchaseCart(cartId, user)
+    async purchaseCart(cartId, user) {
+        const cart = await this.dao.purchaseCart(cartId, user)
         return asCartPublic(cart)
     }
 }
 
-export default CartService
+const initializeCartService = async () => {
+    const factory = await getFactory()
+    return new CartService(factory.CartDAO)
+}
+
+export { CartService }
+export default initializeCartService
