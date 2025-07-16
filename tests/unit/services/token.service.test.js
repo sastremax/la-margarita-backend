@@ -1,66 +1,58 @@
 import { expect } from 'chai'
+import sinon from 'sinon'
 import jwt from 'jsonwebtoken'
 import tokenService from '../../../src/services/token.service.js'
 import config from '../../../src/config/index.js'
+import ApiError from '../../../src/utils/apiError.js'
 
 describe('Token Service', () => {
-    const mockUser = {
-        _id: '64a4b6f1c2e5f1a1b2c3d4e5',
-        role: 'admin'
-    }
+    const payload = { id: 'user1', role: 'user' }
 
-    const accessPayload = {
-        id: mockUser._id,
-        role: mockUser.role
-    }
-
-    const refreshPayload = {
-        id: mockUser._id
-    }
-
-    describe('generateAccessToken', () => {
-        it('debería generar un access token JWT válido con ID y role', () => {
-            const token = tokenService.generateAccessToken(accessPayload)
-            const decoded = jwt.verify(token, config.jwt.secret)
-
-            expect(decoded).to.have.property('id', mockUser._id)
-            expect(decoded).to.have.property('role', mockUser.role)
-        })
+    afterEach(() => {
+        sinon.restore()
     })
 
-    describe('generateRefreshToken', () => {
-        it('debería generar un refresh token JWT válido con solo el ID', () => {
-            const token = tokenService.generateRefreshToken(refreshPayload)
-            const decoded = jwt.verify(token, config.jwt.refreshSecret)
-
-            expect(decoded).to.have.property('id', mockUser._id)
-            expect(decoded).to.not.have.property('role')
-        })
+    it('should generate a valid access token', () => {
+        const token = tokenService.generateAccessToken(payload)
+        const decoded = jwt.verify(token, config.jwt.secret)
+        expect(decoded).to.include({ id: 'user1', role: 'user' })
     })
 
-    describe('verifyAccessToken', () => {
-        it('debería verificar un access token válido y devolver el payload', () => {
-            const token = tokenService.generateAccessToken(accessPayload)
-            const payload = tokenService.verifyAccessToken(token)
-
-            expect(payload).to.have.property('id', mockUser._id)
-            expect(payload).to.have.property('role', mockUser.role)
-        })
-
-        it('debería lanzar un error si el token es inválido', () => {
-            const fakeToken = 'invalid.token.here'
-            expect(() => tokenService.verifyAccessToken(fakeToken)).to.throw()
-        })
+    it('should generate a valid refresh token', () => {
+        const token = tokenService.generateRefreshToken(payload)
+        const decoded = jwt.verify(token, config.jwt.refreshSecret)
+        expect(decoded).to.include({ id: 'user1', role: 'user' })
     })
 
-    describe('verifyRefreshToken', () => {
-        it('debería verificar un refresh token válido y devolver el payload', () => {
-            const token = tokenService.generateRefreshToken(refreshPayload)
-            const payload = tokenService.verifyRefreshToken(token)
+    it('should verify a valid access token', () => {
+        const token = jwt.sign(payload, config.jwt.secret, { expiresIn: '1h' })
+        const verified = tokenService.verifyAccessToken(token)
+        expect(verified).to.include({ id: 'user1', role: 'user' })
+    })
 
-            expect(payload).to.have.property('id', mockUser._id)
-            expect(payload).to.not.have.property('role')
-        })
+    it('should verify a valid refresh token', () => {
+        const token = jwt.sign(payload, config.jwt.refreshSecret, { expiresIn: '7d' })
+        const verified = tokenService.verifyRefreshToken(token)
+        expect(verified).to.include({ id: 'user1', role: 'user' })
+    })
+
+    it('should throw error if access secret is missing', () => {
+        sinon.stub(config.jwt, 'secret').value(undefined)
+        expect(() => tokenService.generateAccessToken(payload)).to.throw(ApiError)
+    })
+
+    it('should throw error if refresh secret is missing', () => {
+        sinon.stub(config.jwt, 'refreshSecret').value(undefined)
+        expect(() => tokenService.generateRefreshToken(payload)).to.throw(ApiError)
+    })
+
+    it('should throw on invalid access token', () => {
+        const badToken = 'invalid.token'
+        expect(() => tokenService.verifyAccessToken(badToken)).to.throw()
+    })
+
+    it('should throw on invalid refresh token', () => {
+        const badToken = 'invalid.token'
+        expect(() => tokenService.verifyRefreshToken(badToken)).to.throw()
     })
 })
-
