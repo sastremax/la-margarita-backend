@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit'
-import logger from '../config/logger.js'
+import rateLimitHandler from './rateLimitHandler.js'
 
 const windowMs = Number(process.env.RATE_LIMIT_WINDOW_MS)
 const maxRequests = Number(process.env.RATE_LIMIT_MAX)
@@ -12,19 +12,7 @@ const limiter = rateLimit({
         message: 'Too many requests, please try again later.'
     },
     headers: true,
-    handler: function (req, res, next, options) {
-        const requestId = req.requestId || 'no-request-id'
-        logger.warn(
-            new Date().toISOString() +
-            ' - ' +
-            requestId +
-            ' - Rate limit exceeded for IP ' +
-            req.ip +
-            ' on ' +
-            req.originalUrl
-        )
-        res.status(options.statusCode).json(options.message)
-    }
+    handler: rateLimitHandler
 })
 
 export default limiter
