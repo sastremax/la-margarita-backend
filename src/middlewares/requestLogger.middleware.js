@@ -2,8 +2,8 @@ import logger from '../config/logger.js'
 
 function requestLogger(req, res, next) {
     const start = Date.now()
-    const user = (req.user && req.user.email) ? req.user.email : (req.user && req.user.id) ? req.user.id : 'Guest'
-    const ip = req.ip || (req.connection && req.connection.remoteAddress) || 'Unknown IP'
+    const user = req.user?.email || req.user?.id || 'Guest'
+    const ip = req.ip || req.connection?.remoteAddress || 'Unknown IP'
     const requestId = req.requestId || 'no-request-id'
     let logged = false
 
