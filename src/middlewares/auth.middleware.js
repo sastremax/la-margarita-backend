@@ -15,7 +15,7 @@ function authMiddleware(req, res, next) {
             throw new ApiError(401, 'No token provided')
         }
 
-        const decoded = jwtUtil.verifyToken(token)
+        const decoded = jwtUtil.verifyAccessToken(token)
         req.user = decoded
         next()
     } catch (error) {
