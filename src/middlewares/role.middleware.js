@@ -1,15 +1,8 @@
-import cors from 'cors'
-import ApiError from '../utils/apiError.js'
-
-const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',')
-
-export default cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true)
-        } else {
-            callback(new ApiError(403, 'Not allowed by CORS'))
+export default function authorizeRoles(...roles) {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return res.status(403).json({ status: 'error', message: 'Access denied' })
         }
-    },
-    credentials: true
-})
+        next()
+    }
+}
