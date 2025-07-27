@@ -3,6 +3,10 @@ import ApiError from '../utils/apiError.js'
 
 const validateReviewExists = async (req, res, next) => {
     try {
+        if (!req.params?.rid) {
+            return next(new ApiError(400, 'Missing review ID'))
+        }
+
         const review = await reviewService.getReviewById(req.params.rid)
         if (!review) throw new ApiError(404, 'Review not found')
         next()
