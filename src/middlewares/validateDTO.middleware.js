@@ -1,4 +1,9 @@
 function validateDTO(schema) {
+
+    if (!schema || typeof schema.safeParse !== 'function') {
+        throw new Error('Invalid schema provided to validateDTO middleware')
+    }
+
     return function (req, res, next) {
         const result = schema.safeParse(req.body)
 
