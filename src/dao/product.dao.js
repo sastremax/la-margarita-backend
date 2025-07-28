@@ -1,6 +1,6 @@
-import ProductModel from '../models/product.model.js'
+import { ProductModel } from '../models/product.model.js'
 
-class ProductDAO {
+export class ProductDAO {
     async getAllProducts() {
         return await ProductModel.find()
     }
@@ -25,5 +25,3 @@ class ProductDAO {
         return await ProductModel.findByIdAndDelete(id)
     }
 }
-
-export default ProductDAO

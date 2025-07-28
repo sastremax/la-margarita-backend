@@ -3,7 +3,7 @@ import productDTO from '../dto/product.dto.js'
 
 const productDAO = new ProductDAO()
 
-class ProductService {
+export class ProductService {
     static async getAllProducts() {
         const products = await productDAO.getAllProducts()
         return products.map(productDTO.asPublicProduct)
@@ -33,5 +33,3 @@ class ProductService {
         return await productDAO.deleteProduct(id)
     }
 }
-
-export default ProductService

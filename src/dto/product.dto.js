@@ -1,6 +1,6 @@
 import z from 'zod'
 
-const productSchema = z.object({
+export const productSchema = z.object({
     title: z.string().min(1),
     description: z.string().min(1),
     price: z.number().positive(),
@@ -10,7 +10,7 @@ const productSchema = z.object({
     images: z.array(z.string().url()).optional()
 })
 
-function asPublicProduct(product) {
+export function asPublicProduct(product) {
     return {
         id: product._id,
         title: product.title,
@@ -22,10 +22,3 @@ function asPublicProduct(product) {
         images: product.images || []
     }
 }
-
-const productDTO = {
-    productSchema,
-    asPublicProduct
-}
-
-export default productDTO
