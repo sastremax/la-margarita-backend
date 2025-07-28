@@ -1,50 +1,50 @@
-import LodgingService from '../services/lodging.service.js'
-import lodgingDTO from '../dto/lodging.dto.js'
-import AuditService from '../services/audit.service.js'
+import { LodgingService } from '../services/lodging.service.js'
+import { asPublicLodging } from '../dto/lodging.dto.js'
+import { AuditService } from '../services/audit.service.js'
 
-const getAllLodgings = async (req, res, next) => {
+export const getAllLodgings = async (req, res, next) => {
     try {
         const filters = req.query
         const lodgings = await LodgingService.getAllLodgings(filters)
-        const publicLodgings = lodgings.map(lodgingDTO.asPublicLodging)
+        const publicLodgings = lodgings.map(asPublicLodging)
         res.status(200).json({ status: 'success', data: publicLodgings })
     } catch (error) {
         next(error)
     }
 }
 
-const getLodgingById = async (req, res, next) => {
+export const getLodgingById = async (req, res, next) => {
     try {
         const { lid } = req.params
         const lodging = await LodgingService.getLodgingById(lid)
-        res.status(200).json({ status: 'success', data: lodgingDTO.asPublicLodging(lodging) })
+        res.status(200).json({ status: 'success', data: asPublicLodging(lodging) })
     } catch (error) {
         next(error)
     }
 }
 
-const getLodgingsByOwner = async (req, res, next) => {
+export const getLodgingsByOwner = async (req, res, next) => {
     try {
         const { uid } = req.params
         const lodgings = await LodgingService.getLodgingsByOwner(uid)
-        const data = lodgings.map(lodgingDTO.asPublicLodging)
+        const data = lodgings.map(asPublicLodging)
         res.status(200).json({ status: 'success', data })
     } catch (error) {
         next(error)
     }
 }
 
-const createLodging = async (req, res, next) => {
+export const createLodging = async (req, res, next) => {
     try {
         const lodgingData = req.body
         const lodging = await LodgingService.createLodging(lodgingData)
-        res.status(201).json({ status: 'success', data: lodgingDTO.asPublicLodging(lodging) })
+        res.status(201).json({ status: 'success', data: asPublicLodging(lodging) })
     } catch (error) {
         next(error)
     }
 }
 
-const updateLodging = async (req, res, next) => {
+export const updateLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
         const data = req.body
@@ -58,23 +58,23 @@ const updateLodging = async (req, res, next) => {
             userAgent: req.headers['user-agent']
         })
 
-        res.status(200).json({ status: 'success', data: lodgingDTO.asPublicLodging(updated) })
+        res.status(200).json({ status: 'success', data: asPublicLodging(updated) })
     } catch (error) {
         next(error)
     }
 }
 
-const disableLodging = async (req, res, next) => {
+export const disableLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
         const updated = await LodgingService.disableLodging(lid)
-        res.status(200).json({ status: 'success', data: lodgingDTO.asPublicLodging(updated) })
+        res.status(200).json({ status: 'success', data: asPublicLodging(updated) })
     } catch (error) {
         next(error)
     }
 }
 
-const deleteLodging = async (req, res, next) => {
+export const deleteLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
         await LodgingService.deleteLodging(lid)
@@ -82,14 +82,4 @@ const deleteLodging = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-}
-
-export default {
-    getAllLodgings,
-    getLodgingById,
-    getLodgingsByOwner,
-    createLodging,
-    updateLodging,
-    disableLodging,
-    deleteLodging
 }

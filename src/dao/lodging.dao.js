@@ -1,6 +1,6 @@
-import LodgingModel from '../models/lodging.model.js'
+import { Lodging } from '../models/lodging.model.js'
 
-class LodgingDAO {
+export class LodgingDAO {
     async getAllLodgings(filters = {}) {
         const query = {}
 
@@ -11,32 +11,30 @@ class LodgingDAO {
         if (filters.isActive !== undefined) query.isActive = filters.isActive === 'true'
         if (filters.capacity) query.capacity = { $gte: parseInt(filters.capacity) }
 
-        return await LodgingModel.find(query).sort({ createdAt: -1 })
+        return await Lodging.find(query).sort({ createdAt: -1 })
     }
 
     async getLodgingById(id) {
-        return await LodgingModel.findById(id)
+        return await Lodging.findById(id)
     }
 
     async getLodgingsByOwner(ownerId) {
-        return await LodgingModel.find({ owner: ownerId })
+        return await Lodging.find({ owner: ownerId })
     }
 
     async createLodging(lodgingData) {
-        return await LodgingModel.create(lodgingData)
+        return await Lodging.create(lodgingData)
     }
 
     async updateLodging(id, updateData) {
-        return await LodgingModel.findByIdAndUpdate(id, updateData, { new: true })
+        return await Lodging.findByIdAndUpdate(id, updateData, { new: true })
     }
 
     async disableLodging(id) {
-        return await LodgingModel.findByIdAndUpdate(id, { isActive: false }, { new: true })
+        return await Lodging.findByIdAndUpdate(id, { isActive: false }, { new: true })
     }
 
     async deleteLodging(id) {
-        return await LodgingModel.findByIdAndDelete(id)
+        return await Lodging.findByIdAndDelete(id)
     }
 }
-
-export default LodgingDAO

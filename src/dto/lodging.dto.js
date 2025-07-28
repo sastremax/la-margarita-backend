@@ -1,6 +1,6 @@
 import z from 'zod'
 
-const lodgingSchema = z.object({
+export const lodgingSchema = z.object({
     title: z.string().min(1),
     description: z.string().min(1),
     images: z.array(z.string().url()).optional(),
@@ -15,7 +15,7 @@ const lodgingSchema = z.object({
     isActive: z.boolean().optional()
 })
 
-function asPublicLodging(lodging) {
+export function asPublicLodging(lodging) {
     return {
         id: lodging._id,
         title: lodging.title,
@@ -28,10 +28,3 @@ function asPublicLodging(lodging) {
         isActive: lodging.isActive
     }
 }
-
-const lodgingDTO = {
-    lodgingSchema,
-    asPublicLodging
-}
-
-export default lodgingDTO

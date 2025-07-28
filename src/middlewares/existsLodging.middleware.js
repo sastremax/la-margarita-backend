@@ -1,8 +1,8 @@
-import LodgingDAO from '../dao/lodging.dao.js'
+import { LodgingDAO } from '../dao/lodging.dao.js'
 
 const lodgingDAO = new LodgingDAO()
 
-const existsLodging = async (req, res, next) => {
+export const existsLodging = async (req, res, next) => {
     const lodging = await lodgingDAO.getLodgingById(req.params.lid)
     if (!lodging) {
         return res.status(404).json({ status: 'error', error: 'Lodging not found' })
@@ -10,5 +10,3 @@ const existsLodging = async (req, res, next) => {
     req.lodging = lodging
     next()
 }
-
-export default existsLodging
