@@ -1,22 +1,21 @@
-import ReservationDAO from '../dao/reservation.dao.js'
-import LodgingDAO from '../dao/lodging.dao.js'
+import { ReservationDAO } from '../dao/reservation.dao.js'
+import { LodgingDAO } from '../dao/lodging.dao.js'
 import dayjs from 'dayjs'
-import reservationDTO from '../dto/reservation.dto.js'
+import { asPublicReservation } from '../dto/reservation.dto.js'
 
 const reservationDAO = new ReservationDAO()
 const lodgingDAO = new LodgingDAO()
-const asReservationPublic = reservationDTO.asPublicReservation
 
 export class ReservationService {
 
     static async getReservationById(id) {
         const reservation = await reservationDAO.getReservationById(id)
-        return asReservationPublic(reservation)
+        return asPublicReservation(reservation)
     }
 
     static async getReservationsByUserId(userId) {
         const reservations = await reservationDAO.getReservationsByUserId(userId)
-        return reservations.map(asReservationPublic)
+        return reservations.map(asPublicReservation)
     }
 
     static async createReservation(reservationData) {
@@ -64,12 +63,12 @@ export class ReservationService {
         }
 
         const created = await reservationDAO.createReservation(finalReservation)
-        return asReservationPublic(created)
+        return asPublicReservation(created)
     }
 
     static async updateReservation(id, updateData) {
         const reservation = await reservationDAO.updateReservation(id, updateData)
-        return asReservationPublic(reservation)
+        return asPublicReservation(reservation)
     }
 
     static async cancelReservation(id, userId) {
@@ -85,7 +84,7 @@ export class ReservationService {
         }
 
         const updated = await reservationDAO.updateReservation(id, { status: 'cancelled' })
-        return asReservationPublic(updated)
+        return asPublicReservation(updated)
     }
 
     static async getReservationsWithFilters({ page = 1, limit = 10, userId, lodgingId, status }) {
@@ -95,7 +94,7 @@ export class ReservationService {
         if (status) query.status = status
 
         const result = await reservationDAO.getReservations(query, { page, limit })
-        result.data = result.data.map(asReservationPublic)
+        result.data = result.data.map(asPublicReservation)
         return result
     }
 

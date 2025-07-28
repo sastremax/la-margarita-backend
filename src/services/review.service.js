@@ -1,24 +1,23 @@
 import { ReviewDAO } from '../dao/review.dao.js'
-import { reviewDTO } from '../dto/review.dto.js'
+import { asPublicReview } from '../dto/review.dto.js'
 
 const reviewDAO = new ReviewDAO()
-const asReviewPublic = reviewDTO.asPublicReview
 
 export class ReviewService {
     static async getAllReviews({ page = 1, limit = 10 }) {
         const result = await reviewDAO.getAllReviews({ page, limit })
-        result.data = result.data.map(asReviewPublic)
+        result.data = result.data.map(asPublicReview)
         return result
     }
 
     static async getReviewById(id) {
         const review = await reviewDAO.getReviewById(id)
-        return asReviewPublic(review)
+        return asPublicReview(review)
     }
 
     static async getReviewsByLodgingId(lodgingId, { page = 1, limit = 10, filters = {} }) {
         const result = await reviewDAO.getReviewsByLodgingWithFilters(lodgingId, { page, limit, filters })
-        result.reviews = result.reviews.map(asReviewPublic)
+        result.reviews = result.reviews.map(asPublicReview)
         return result
     }
 
@@ -28,17 +27,17 @@ export class ReviewService {
 
     static async createReview(data) {
         const created = await reviewDAO.createReview(data)
-        return asReviewPublic(created)
+        return asPublicReview(created)
     }
 
     static async deleteReview(id) {
         const deleted = await reviewDAO.deleteReview(id)
-        return asReviewPublic(deleted)
+        return asPublicReview(deleted)
     }
 
     static async replyToReview(id, message) {
         const replied = await reviewDAO.replyToReview(id, message)
-        return asReviewPublic(replied)
+        return asPublicReview(replied)
     }
 
     static async getReviewSummary(lodgingId) {

@@ -28,14 +28,14 @@ export class ImageService {
     }
 
     static async uploadImage(imageData) {
-        const { url, name, type, refId, publicId } = imageData
+        const validated = imageSchema.parse(imageData)
 
         const dbImage = {
-            url,
-            name,
-            associatedType: type,
-            associatedId: refId,
-            public_id: publicId || null
+            url: validated.url,
+            name: validated.name,
+            associatedType: validated.type,
+            associatedId: validated.refId,
+            public_id: validated.publicId || null
         }
 
         const image = await imageDAO.uploadImage(dbImage)

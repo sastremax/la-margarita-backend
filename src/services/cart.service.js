@@ -1,6 +1,4 @@
-import cartDTO from '../dto/cart.dto.js'
-
-const asCartPublic = cartDTO.asPublicCart
+import { asPublicCart } from '../dto/cart.dto.js'
 
 export class CartService {
     constructor(dao) {
@@ -9,27 +7,27 @@ export class CartService {
 
     async getAllCarts() {
         const carts = await this.dao.getAllCarts()
-        return carts.map(asCartPublic)
+        return carts.map(asPublicCart)
     }
 
     async getCartById(id) {
         const cart = await this.dao.getCartById(id)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async getCartByUserId(userId) {
         const cart = await this.dao.getCartByUserId(userId)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async createCart(cartData) {
         const cart = await this.dao.createCart(cartData)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async updateCart(id, updateData) {
         const cart = await this.dao.updateCart(id, updateData)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async deleteCart(id) {
@@ -38,26 +36,26 @@ export class CartService {
 
     async addProductToCart(cartId, productId, quantity = 1) {
         const cart = await this.dao.addProductToCart(cartId, productId, quantity)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async removeProductFromCart(cartId, productId) {
         const cart = await this.dao.removeProductFromCart(cartId, productId)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async updateCartProducts(cartId, products) {
         const cart = await this.dao.updateCartProducts(cartId, products)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async updateProductQuantity(cartId, productId, quantity) {
         const cart = await this.dao.updateProductQuantity(cartId, productId, quantity)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 
     async purchaseCart(cartId, user) {
         const cart = await this.dao.purchaseCart(cartId, user)
-        return asCartPublic(cart)
+        return asPublicCart(cart)
     }
 }
