@@ -7,8 +7,8 @@ import {
     deleteImage
 } from '../controllers/image.controller.js'
 import { imageSchema } from '../dto/image.dto.js'
-import authPolicy from '../middlewares/authPolicy.middleware.js'
-import validateDTO from '../middlewares/validateDTO.middleware.js'
+import { authPolicy } from '../middlewares/authPolicy.middleware.js'
+import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 
 export const imageRouter = express.Router()
 

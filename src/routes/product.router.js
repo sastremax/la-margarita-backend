@@ -6,8 +6,8 @@ import {
     updateProduct,
     deleteProduct
 } from '../controllers/product.controller.js'
-import authPolicy from '../middlewares/authPolicy.middleware.js'
-import validateDTO from '../middlewares/validateDTO.middleware.js'
+import { authPolicy } from '../middlewares/authPolicy.middleware.js'
+import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 import productDTO from '../dto/product.dto.js'
 
 export const productRouter = express.Router()

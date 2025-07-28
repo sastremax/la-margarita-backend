@@ -7,11 +7,11 @@ import {
     deleteReservation,
     getReservationById
 } from '../controllers/reservation.controller.js'
-import authPolicy from '../middlewares/authPolicy.middleware.js'
-import validateDTO from '../middlewares/validateDTO.middleware.js'
+import { authPolicy } from '../middlewares/authPolicy.middleware.js'
+import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 import reservationDTO from '../dto/reservation.dto.js'
-import validateReservationExists from '../middlewares/exists/validateReservationExists.js'
-import verifyOwnership from '../middlewares/verifyOwnership.js'
+import { validateReservationExists } from '../middlewares/exists/validateReservationExists.js'
+import { verifyOwnership } from '../middlewares/verifyOwnership.js'
 import reservationService from '../services/reservation.service.js'
 
 export const reservationRouter = express.Router()

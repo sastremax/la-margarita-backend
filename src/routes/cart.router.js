@@ -9,11 +9,11 @@ import {
     updateProductQuantity,
     purchaseCart
 } from '../controllers/cart.controller.js'
-import authPolicy from '../middlewares/authPolicy.middleware.js'
-import validateDTO from '../middlewares/validateDTO.middleware.js'
+import { authPolicy } from '../middlewares/authPolicy.middleware.js'
+import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 import cartDTO from '../dto/cart.dto.js'
-import validateCartExists from '../middlewares/validateCartExists.js'
-import verifyOwnership from '../middlewares/verifyOwnership.js'
+import { validateCartExists } from '../middlewares/validateCartExists.js'
+import { verifyOwnership } from '../middlewares/verifyOwnership.js'
 import cartService from '../services/cart.service.js'
 
 export const cartRouter = express.Router()
