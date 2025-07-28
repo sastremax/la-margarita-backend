@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 
-function calculateTotalPrice(pricingMap, checkIn, checkOut) {
+export function calculateTotalPrice(pricingMap, checkIn, checkOut) {
     const nights = dayjs(checkOut).diff(dayjs(checkIn), 'day')
     if (nights < 1) {
         const error = new Error('Reservation must be at least 1 night')
@@ -24,5 +24,3 @@ function calculateTotalPrice(pricingMap, checkIn, checkOut) {
         return basePrice + (extraNights * pricePerNight)
     }
 }
-
-export default calculateTotalPrice

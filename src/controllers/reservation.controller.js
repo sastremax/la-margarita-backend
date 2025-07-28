@@ -3,7 +3,7 @@ import reservationDTO from '../dto/reservation.dto.js'
 import ApiError from '../utils/apiError.js'
 import AuditService from '../services/audit.service.js'
 
-const getReservations = async (req, res, next) => {
+export const getReservations = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, userId, lodgingId, status } = req.query
         const reservations = await reservationService.getReservationsWithFilters({ page, limit, userId, lodgingId, status })
@@ -21,7 +21,7 @@ const getReservations = async (req, res, next) => {
     }
 }
 
-const getReservationSummary = async (req, res, next) => {
+export const getReservationSummary = async (req, res, next) => {
     try {
         const { lodgingId } = req.query
         if (!lodgingId) {
@@ -35,7 +35,7 @@ const getReservationSummary = async (req, res, next) => {
     }
 }
 
-const createReservation = async (req, res, next) => {
+export const createReservation = async (req, res, next) => {
     try {
         const userId = req.user._id
         const { lodgingId, checkIn, checkOut } = req.body
@@ -46,7 +46,7 @@ const createReservation = async (req, res, next) => {
     }
 }
 
-const getReservationsByUser = async (req, res, next) => {
+export const getReservationsByUser = async (req, res, next) => {
     try {
         const userId = req.user._id
         const reservations = await reservationService.getReservationsByUser(userId)
@@ -56,7 +56,7 @@ const getReservationsByUser = async (req, res, next) => {
     }
 }
 
-const deleteReservation = async (req, res, next) => {
+export const deleteReservation = async (req, res, next) => {
     try {
         const userId = req.user._id
         const reservationId = req.params.id
@@ -77,7 +77,7 @@ const deleteReservation = async (req, res, next) => {
     }
 }
 
-const getReservationById = async (req, res, next) => {
+export const getReservationById = async (req, res, next) => {
     try {
         const reservationId = req.params.rid
         const reservation = await reservationService.getReservationById(reservationId)
@@ -90,13 +90,4 @@ const getReservationById = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-}
-
-export default {
-    getReservations,
-    getReservationSummary,
-    createReservation,
-    getReservationsByUser,
-    deleteReservation,
-    getReservationById
 }

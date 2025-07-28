@@ -1,5 +1,12 @@
 import express from 'express'
-import reservationController from '../controllers/reservation.controller.js'
+import {
+    getReservations,
+    getReservationSummary,
+    createReservation,
+    getReservationsByUser,
+    deleteReservation,
+    getReservationById
+} from '../controllers/reservation.controller.js'
 import authPolicy from '../middlewares/authPolicy.middleware.js'
 import validateDTO from '../middlewares/validateDTO.middleware.js'
 import reservationDTO from '../dto/reservation.dto.js'
@@ -7,28 +14,28 @@ import validateReservationExists from '../middlewares/exists/validateReservation
 import verifyOwnership from '../middlewares/verifyOwnership.js'
 import reservationService from '../services/reservation.service.js'
 
-const router = express.Router()
+export const reservationRouter = express.Router()
 
-router.get(
+reservationRouter.get(
     '/',
     authPolicy(['admin']),
     validateDTO(reservationDTO.reservationQuerySchema, 'query'),
-    reservationController.getReservations
+    getReservations
 )
 
-router.get(
+reservationRouter.get(
     '/summary',
     authPolicy(['admin']),
-    reservationController.getReservationSummary
+    getReservationSummary
 )
 
-router.get(
+reservationRouter.get(
     '/user',
     authPolicy(['user']),
-    reservationController.getReservationsByUser
+    getReservationsByUser
 )
 
-router.get(
+reservationRouter.get(
     '/:rid',
     authPolicy(['admin', 'user']),
     validateReservationExists,
@@ -36,20 +43,18 @@ router.get(
         const reservation = await reservationService.getReservationById(req.params.rid)
         return reservation?.userId
     }),
-    reservationController.getReservationById
+    getReservationById
 )
 
-router.post(
+reservationRouter.post(
     '/',
     authPolicy(['user']),
     validateDTO(reservationDTO.reservationSchema),
-    reservationController.createReservation
+    createReservation
 )
 
-router.delete(
+reservationRouter.delete(
     '/:rid',
     authPolicy(['admin']),
-    reservationController.deleteReservation
+    deleteReservation
 )
-
-export default router

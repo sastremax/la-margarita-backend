@@ -1,7 +1,7 @@
-import ReservationModel from '../models/reservation.model.js'
+import { ReservationModel } from '../models/reservation.model.js'
 import mongoose from 'mongoose'
 
-class ReservationDAO {    
+export class ReservationDAO {
 
     async getReservationById(id) {
         return await ReservationModel.findById(id)
@@ -17,7 +17,7 @@ class ReservationDAO {
 
     async updateReservation(id, updateData) {
         return await ReservationModel.findByIdAndUpdate(id, updateData, { new: true })
-    }    
+    }
 
     async isLodgingAvailable(lodgingId, checkIn, checkOut) {
         return await ReservationModel.findOne({
@@ -41,7 +41,7 @@ class ReservationDAO {
             ReservationModel.find(query)
                 .skip(skip)
                 .limit(limit)
-                .sort({ checkIn: -1 }) // Más recientes primero
+                .sort({ checkIn: -1 })
                 .populate('user', 'firstName lastName')
                 .populate('lodging', 'title location')
         ])
@@ -98,5 +98,3 @@ class ReservationDAO {
     }
 
 }
-
-export default ReservationDAO

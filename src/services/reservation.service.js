@@ -7,7 +7,7 @@ const reservationDAO = new ReservationDAO()
 const lodgingDAO = new LodgingDAO()
 const asReservationPublic = reservationDTO.asPublicReservation
 
-class ReservationService {    
+export class ReservationService {
 
     static async getReservationById(id) {
         const reservation = await reservationDAO.getReservationById(id)
@@ -103,5 +103,3 @@ class ReservationService {
         return await reservationDAO.getReservationSummaryByLodging(lodgingId)
     }
 }
-
-export default ReservationService

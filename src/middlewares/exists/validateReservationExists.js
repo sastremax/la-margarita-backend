@@ -1,7 +1,7 @@
 import reservationService from '../../services/reservation.service.js'
 import ApiError from '../../utils/apiError.js'
 
-const validateReservationExists = async (req, res, next) => {
+export const validateReservationExists = async (req, res, next) => {
     try {
         if (!req.params?.rid) {
             return next(new ApiError(400, 'Missing reservation ID'))
@@ -15,5 +15,3 @@ const validateReservationExists = async (req, res, next) => {
         next(error)
     }
 }
-
-export default validateReservationExists

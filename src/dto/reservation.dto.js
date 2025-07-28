@@ -1,6 +1,6 @@
 import z from 'zod'
 
-const reservationSchema = z.object({
+export const reservationSchema = z.object({
     lodgingId: z.string().min(1, { message: 'Lodging ID is required' }),
     checkIn: z.string().refine(date => !isNaN(Date.parse(date)), {
         message: 'Invalid check-in date'
@@ -17,7 +17,15 @@ const reservationSchema = z.object({
     status: z.enum(['pending', 'confirmed', 'cancelled']).optional()
 })
 
-function asPublicReservation(reservation) {
+export const reservationQuerySchema = z.object({
+    page: z.string().regex(/^\d+$/).transform(Number).optional(),
+    limit: z.string().regex(/^\d+$/).transform(Number).optional(),
+    userId: z.string().optional(),
+    lodgingId: z.string().optional(),
+    status: z.enum(['pending', 'confirmed', 'cancelled']).optional()
+})
+
+export function asPublicReservation(reservation) {
     return {
         id: reservation._id,
         userId: reservation.user?._id || reservation.user || null,
@@ -29,19 +37,3 @@ function asPublicReservation(reservation) {
         status: reservation.status
     }
 }
-
-const reservationQuerySchema = z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).optional(),
-    limit: z.string().regex(/^\d+$/).transform(Number).optional(),
-    userId: z.string().optional(),
-    lodgingId: z.string().optional(),
-    status: z.enum(['pending', 'confirmed', 'cancelled']).optional()
-})
-
-const reservationDTO = {
-    reservationSchema,
-    reservationQuerySchema,
-    asPublicReservation
-}
-
-export default reservationDTO
