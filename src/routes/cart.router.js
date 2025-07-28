@@ -1,5 +1,14 @@
 import express from 'express'
-import cartController from '../controllers/cart.controller.js'
+import {
+    createCart,
+    getCartById,
+    addProductToCart,
+    deleteCart,
+    removeProductFromCart,
+    updateCartProducts,
+    updateProductQuantity,
+    purchaseCart
+} from '../controllers/cart.controller.js'
 import authPolicy from '../middlewares/authPolicy.middleware.js'
 import validateDTO from '../middlewares/validateDTO.middleware.js'
 import cartDTO from '../dto/cart.dto.js'
@@ -7,9 +16,9 @@ import validateCartExists from '../middlewares/validateCartExists.js'
 import verifyOwnership from '../middlewares/verifyOwnership.js'
 import cartService from '../services/cart.service.js'
 
-const router = express.Router()
+export const cartRouter = express.Router()
 
-router.get(
+cartRouter.get(
     '/:cid',
     authPolicy(['user', 'admin']),
     validateCartExists,
@@ -17,12 +26,12 @@ router.get(
         const cart = await cartService.getCartById(req.params.cid)
         return cart?.userId
     }),
-    cartController.getCartById
+    getCartById
 )
 
-router.post('/', authPolicy(['user', 'admin']), cartController.createCart)
+cartRouter.post('/', authPolicy(['user', 'admin']), createCart)
 
-router.post(
+cartRouter.post(
     '/:cid/product/:pid',
     authPolicy(['user', 'admin']),
     validateCartExists,
@@ -31,10 +40,10 @@ router.post(
         return cart?.userId
     }),
     validateDTO(cartDTO.cartItemSchema),
-    cartController.addProductToCart
+    addProductToCart
 )
 
-router.delete(
+cartRouter.delete(
     '/:cid/product/:pid',
     authPolicy(['user', 'admin']),
     validateCartExists,
@@ -42,10 +51,10 @@ router.delete(
         const cart = await cartService.getCartById(req.params.cid)
         return cart?.userId
     }),
-    cartController.removeProductFromCart
+    removeProductFromCart
 )
 
-router.put(
+cartRouter.put(
     '/:cid',
     authPolicy(['user', 'admin']),
     validateCartExists,
@@ -53,10 +62,10 @@ router.put(
         const cart = await cartService.getCartById(req.params.cid)
         return cart?.userId
     }),
-    cartController.updateCartProducts
+    updateCartProducts
 )
 
-router.put(
+cartRouter.put(
     '/:cid/product/:pid',
     authPolicy(['user', 'admin']),
     validateCartExists,
@@ -64,10 +73,10 @@ router.put(
         const cart = await cartService.getCartById(req.params.cid)
         return cart?.userId
     }),
-    cartController.updateProductQuantity
+    updateProductQuantity
 )
 
-router.delete(
+cartRouter.delete(
     '/:cid',
     authPolicy(['user', 'admin']),
     validateCartExists,
@@ -75,10 +84,10 @@ router.delete(
         const cart = await cartService.getCartById(req.params.cid)
         return cart?.userId
     }),
-    cartController.deleteCart
+    deleteCart
 )
 
-router.post(
+cartRouter.post(
     '/:cid/purchase',
     authPolicy(['user', 'admin']),
     validateCartExists,
@@ -86,7 +95,5 @@ router.post(
         const cart = await cartService.getCartById(req.params.cid)
         return cart?.userId
     }),
-    cartController.purchaseCart
+    purchaseCart
 )
-
-export default router

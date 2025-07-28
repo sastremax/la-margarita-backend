@@ -2,7 +2,7 @@ import cartDTO from '../dto/cart.dto.js'
 
 const asCartPublic = cartDTO.asPublicCart
 
-class CartService {
+export class CartService {
     constructor(dao) {
         this.dao = dao
     }
@@ -61,5 +61,3 @@ class CartService {
         return asCartPublic(cart)
     }
 }
-
-export default CartService
