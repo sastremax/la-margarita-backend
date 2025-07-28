@@ -1,4 +1,4 @@
-export function asPublicUser(user) {
+export const asUserPublic = (user) => {
     return {
         id: user._id,
         fullName: `${user.firstName} ${user.lastName}`,

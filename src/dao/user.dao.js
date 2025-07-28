@@ -1,6 +1,6 @@
-import UserModel from '../models/user.model.js'
+import { UserModel } from '../models/user.model.js'
 
-class UserDAO {
+export class UserDAO {
     async getAllUsers() {
         return await UserModel.find()
     }
@@ -28,7 +28,4 @@ class UserDAO {
     async updateUserRole(id, role) {
         return await UserModel.findByIdAndUpdate(id, { role }, { new: true })
     }
-    
 }
-
-export default UserDAO

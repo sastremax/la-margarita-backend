@@ -4,7 +4,7 @@ import cartService from '../services/cart.service.js'
 import reservationService from '../services/reservation.service.js'
 import AuditService from '../services/audit.service.js'
 
-const getAllUsers = async (req, res, next) => {
+export const getAllUsers = async (req, res, next) => {
     try {
         const users = await userService.getAllUsers()
         const publicUsers = users.map(asUserPublic)
@@ -14,7 +14,7 @@ const getAllUsers = async (req, res, next) => {
     }
 }
 
-const getUserById = async (req, res, next) => {
+export const getUserById = async (req, res, next) => {
     try {
         const user = await userService.getUserById(req.params.id)
         res.status(200).json({ status: 'success', data: asUserPublic(user) })
@@ -23,7 +23,7 @@ const getUserById = async (req, res, next) => {
     }
 }
 
-const updateUser = async (req, res, next) => {
+export const updateUser = async (req, res, next) => {
     try {
         const updatedUser = await userService.updateUser(req.params.id, req.body)
         res.status(200).json({ status: 'success', data: asUserPublic(updatedUser) })
@@ -32,7 +32,7 @@ const updateUser = async (req, res, next) => {
     }
 }
 
-const deleteUser = async (req, res, next) => {
+export const deleteUser = async (req, res, next) => {
     try {
         await userService.deleteUser(req.params.id)
         res.status(204).end()
@@ -41,7 +41,7 @@ const deleteUser = async (req, res, next) => {
     }
 }
 
-const updateUserRole = async (req, res, next) => {
+export const updateUserRole = async (req, res, next) => {
     try {
         const { uid } = req.params
         const { role } = req.body
@@ -66,7 +66,7 @@ const updateUserRole = async (req, res, next) => {
     }
 }
 
-const getCurrentUser = (req, res) => {
+export const getCurrentUser = (req, res) => {
     res.json({
         status: 'success',
         data: {
@@ -75,7 +75,7 @@ const getCurrentUser = (req, res) => {
     })
 }
 
-const getCurrentUserReservations = async (req, res, next) => {
+export const getCurrentUserReservations = async (req, res, next) => {
     try {
         const reservations = await reservationService.getReservationsByUserId(req.user.id)
         res.json({
@@ -89,7 +89,7 @@ const getCurrentUserReservations = async (req, res, next) => {
     }
 }
 
-const getCurrentUserCart = async (req, res, next) => {
+export const getCurrentUserCart = async (req, res, next) => {
     try {
         const cart = await cartService.getCartByUserId(req.user.id)
         res.json({
@@ -101,15 +101,4 @@ const getCurrentUserCart = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-}
-
-export default {
-    getAllUsers,
-    getUserById,
-    updateUser,
-    deleteUser,
-    updateUserRole,
-    getCurrentUser,
-    getCurrentUserReservations,
-    getCurrentUserCart
 }

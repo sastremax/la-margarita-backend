@@ -1,9 +1,9 @@
-import UserDAO from '../dao/user.dao.js'
-import asUserPublic from '../dto/user.dto.js'
+import { UserDAO } from '../dao/user.dao.js'
+import { asUserPublic } from '../dto/user.dto.js'
 
 const userDAO = new UserDAO()
 
-class UserService {
+export class UserService {
     static async getAllUsers() {
         const users = await userDAO.getAllUsers()
         return users.map(asUserPublic)
@@ -38,5 +38,3 @@ class UserService {
         return asUserPublic(user)
     }
 }
-
-export default UserService
