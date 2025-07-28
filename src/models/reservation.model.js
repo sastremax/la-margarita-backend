@@ -39,4 +39,4 @@ const reservationSchema = new mongoose.Schema(
     }
 )
 
-export const ReservationModel = mongoose.model('Reservation', reservationSchema)
+export default mongoose.model('Reservation', reservationSchema)

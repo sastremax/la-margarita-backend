@@ -62,4 +62,4 @@ const lodgingSchema = new mongoose.Schema(
     }
 )
 
-export const Lodging = mongoose.model('Lodging', lodgingSchema)
+export default mongoose.model('Lodging', lodgingSchema)

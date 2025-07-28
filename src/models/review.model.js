@@ -71,4 +71,4 @@ const reviewSchema = new mongoose.Schema({
 
 reviewSchema.index({ reservation: 1 }, { unique: true })
 
-export const ReviewModel = mongoose.model('Review', reviewSchema)
+export default mongoose.model('Review', reviewSchema)
