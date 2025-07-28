@@ -1,4 +1,4 @@
-import { ReviewModel } from '../models/review.model.js'
+import ReviewModel from '../models/review.model.js'
 import mongoose from 'mongoose'
 
 export class ReviewDAO {

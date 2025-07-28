@@ -1,4 +1,4 @@
-import { ReservationModel } from '../models/reservation.model.js'
+import ReservationModel from '../models/reservation.model.js'
 import mongoose from 'mongoose'
 
 export class ReservationDAO {

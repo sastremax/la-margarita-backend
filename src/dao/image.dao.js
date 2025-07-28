@@ -1,4 +1,4 @@
-import { ImageModel } from '../models/image.model.js'
+import ImageModel from '../models/image.model.js'
 
 export class ImageDAO {
     async getAllImages() {

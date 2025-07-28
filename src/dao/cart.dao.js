@@ -1,7 +1,7 @@
 import CartModel from '../models/cart.model.js'
 import mongoose from 'mongoose'
 
-class CartDAO {
+export class CartDAO {
     async getAllCarts() {
         return await CartModel.find().populate('products.product')
     }
@@ -34,7 +34,7 @@ class CartDAO {
         if (existing) {
             existing.quantity += quantity
         } else {
-            cart.products.push({ product: new mongoose.Types.ObjectId(pid), quantity })
+            cart.products.push({ product: new mongoose.Types.ObjectId(String(pid)), quantity })
         }
 
         await cart.save()
@@ -55,7 +55,7 @@ class CartDAO {
         if (!cart) return null
 
         cart.products = products.map(p => ({
-            product: new mongoose.Types.ObjectId(p.product),
+            product: new mongoose.Types.ObjectId(String(p.product)),
             quantity: p.quantity
         }))
 
@@ -76,5 +76,3 @@ class CartDAO {
         return cart.populate('products.product')
     }
 }
-
-export default CartDAO

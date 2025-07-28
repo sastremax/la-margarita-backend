@@ -1,4 +1,4 @@
-import { Lodging } from '../models/lodging.model.js'
+import Lodging from '../models/lodging.model.js'
 
 export class LodgingDAO {
     async getAllLodgings(filters = {}) {

@@ -1,4 +1,4 @@
-import { ContactModel } from '../models/contact.model.js'
+import ContactModel from '../models/contact.model.js'
 
 export class ContactDAO {
     async getAllContacts() {
