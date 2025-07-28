@@ -1,7 +1,7 @@
 import jwtUtil from '../utils/jwt.util.js'
-import ApiError from '../utils/apiError.js'
+import { ApiError } from '../utils/apiError.js'
 
-function universalAuth(req, res, next) {
+export const universalAuth = (req, res, next) => {
     let token = req.cookies?.token
 
     if (!token) {
@@ -23,5 +23,3 @@ function universalAuth(req, res, next) {
     req.user = decoded
     next()
 }
-
-export default universalAuth

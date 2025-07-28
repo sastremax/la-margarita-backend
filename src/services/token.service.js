@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
-import config from '../config/index.js'
-import ApiError from '../utils/apiError.js'
+import { config } from '../config/index.js'
+import { ApiError } from '../utils/apiError.js'
 
 const generateAccessToken = (payload) => {
     if (!config.jwt.secret) throw new ApiError(500, 'JWT secret is missing')
@@ -20,11 +20,9 @@ const verifyRefreshToken = (token) => {
     return jwt.verify(token, config.jwt.refreshSecret)
 }
 
-const tokenService = {
+export const tokenService = {
     generateAccessToken,
     generateRefreshToken,
     verifyAccessToken,
     verifyRefreshToken
 }
-
-export default tokenService

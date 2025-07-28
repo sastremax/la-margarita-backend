@@ -12,7 +12,7 @@ const removeRefreshToken = (token) => {
     validRefreshTokens.delete(token)
 }
 
-export default {
+export const tokenStore = {
     saveRefreshToken,
     isRefreshTokenValid,
     removeRefreshToken
