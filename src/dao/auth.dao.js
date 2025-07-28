@@ -1,6 +1,6 @@
 import UserModel from '../models/user.model.js'
 
-class AuthDAO {
+export class AuthDAO {
     async findUserByEmail(email) {
         const user = await UserModel.findOne({ email }).select('+password')
         console.log('DAO user found:', user)
@@ -12,5 +12,3 @@ class AuthDAO {
         return await UserModel.findOne({ _id: createdUser._id }).select('+password')
     }
 }
-
-export default AuthDAO

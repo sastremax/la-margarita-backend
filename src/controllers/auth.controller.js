@@ -1,9 +1,9 @@
-import authService from '../services/auth.service.js'
+import { registerUser, loginUser } from '../services/auth.service.js'
 import jwtUtil from '../utils/jwt.util.js'
 import AuditService from '../services/audit.service.js'
-import asUserPublic from '../dto/user.dto.js'
+import { asPublicUser } from '../dto/user.dto.js'
 
-const postLogin = async (req, res, next) => {
+export const postLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body
         const user = await authService.loginUser(email, password)
@@ -46,7 +46,7 @@ const postLogin = async (req, res, next) => {
     }
 }
 
-const postRegister = async (req, res, next) => {
+export const postRegister = async (req, res, next) => {
     try {
         const { firstName, lastName, email, password } = req.body
         const user = await authService.registerUser({ firstName, lastName, email, password })
@@ -56,7 +56,7 @@ const postRegister = async (req, res, next) => {
     }
 }
 
-const postLogout = async (req, res, next) => {
+export const postLogout = async (req, res, next) => {
     try {
         res.clearCookie('token')
         res.clearCookie('refreshToken')
@@ -73,10 +73,4 @@ const postLogout = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-}
-
-export default {
-    postLogin,
-    postRegister,
-    postLogout
 }

@@ -3,7 +3,7 @@ import ApiError from '../utils/apiError.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-function authMiddleware(req, res, next) {
+export function authMiddleware(req, res, next) {
     try {
         const authHeader = req.headers.authorization
         if (!authHeader || authHeader.indexOf('Bearer ') !== 0) {
@@ -28,5 +28,3 @@ function authMiddleware(req, res, next) {
         next(error)
     }
 }
-
-export default authMiddleware

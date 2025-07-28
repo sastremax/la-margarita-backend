@@ -1,12 +1,12 @@
 import AuthDAO from '../dao/auth.dao.js'
 import bcrypt from 'bcrypt'
 import tokenService from './token.service.js'
-import asUserPublic from '../dto/user.dto.js'
+import { asPublicUser } from '../dto/user.dto.js'
 import ApiError from '../utils/apiError.js'
 
 const authDAO = new AuthDAO()
 
-const registerUser = async ({ firstName, lastName, email, password }) => {
+export const registerUser = async ({ firstName, lastName, email, password }) => {
     const existingUser = await authDAO.findUserByEmail(email)
     if (existingUser) throw new ApiError(400, 'Email already registered')
 
@@ -17,10 +17,10 @@ const registerUser = async ({ firstName, lastName, email, password }) => {
         password
     })
 
-    return asUserPublic(newUser)
+    return asPublicUser(newUser)
 }
 
-const loginUser = async ({ email, password }) => {
+export const loginUser = async ({ email, password }) => {
     const user = await authDAO.findUserByEmail(email)
     if (!user) throw new ApiError(401, 'Invalid credentials')
 
@@ -32,10 +32,5 @@ const loginUser = async ({ email, password }) => {
 
     const token = tokenService.generateAccessToken({ userId: user._id, role: user.role })
 
-    return { token, user: asUserPublic(user) }
-}
-
-export default {
-    registerUser,
-    loginUser
+    return { token, user: asPublicUser(user) }
 }
