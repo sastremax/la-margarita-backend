@@ -5,7 +5,7 @@ const isArray = function (value) {
     return Object.prototype.toString.call(value) === '[object Array]'
 }
 
-const authPolicy = function (roles) {
+export const authPolicy = function (roles) {
     if (!roles) roles = []
     if (!isArray(roles)) roles = [roles]
 
@@ -28,5 +28,3 @@ const authPolicy = function (roles) {
         }
     ]
 }
-
-export default authPolicy

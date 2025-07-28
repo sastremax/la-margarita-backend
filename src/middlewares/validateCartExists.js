@@ -1,7 +1,7 @@
 import cartService from '../services/cart.service.js'
 import ApiError from '../utils/apiError.js'
 
-const validateCartExists = async (req, res, next) => {
+export const validateCartExists = async (req, res, next) => {
     try {
         const cart = await cartService.getCartById(req.params.cid)
         if (!cart) throw new ApiError(404, 'Cart not found')
@@ -10,5 +10,3 @@ const validateCartExists = async (req, res, next) => {
         next(error)
     }
 }
-
-export default validateCartExists

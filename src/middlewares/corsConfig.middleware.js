@@ -1,9 +1,7 @@
 import cors from 'cors'
-import originChecker from './originChecker.js'
+import { originChecker } from './originChecker.js'
 
-const corsMiddleware = cors({
+export const corsMiddleware = cors({
     origin: originChecker,
     credentials: true
 })
-
-export default corsMiddleware

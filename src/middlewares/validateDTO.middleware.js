@@ -1,4 +1,4 @@
-function validateDTO(schema) {
+export const validateDTO = function (schema) {
 
     if (!schema || typeof schema.safeParse !== 'function') {
         throw new Error('Invalid schema provided to validateDTO middleware')
@@ -23,5 +23,3 @@ function validateDTO(schema) {
         next()
     }
 }
-
-export default validateDTO  

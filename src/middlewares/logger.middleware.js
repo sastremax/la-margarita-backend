@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import logger from '../config/logger.js'
 
-function loggerMiddleware(req, res, next) {
+export const loggerMiddleware = function (req, res, next) {
     const requestId = uuidv4()
     const start = Date.now()
     req.requestId = requestId
@@ -40,5 +40,3 @@ function loggerMiddleware(req, res, next) {
 
     next()
 }
-
-export default loggerMiddleware

@@ -1,6 +1,6 @@
 import logger from '../config/logger.js'
 
-function requestLogger(req, res, next) {
+export const requestLogger = function (req, res, next) {
     const start = Date.now()
     const user = req.user?.email || req.user?.id || 'Guest'
     const ip = req.ip || req.connection?.remoteAddress || 'Unknown IP'
@@ -34,5 +34,3 @@ function requestLogger(req, res, next) {
 
     next()
 }
-
-export default requestLogger

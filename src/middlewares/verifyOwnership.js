@@ -1,6 +1,6 @@
 import ApiError from '../utils/apiError.js'
 
-const verifyOwnership = (getResourceOwnerId) => {
+export const verifyOwnership = (getResourceOwnerId) => {
     return async (req, res, next) => {
         try {
             const resourceOwnerId = await getResourceOwnerId(req)
@@ -16,5 +16,3 @@ const verifyOwnership = (getResourceOwnerId) => {
         }
     }
 }
-
-export default verifyOwnership

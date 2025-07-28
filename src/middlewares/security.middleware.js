@@ -1,7 +1,5 @@
 import helmet from 'helmet'
 
-const securityMiddleware = [
+export const securityMiddleware = [
     helmet()
 ]
-
-export default securityMiddleware

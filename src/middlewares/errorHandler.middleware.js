@@ -1,6 +1,6 @@
 import logger from '../config/logger.js'
 
-function errorHandler(err, req, res, next) {
+export const errorHandler = function (err, req, res, next) {
     const statusCode = typeof err.statusCode === 'number' ? err.statusCode : 500
     const message = typeof err.message === 'string' && err.message.length > 0 ? err.message : 'Internal server error'
     const timestamp = new Date().toISOString()
@@ -19,5 +19,3 @@ function errorHandler(err, req, res, next) {
 
     res.status(statusCode).json(response)
 }
-
-export default errorHandler

@@ -1,6 +1,6 @@
 import logger from '../config/logger.js'
 
-const rateLimitHandler = function (req, res, next, options) {
+export const rateLimitHandler = function (req, res, next, options) {
     const requestId = req.requestId || 'no-request-id'
     logger.warn(
         new Date().toISOString() +
@@ -13,5 +13,3 @@ const rateLimitHandler = function (req, res, next, options) {
     )
     res.status(options.statusCode).json(options.message)
 }
-
-export default rateLimitHandler

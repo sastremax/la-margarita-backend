@@ -1,6 +1,6 @@
 import logger from '../config/logger.js'
 
-const auditLogger = (req, res, next) => {
+export const auditLogger = (req, res, next) => {
     const userId = req.user?.id || 'anonymous'
     const ip = req.ip
     const method = req.method
@@ -11,5 +11,3 @@ const auditLogger = (req, res, next) => {
 
     next()
 }
-
-export default auditLogger

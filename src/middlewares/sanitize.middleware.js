@@ -1,7 +1,7 @@
 import mongoSanitize from 'express-mongo-sanitize'
 import xss from 'xss-clean'
 
-const sanitizeMiddleware = [
+export const sanitizeMiddleware = [
     mongoSanitize({
         replaceWith: '_',
         onSanitize: function (req, key) {
@@ -9,6 +9,3 @@ const sanitizeMiddleware = [
     }),
     xss()
 ]
-
-export default sanitizeMiddleware
-

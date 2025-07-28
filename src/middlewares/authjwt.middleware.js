@@ -1,7 +1,7 @@
 import jwtUtil from '../utils/jwt.util.js'
 import ApiError from '../utils/apiError.js'
 
-const authJWT = (req, res, next) => {
+export const authJWT = (req, res, next) => {
     const token = req.cookies?.token
 
     if (!token) {
@@ -16,5 +16,3 @@ const authJWT = (req, res, next) => {
         next(error)
     }
 }
-
-export default authJWT
