@@ -1,4 +1,3 @@
-import getFactory from '../dao/factory.js'
 import cartDTO from '../dto/cart.dto.js'
 
 const asCartPublic = cartDTO.asPublicCart
@@ -63,10 +62,4 @@ class CartService {
     }
 }
 
-const initializeCartService = async () => {
-    const factory = await getFactory()
-    return new CartService(factory.CartDAO)
-}
-
-export { CartService }
-export default initializeCartService
+export default CartService

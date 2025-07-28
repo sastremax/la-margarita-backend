@@ -1,5 +1,8 @@
 import reviewService from '../services/review.service.js'
 import reviewDTO from '../dto/review.dto.js'
+import factory from '../dao/factory.js'
+
+const ReviewDAO = factory.reviewDAO
 
 const getAllReviews = async (req, res, next) => {
     try {

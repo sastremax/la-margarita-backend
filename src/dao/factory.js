@@ -11,14 +11,14 @@ const getFactory = async () => {
     const persistence = config.persistence?.toLowerCase()
 
     if (persistence === 'mongodb') {
-        const { default: MongoUserDAO } = await import('./user.dao.js')
-        const { default: MongoProductDAO } = await import('./product.dao.js')
-        const { default: MongoCartDAO } = await import('./cart.dao.js')
-        const { default: MongoReservationDAO } = await import('./reservation.dao.js')
-        const { default: MongoReviewDAO } = await import('./review.dao.js')
-        const { default: MongoImageDAO } = await import('./image.dao.js')
-        const { default: MongoLodgingDAO } = await import('./lodging.dao.js')
-        const { default: MongoContactDAO } = await import('./contact.dao.js')
+        const MongoUserDAO = (await import('./user.dao.js')).default
+        const MongoProductDAO = (await import('./product.dao.js')).default
+        const MongoCartDAO = (await import('./cart.dao.js')).default
+        const MongoReservationDAO = (await import('./reservation.dao.js')).default
+        const MongoReviewDAO = (await import('./review.dao.js')).default
+        const MongoImageDAO = (await import('./image.dao.js')).default
+        const MongoLodgingDAO = (await import('./lodging.dao.js')).default
+        const MongoContactDAO = (await import('./contact.dao.js')).default
 
         daos = {
             UserDAO: new MongoUserDAO(),

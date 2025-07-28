@@ -1,0 +1,19 @@
+import reservationService from '../../services/reservation.service.js'
+import ApiError from '../../utils/apiError.js'
+
+const validateReservationExists = async (req, res, next) => {
+    try {
+        if (!req.params?.rid) {
+            return next(new ApiError(400, 'Missing reservation ID'))
+        }
+
+        const reservation = await reservationService.getReservationById(req.params.rid)
+        if (!reservation) throw new ApiError(404, 'Reservation not found')
+
+        next()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export default validateReservationExists
