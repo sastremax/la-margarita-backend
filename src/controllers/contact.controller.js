@@ -1,7 +1,7 @@
-import contactService from '../services/contact.service.js'
-import contactDTO from '../dto/contact.dto.js'
+import { contactService } from '../services/contact.service.js'
+import { contactDTO } from '../dto/contact.dto.js'
 
-const submitContactForm = async (req, res, next) => {
+export const submitContactForm = async (req, res, next) => {
     try {
         const result = await contactService.createContact(req.body)
         res.status(201).json({ status: 'success', data: contactDTO.asPublicContact(result) })
@@ -10,7 +10,7 @@ const submitContactForm = async (req, res, next) => {
     }
 }
 
-const replyToContact = async (req, res, next) => {
+export const replyToContact = async (req, res, next) => {
     try {
         const { id } = req.params
         const { replied, replyNote } = req.body
@@ -19,9 +19,4 @@ const replyToContact = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-}
-
-export default {
-    submitContactForm,
-    replyToContact
 }

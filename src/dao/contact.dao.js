@@ -1,6 +1,6 @@
-import ContactModel from '../models/contact.model.js'
+import { ContactModel } from '../models/contact.model.js'
 
-class ContactDAO {
+export class ContactDAO {
     async getAllContacts() {
         return await ContactModel.find().sort({ createdAt: -1 })
     }
@@ -29,5 +29,3 @@ class ContactDAO {
         return await ContactModel.deleteMany({})
     }
 }
-
-export default ContactDAO

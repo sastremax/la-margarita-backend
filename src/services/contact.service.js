@@ -1,5 +1,5 @@
-import getFactory from '../dao/factory.js'
-import contactDTO from '../dto/contact.dto.js'
+import { getFactory } from '../dao/factory.js'
+import { contactDTO } from '../dto/contact.dto.js'
 
 let contactDAO
 
@@ -10,7 +10,7 @@ const init = async () => {
     }
 }
 
-class ContactService {
+export class ContactService {
     static async createContact(contactData) {
         await init()
         const contact = await contactDAO.createContact(contactData)
@@ -40,5 +40,3 @@ class ContactService {
         return await contactDAO.deleteContact(id)
     }
 }
-
-export default ContactService

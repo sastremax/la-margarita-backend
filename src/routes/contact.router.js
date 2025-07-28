@@ -1,15 +1,15 @@
 import express from 'express'
-import contactController from '../controllers/contact.controller.js'
-import validateDTO from '../middlewares/validateDTO.middleware.js'
-import contactDTO from '../dto/contact.dto.js'
-import rateLimiter from '../middlewares/rateLimiter.js'
-import authPolicy from '../middlewares/authPolicy.middleware.js'
+import * as contactController from '../controllers/contact.controller.js'
+import { validateDTO } from '../middlewares/validateDTO.middleware.js'
+import { contactDTO } from '../dto/contact.dto.js'
+import { contactLimiter } from '../middlewares/rateLimiter.js'
+import { authPolicy } from '../middlewares/authPolicy.middleware.js'
 
 const router = express.Router()
 
 router.post(
     '/',
-    rateLimiter.contactLimiter,
+    contactLimiter,
     validateDTO(contactDTO.contactSchema),
     contactController.submitContactForm
 )
@@ -21,4 +21,4 @@ router.put(
     contactController.replyToContact
 )
 
-export default router
+export const contactRouter = router

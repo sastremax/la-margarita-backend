@@ -21,10 +21,8 @@ function asPublicContact(contact) {
     }
 }
 
-const contactDTO = {
+export const contactDTO = {
     contactSchema,
     replySchema,
     asPublicContact
 }
-
-export default contactDTO
