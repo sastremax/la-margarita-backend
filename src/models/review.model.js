@@ -50,7 +50,7 @@ const reviewSchema = new mongoose.Schema({
     comment: {
         type: String,
         required: true
-    },    
+    },
     adminReply: {
         message: {
             type: String,
@@ -71,5 +71,4 @@ const reviewSchema = new mongoose.Schema({
 
 reviewSchema.index({ reservation: 1 }, { unique: true })
 
-const Review = mongoose.model('Review', reviewSchema)
-export default Review
+export const ReviewModel = mongoose.model('Review', reviewSchema)

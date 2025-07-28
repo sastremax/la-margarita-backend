@@ -34,9 +34,7 @@ function asPublicReview(review) {
     }
 }
 
-const reviewDTO = {
+export const reviewDTO = {
     reviewSchema,
     asPublicReview
 }
-
-export default reviewDTO

@@ -1,10 +1,10 @@
-import ReviewDAO from '../dao/review.dao.js'
-import reviewDTO from '../dto/review.dto.js'
+import { ReviewDAO } from '../dao/review.dao.js'
+import { reviewDTO } from '../dto/review.dto.js'
 
 const reviewDAO = new ReviewDAO()
 const asReviewPublic = reviewDTO.asPublicReview
 
-class ReviewService {
+export class ReviewService {
     static async getAllReviews({ page = 1, limit = 10 }) {
         const result = await reviewDAO.getAllReviews({ page, limit })
         result.data = result.data.map(asReviewPublic)
@@ -45,5 +45,3 @@ class ReviewService {
         return await reviewDAO.getReviewSummary(lodgingId)
     }
 }
-
-export default ReviewService

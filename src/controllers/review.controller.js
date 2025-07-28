@@ -1,10 +1,10 @@
-import reviewService from '../services/review.service.js'
-import reviewDTO from '../dto/review.dto.js'
-import factory from '../dao/factory.js'
+import { reviewService } from '../services/review.service.js'
+import { reviewDTO } from '../dto/review.dto.js'
+import { getFactory } from '../dao/factory.js'
 
-const ReviewDAO = factory.reviewDAO
+const ReviewDAO = (await getFactory()).reviewDAO
 
-const getAllReviews = async (req, res, next) => {
+export const getAllReviews = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
@@ -23,7 +23,7 @@ const getAllReviews = async (req, res, next) => {
     }
 }
 
-const getReviewsByLodging = async (req, res, next) => {
+export const getReviewsByLodging = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, hasReply, minRating } = req.query
 
@@ -53,7 +53,7 @@ const getReviewsByLodging = async (req, res, next) => {
     }
 }
 
-const createReview = async (req, res, next) => {
+export const createReview = async (req, res, next) => {
     try {
         const review = await reviewService.createReview(req.body)
         res.status(201).json({ status: 'success', data: reviewDTO.asPublicReview(review) })
@@ -62,7 +62,7 @@ const createReview = async (req, res, next) => {
     }
 }
 
-const getReviewSummary = async (req, res, next) => {
+export const getReviewSummary = async (req, res, next) => {
     try {
         const { lodgingId } = req.params
         const summary = await reviewService.getReviewSummary(lodgingId)
@@ -72,7 +72,7 @@ const getReviewSummary = async (req, res, next) => {
     }
 }
 
-const deleteReview = async (req, res, next) => {
+export const deleteReview = async (req, res, next) => {
     try {
         const reviewId = req.params.id
         const userId = req.user._id
@@ -83,7 +83,7 @@ const deleteReview = async (req, res, next) => {
     }
 }
 
-const putAdminReply = async (req, res, next) => {
+export const putAdminReply = async (req, res, next) => {
     try {
         const reviewId = req.params.id
         const { message } = req.body
@@ -96,7 +96,7 @@ const putAdminReply = async (req, res, next) => {
     }
 }
 
-const getReviewById = async (req, res, next) => {
+export const getReviewById = async (req, res, next) => {
     try {
         const reviewId = req.params.id
         const review = await reviewService.getReviewById(reviewId)
@@ -111,7 +111,7 @@ const getReviewById = async (req, res, next) => {
     }
 }
 
-const getRepliedReviewsByLodging = async (req, res, next) => {
+export const getRepliedReviewsByLodging = async (req, res, next) => {
     try {
         const { lodgingId } = req.params
         const reviews = await ReviewDAO.getReviewsWithReplyByLodging(lodgingId)
@@ -123,15 +123,4 @@ const getRepliedReviewsByLodging = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-}
-
-export default {
-    getRepliedReviewsByLodging,
-    getReviewById,
-    getAllReviews,
-    getReviewsByLodging,
-    createReview,
-    getReviewSummary,
-    deleteReview,
-    putAdminReply
 }

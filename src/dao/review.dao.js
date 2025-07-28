@@ -1,7 +1,7 @@
-import ReviewModel from '../models/review.model.js'
+import { ReviewModel } from '../models/review.model.js'
 import mongoose from 'mongoose'
 
-class ReviewDAO {
+export class ReviewDAO {
     async getAllReviews({ page = 1, limit = 10 }) {
         const skip = (page - 1) * limit
 
@@ -57,12 +57,21 @@ class ReviewDAO {
     }
 
     async getReviewSummary(lodgingId) {
+        const id = String(lodgingId)
+
+        if (!mongoose.isValidObjectId(id)) {
+            return {
+                totalReviews: 0,
+                averageRating: '0.00'
+            }
+        }
+
         const [totalReviews, avgResult] = await Promise.all([
-            ReviewModel.countDocuments({ lodging: lodgingId, isDeleted: false }),
+            ReviewModel.countDocuments({ lodging: id, isDeleted: false }),
             ReviewModel.aggregate([
                 {
                     $match: {
-                        lodging: new mongoose.Types.ObjectId(lodgingId),
+                        lodging: new mongoose.Types.ObjectId(id),
                         isDeleted: false
                     }
                 },
@@ -103,5 +112,3 @@ class ReviewDAO {
         return { total, page, limit, reviews }
     }
 }
-
-export default ReviewDAO

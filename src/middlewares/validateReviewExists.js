@@ -1,7 +1,7 @@
-import reviewService from '../services/review.service.js'
-import ApiError from '../utils/apiError.js'
+import { reviewService } from '../services/review.service.js'
+import { ApiError } from '../utils/apiError.js'
 
-const validateReviewExists = async (req, res, next) => {
+export const validateReviewExists = async (req, res, next) => {
     try {
         if (!req.params?.rid) {
             return next(new ApiError(400, 'Missing review ID'))
@@ -14,5 +14,3 @@ const validateReviewExists = async (req, res, next) => {
         next(error)
     }
 }
-
-export default validateReviewExists
