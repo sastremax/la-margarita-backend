@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
-import config from './index.js'
-import logger from './logger.js'
+import { config } from './index.js'
+import { logger } from './logger.js'
 
-async function connectToDB() {
+export const connectToDB = async () => {
     try {
         await mongoose.connect(config.mongoUri)
         logger.info('MongoDB connected')
@@ -11,5 +11,3 @@ async function connectToDB() {
         process.exit(1)
     }
 }
-
-export default connectToDB

@@ -1,4 +1,4 @@
-const customLevels = {
+export const customLevels = {
     levels: {
         fatal: 0,
         error: 1,
@@ -16,5 +16,3 @@ const customLevels = {
         debug: 'blue'
     }
 }
-
-export default customLevels 

@@ -2,7 +2,7 @@ import dotenvFlow from 'dotenv-flow'
 
 dotenvFlow.config()
 
-const config = {
+export const config = {
     mode: process.env.NODE_ENV || 'development',
     nodeEnv: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.PORT, 10) || 4000,
@@ -23,8 +23,5 @@ const config = {
         cloudName: process.env.CLOUDINARY_CLOUD_NAME,
         apiKey: process.env.CLOUDINARY_API_KEY,
         apiSecret: process.env.CLOUDINARY_API_SECRET
-    },
-    persistence: process.env.PERSISTENCE
+    }
 }
-
-export default config

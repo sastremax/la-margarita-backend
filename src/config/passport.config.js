@@ -1,7 +1,7 @@
 import passport from 'passport'
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
-import UserModel from '../models/user.model.js'
-import config from './index.js'
+import { User } from '../models/user.model.js'
+import { config } from './index.js'
 
 const opts = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -11,7 +11,7 @@ const opts = {
 passport.use(
     new JwtStrategy(opts, async (jwt_payload, done) => {
         try {
-            const user = await UserModel.findById(jwt_payload.id)
+            const user = await User.findById(jwt_payload.id)
             if (!user) return done(null, false)
             return done(null, user)
         } catch (err) {
@@ -26,11 +26,11 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await UserModel.findById(id)
+        const user = await User.findById(id)
         done(null, user)
     } catch (error) {
         done(error)
     }
 })
 
-export default passport
+export const passportInstance = passport

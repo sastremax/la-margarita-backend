@@ -1,5 +1,5 @@
 import winston from 'winston'
-import customLevels from './customLevels.js'
+import { customLevels } from './customLevels.js'
 
 const { combine, timestamp, printf, errors } = winston.format
 
@@ -19,7 +19,7 @@ const logFormat = printf((info) => {
     return `${ts} [${lvl}]: ${msg}`
 })
 
-const prodLogger = winston.createLogger({
+export const prodLogger = winston.createLogger({
     levels: customLevels.levels,
     level: 'info',
     format: combine(
@@ -32,5 +32,3 @@ const prodLogger = winston.createLogger({
         new winston.transports.File({ filename: 'logs/combined.log' })
     ]
 })
-
-export default prodLogger

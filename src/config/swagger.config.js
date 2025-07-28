@@ -19,9 +19,5 @@ const options = {
     apis: ['./src/docs/**/*.yaml']
 }
 
-const specs = swaggerJsdoc(options)
-
-export default {
-    swaggerUi,
-    specs
-}
+export const specs = swaggerJsdoc(options)
+export const swaggerUiInstance = swaggerUi

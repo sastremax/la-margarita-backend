@@ -1,5 +1,5 @@
 import winston from 'winston'
-import customLevels from './customLevels.js'
+import { customLevels } from './customLevels.js'
 
 const { combine, timestamp, printf, colorize, errors } = winston.format
 
@@ -19,7 +19,7 @@ const logFormat = printf((info) => {
     return `${ts} [${lvl}]: ${msg}`
 })
 
-const devLogger = winston.createLogger({
+export const devLogger = winston.createLogger({
     levels: customLevels.levels,
     level: 'debug',
     format: combine(
@@ -30,5 +30,3 @@ const devLogger = winston.createLogger({
     ),
     transports: [new winston.transports.Console()]
 })
-
-export default devLogger
