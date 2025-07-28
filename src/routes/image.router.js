@@ -1,24 +1,28 @@
 import express from 'express'
-import imageController from '../controllers/image.controller.js'
+import {
+    uploadImage,
+    getAllImages,
+    getImageById,
+    getImagesByLodgingId,
+    deleteImage
+} from '../controllers/image.controller.js'
+import { imageSchema } from '../dto/image.dto.js'
 import authPolicy from '../middlewares/authPolicy.middleware.js'
 import validateDTO from '../middlewares/validateDTO.middleware.js'
-import imageDTO from '../dto/image.dto.js'
 
-const router = express.Router()
+export const imageRouter = express.Router()
 
-router.post(
+imageRouter.post(
     '/',
     authPolicy(['admin']),
-    validateDTO(imageDTO.imageSchema),
-    imageController.uploadImage
+    validateDTO(imageSchema),
+    uploadImage
 )
 
-router.get('/', authPolicy(['admin']), imageController.getAllImages)
+imageRouter.get('/', authPolicy(['admin']), getAllImages)
 
-router.get('/:id', authPolicy(['admin']), imageController.getImageById)
+imageRouter.get('/:id', authPolicy(['admin']), getImageById)
 
-router.get('/lodging/:lodgingId', authPolicy(['admin']), imageController.getImagesByLodgingId)
+imageRouter.get('/lodging/:lodgingId', authPolicy(['admin']), getImagesByLodgingId)
 
-router.delete('/:id', authPolicy(['admin']), imageController.deleteImage)
-
-export default router
+imageRouter.delete('/:id', authPolicy(['admin']), deleteImage)

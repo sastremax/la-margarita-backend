@@ -5,30 +5,30 @@ let initialized = false
 
 let daos = {}
 
-const getFactory = async () => {
+export const getFactory = async () => {
     if (initialized) return daos
 
     const persistence = config.persistence?.toLowerCase()
 
     if (persistence === 'mongodb') {
-        const MongoUserDAO = (await import('./user.dao.js')).default
-        const MongoProductDAO = (await import('./product.dao.js')).default
-        const MongoCartDAO = (await import('./cart.dao.js')).default
-        const MongoReservationDAO = (await import('./reservation.dao.js')).default
-        const MongoReviewDAO = (await import('./review.dao.js')).default
-        const MongoImageDAO = (await import('./image.dao.js')).default
-        const MongoLodgingDAO = (await import('./lodging.dao.js')).default
-        const MongoContactDAO = (await import('./contact.dao.js')).default
+        const { UserDAO } = await import('./user.dao.js')
+        const { ProductDAO } = await import('./product.dao.js')
+        const { CartDAO } = await import('./cart.dao.js')
+        const { ReservationDAO } = await import('./reservation.dao.js')
+        const { ReviewDAO } = await import('./review.dao.js')
+        const { ImageDAO } = await import('./image.dao.js')
+        const { LodgingDAO } = await import('./lodging.dao.js')
+        const { ContactDAO } = await import('./contact.dao.js')
 
         daos = {
-            UserDAO: new MongoUserDAO(),
-            ProductDAO: new MongoProductDAO(),
-            CartDAO: new MongoCartDAO(),
-            ReservationDAO: new MongoReservationDAO(),
-            ReviewDAO: new MongoReviewDAO(),
-            ImageDAO: new MongoImageDAO(),
-            LodgingDAO: new MongoLodgingDAO(),
-            ContactDAO: new MongoContactDAO()
+            UserDAO: new UserDAO(),
+            ProductDAO: new ProductDAO(),
+            CartDAO: new CartDAO(),
+            ReservationDAO: new ReservationDAO(),
+            ReviewDAO: new ReviewDAO(),
+            ImageDAO: new ImageDAO(),
+            LodgingDAO: new LodgingDAO(),
+            ContactDAO: new ContactDAO()
         }
 
         initialized = true
@@ -38,5 +38,3 @@ const getFactory = async () => {
         throw new Error('Unsupported persistence source: ' + persistence)
     }
 }
-
-export default getFactory

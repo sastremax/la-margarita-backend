@@ -1,6 +1,6 @@
-import ImageModel from '../models/image.model.js'
+import { ImageModel } from '../models/image.model.js'
 
-class ImageDAO {
+export class ImageDAO {
     async getAllImages() {
         return await ImageModel.find()
     }
@@ -21,5 +21,3 @@ class ImageDAO {
         return await ImageModel.findByIdAndDelete(id)
     }
 }
-
-export default ImageDAO

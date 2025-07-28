@@ -1,54 +1,46 @@
-import imageService from '../services/image.service.js'
+import { ImageService } from '../services/image.service.js'
 
-const uploadImage = async (req, res, next) => {
+export const uploadImage = async (req, res, next) => {
     try {
-        const image = await imageService.uploadImage(req.body)
+        const image = await ImageService.uploadImage(req.body)
         res.status(201).json({ status: 'success', data: image })
     } catch (error) {
         next(error)
     }
 }
 
-const getAllImages = async (req, res, next) => {
+export const getAllImages = async (req, res, next) => {
     try {
-        const images = await imageService.getAllImages()
+        const images = await ImageService.getAllImages()
         res.status(200).json({ status: 'success', data: images })
     } catch (error) {
         next(error)
     }
 }
 
-const getImageById = async (req, res, next) => {
+export const getImageById = async (req, res, next) => {
     try {
-        const image = await imageService.getImageById(req.params.id)
+        const image = await ImageService.getImageById(req.params.id)
         res.status(200).json({ status: 'success', data: image })
     } catch (error) {
         next(error)
     }
 }
 
-const getImagesByLodgingId = async (req, res, next) => {
+export const getImagesByLodgingId = async (req, res, next) => {
     try {
-        const images = await imageService.getImagesByLodgingId(req.params.lodgingId)
+        const images = await ImageService.getImagesByLodgingId(req.params.lodgingId)
         res.status(200).json({ status: 'success', data: images })
     } catch (error) {
         next(error)
     }
 }
 
-const deleteImage = async (req, res, next) => {
+export const deleteImage = async (req, res, next) => {
     try {
-        await imageService.deleteImage(req.params.id)
+        await ImageService.deleteImage(req.params.id)
         res.status(200).json({ status: 'success', message: 'Image deleted' })
     } catch (error) {
         next(error)
     }
-}
-
-export default {
-    uploadImage,
-    getAllImages,
-    getImageById,
-    getImagesByLodgingId,
-    deleteImage
 }

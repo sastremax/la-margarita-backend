@@ -1,6 +1,6 @@
 import z from 'zod'
 
-const imageSchema = z.object({
+export const imageSchema = z.object({
     url: z.string().url(),
     name: z.string().min(1),
     type: z.enum(['profile', 'product', 'lodging', 'review', 'other']),
@@ -8,7 +8,7 @@ const imageSchema = z.object({
     publicId: z.string().optional()
 })
 
-function asPublicImage(image) {
+export function asPublicImage(image) {
     return {
         id: image._id,
         url: image.url,
@@ -20,10 +20,3 @@ function asPublicImage(image) {
         updatedAt: image.updatedAt
     }
 }
-
-const imageDTO = {
-    imageSchema,
-    asPublicImage
-}
-
-export default imageDTO
