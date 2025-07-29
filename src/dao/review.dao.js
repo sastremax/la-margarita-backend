@@ -1,5 +1,5 @@
-import ReviewModel from '../models/review.model.js'
 import mongoose from 'mongoose'
+import ReviewModel from '../models/review.model.js'
 
 export class ReviewDAO {
     async getAllReviews({ page = 1, limit = 10 }) {

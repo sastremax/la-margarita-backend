@@ -1,14 +1,14 @@
 import express from 'express'
 
-import authRouter from './auth.router.js'
-import userRouter from './user.router.js'
-import productRouter from './product.router.js'
-import { cartRouter } from './routes/cart.router.js'
-import reservationRouter from './reservation.router.js'
-import reviewRouter from './review.router.js'
-import imageRouter from './image.router.js'
-import contactRouter from './contact.router.js'
-import lodgingRouter from './lodging.router.js'
+import { authRouter } from './auth.router.js'
+import { userRouter } from './user.router.js'
+import { productRouter } from './product.router.js'
+import { cartRouter } from './cart.router.js'
+import { reservationRouter } from './reservation.router.js'
+import { reviewRouter } from './review.router.js'
+import { imageRouter } from './image.router.js'
+import { contactRouter } from './contact.router.js'
+import { lodgingRouter } from './lodging.router.js'
 
 const router = express.Router()
 
@@ -22,4 +22,4 @@ router.use('/images', imageRouter)
 router.use('/contact', contactRouter)
 router.use('/lodgings', lodgingRouter)
 
-export default router
+export { router }

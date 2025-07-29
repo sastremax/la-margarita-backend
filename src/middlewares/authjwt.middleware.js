@@ -1,5 +1,5 @@
-import jwtUtil from '../utils/jwt.util.js'
 import ApiError from '../utils/apiError.js'
+import jwtUtil from '../utils/jwt.util.js'
 
 export const authJWT = (req, res, next) => {
     const token = req.cookies?.token

@@ -1,6 +1,6 @@
 import cluster from 'cluster'
 import os from 'os'
-import { logger } from './src/utils/logger.js'
+import { logger } from './config/logger.js'
 
 const numCPUs = os.cpus().length
 
@@ -19,5 +19,5 @@ if (cluster.isPrimary) {
     })
 } else {
     logger.info(`Worker PID ${process.pid} started`)
-    await import('./src/appServer.js')
+    await import('./appServer.js')
 }

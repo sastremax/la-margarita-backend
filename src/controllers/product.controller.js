@@ -1,5 +1,5 @@
-import productService from '../services/product.service.js'
 import productDTO from '../dto/product.dto.js'
+import productService from '../services/product.service.js'
 
 export const createProduct = async (req, res, next) => {
     try {

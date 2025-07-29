@@ -1,6 +1,6 @@
-import { LodgingService } from '../services/lodging.service.js'
 import { asPublicLodging } from '../dto/lodging.dto.js'
 import { AuditService } from '../services/audit.service.js'
+import { LodgingService } from '../services/lodging.service.js'
 
 export const getAllLodgings = async (req, res, next) => {
     try {
