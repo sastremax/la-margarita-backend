@@ -1,7 +1,7 @@
-import ApiError from '../utils/apiError.js'
-import AuditService from '../services/audit.service.js'
-import reservationDTO from '../dto/reservation.dto.js'
-import reservationService from '../services/reservation.service.js'
+import { ApiError } from '../utils/apiError.js'
+import { AuditService } from '../services/audit.service.js'
+import { reservationDTO } from '../dto/reservation.dto.js'
+import { reservationService } from '../services/reservation.service.js'
 
 export const getReservations = async (req, res, next) => {
     try {

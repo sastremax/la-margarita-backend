@@ -1,7 +1,7 @@
-import authService from '../services/auth.service.js'
-import jwtUtil from '../utils/jwt.util.js'
-import { AuditService } from '../services/audit.service.js'
 import { asUserPublic } from '../dto/user.dto.js'
+import { AuditService } from '../services/audit.service.js'
+import { authService } from '../services/auth.service.js'
+import { jwtUtil } from '../utils/jwt.util.js'
 
 export const postLogin = async (req, res, next) => {
     try {
