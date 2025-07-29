@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import config from '../config/index.js'
+import { config } from '../config/index.js'
 import { ApiError } from './apiError.js'
 
 const createAccessToken = (user, expiresIn = '15m') => {

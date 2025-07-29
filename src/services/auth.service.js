@@ -1,7 +1,7 @@
 import { AuthDAO } from '../dao/auth.dao.js'
 import { passwordUtil } from '../utils/password.util.js'
 import { tokenService } from './token.service.js'
-import { asPublicUser } from '../dto/user.dto.js'
+import { asUserPublic } from '../dto/user.dto.js'
 import { ApiError } from '../utils/apiError.js'
 
 const authDAO = new AuthDAO()
@@ -17,7 +17,7 @@ export const registerUser = async ({ firstName, lastName, email, password }) => 
         password
     })
 
-    return asPublicUser(newUser)
+    return asUserPublic(newUser)
 }
 
 export const loginUser = async ({ email, password }) => {
@@ -29,7 +29,7 @@ export const loginUser = async ({ email, password }) => {
 
     const token = tokenService.generateAccessToken({ userId: user._id, role: user.role })
 
-    return { token, user: asPublicUser(user) }
+    return { token, user: asUserPublic(user) }
 }
 
 export const logoutUser = async (userId) => {

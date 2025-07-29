@@ -1,13 +1,13 @@
 import { config } from './config/index.js'
 import { logger } from './config/logger.js'
-import app from './appExpress.js'
+import { app } from './appExpress.js'
 import { connectToDB } from './config/db.js'
 import passport from 'passport'
 import './config/passport.config.js'
 
 const PORT = config.port
 
-const startServer = async () => {
+export const startServer = async () => {
     if (process.env.NODE_ENV === 'test') {
         logger.info('Skipping startServer() in test mode')
         return
@@ -27,5 +27,3 @@ const startServer = async () => {
         process.exit(1)
     }
 }
-
-export default startServer

@@ -5,6 +5,7 @@
 	"main": "src/index.js",
 	"type": "module",
 	"scripts": {
+		"main": "src/app.js",
 		"start": "node src/index.temp.js",
 		"dev": "cross-env NODE_ENV=dev nodemon src/index.js",
 		"prod": "cross-env NODE_ENV=prod node src/index.js",

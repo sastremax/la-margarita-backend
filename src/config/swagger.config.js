@@ -21,3 +21,4 @@ const options = {
 
 export const specs = swaggerJsdoc(options)
 export const swaggerUiInstance = swaggerUi
+

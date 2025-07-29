@@ -10,14 +10,14 @@ import { errorHandler } from './middlewares/errorHandler.middleware.js'
 import { router } from './routes/index.js'
 import { logger } from './config/logger.js'
 import { loggerMiddleware } from './middlewares/logger.middleware.js'
-import swagger from './config/swagger.config.js'
+import { swaggerUiInstance, specs } from './config/swagger.config.js'
 import { config } from './config/index.js'
 import { auditLogger } from './middlewares/auditLogger.js'
 
 import { getFactory } from './dao/factory.js'
 import { setDAOs as setReservationDAOs } from './services/reservation.service.js'
 
-const app = express()
+export const app = express()
 
 const initializeServices = async () => {
     const { ReservationDAO, LodgingDAO } = await getFactory()
@@ -38,8 +38,9 @@ app.use(express.urlencoded({ extended: true }))
 app.use(trimBody)
 app.use(sanitizeMiddleware)
 app.use(rateLimit)
+
 if (config.mode !== 'test') {
-    app.use('/apidocs', swagger.swaggerUi.serve, swagger.swaggerUi.setup(swagger.specs))
+    app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs))
 }
 
 app.use('/api', router)
@@ -48,5 +49,3 @@ app.use(notFound)
 app.use(errorHandler)
 
 logger.debug('Express app initialized')
-
-export default app

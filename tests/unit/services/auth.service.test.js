@@ -36,7 +36,7 @@ vi.mock('../../../src/utils/password.util.js', () => ({
 }))
 
 vi.mock('../../../src/dto/user.dto.js', () => ({
-    asPublicUser: (user) => ({
+    asUserPublic: (user) => ({
         id: user._id,
         email: user.email,
         role: user.role
