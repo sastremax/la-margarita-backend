@@ -1,103 +1,100 @@
-import { expect } from 'chai'
-import sinon from 'sinon'
-import bcrypt from 'bcrypt'
-import AuthService from '../../../src/services/auth.service.js'
-import AuthDAO from '../../../src/dao/auth.dao.js'
-import tokenService from '../../../src/services/token.service.js'
-import asUserPublic from '../../../src/dto/user.dto.js'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { loginUser, registerUser, logoutUser, getUserByEmail, updateResetToken, updatePassword } from '../../../src/services/auth.service.js'
+import { factory } from '../../../src/dao/factory.js'
+import passwordUtil from '../../../src/utils/password.util.js'
+import jwtUtil from '../../../src/utils/jwt.util.js'
 import ApiError from '../../../src/utils/apiError.js'
 
-const dto = { asUserPublic }
-
-const fakeUser = {
-    _id: '1',
-    firstName: 'Jane',
-    lastName: 'Doe',
-    email: 'jane@example.com',
-    password: 'hashedpass',
-    role: 'user',
-    cart: null
-}
-
-const publicUser = {
-    id: '1',
-    fullName: 'Jane Doe',
-    email: 'jane@example.com',
-    role: 'user',
-    cartId: null
-}
+vi.mock('../../../src/dao/factory.js')
+vi.mock('../../../src/utils/password.util.js')
+vi.mock('../../../src/utils/jwt.util.js')
 
 describe('Auth Service', () => {
     beforeEach(() => {
-        sinon.restore()
+        vi.clearAllMocks()
     })
 
-    describe('registerUser', () => {
-        it('should throw error if user already exists', async () => {
-            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(fakeUser)
+    test('loginUser - success', async () => {
+        const mockUser = { _id: 'abc', email: 'test@example.com', password: 'hashedpass' }
+        factory.userDAO.getByEmail.mockResolvedValue(mockUser)
+        passwordUtil.comparePassword.mockResolvedValue(true)
+        jwtUtil.generateToken.mockReturnValue('mock-token')
 
-            try {
-                await AuthService.registerUser({
-                    firstName: 'Jane',
-                    lastName: 'Doe',
-                    email: 'jane@example.com',
-                    password: '12345678'
-                })
-            } catch (error) {
-                expect(error).to.be.instanceOf(ApiError)
-                expect(error.statusCode).to.equal(400)
-            }
-        })
+        const result = await loginUser({ email: 'test@example.com', password: '123456' })
 
-        it('should register and return public user if not existing', async () => {
-            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(null)
-            sinon.stub(AuthDAO.prototype, 'createUser').resolves(fakeUser)
-            sinon.stub(dto, 'asUserPublic').returns(publicUser)
-
-            const result = await AuthService.registerUser({
-                firstName: 'Jane',
-                lastName: 'Doe',
-                email: 'jane@example.com',
-                password: '12345678'
-            })
-
-            expect(result).to.deep.equal(publicUser)
-        })
+        expect(result).toEqual({ token: 'mock-token', userId: 'abc' })
     })
 
-    describe('loginUser', () => {
-        it('should throw error if user not found', async () => {
-            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(null)
+    test('loginUser - wrong credentials', async () => {
+        factory.userDAO.getByEmail.mockResolvedValue(null)
 
-            try {
-                await AuthService.loginUser({ email: 'jane@example.com', password: '12345678' })
-            } catch (error) {
-                expect(error).to.be.instanceOf(ApiError)
-                expect(error.statusCode).to.equal(401)
-            }
-        })
+        await expect(() => loginUser({ email: 'invalid@example.com', password: '123456' }))
+            .rejects
+            .toThrow(ApiError)
+    })
 
-        it('should throw error if password invalid', async () => {
-            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(fakeUser)
-            sinon.stub(bcrypt, 'compare').resolves(false)
+    test('registerUser - success', async () => {
+        const mockUser = { _id: 'u123', email: 'new@example.com' }
+        factory.userDAO.getByEmail.mockResolvedValue(null)
+        factory.userDAO.create.mockResolvedValue(mockUser)
 
-            try {
-                await AuthService.loginUser({ email: 'jane@example.com', password: 'wrongpass' })
-            } catch (error) {
-                expect(error).to.be.instanceOf(ApiError)
-                expect(error.statusCode).to.equal(401)
-            }
-        })
+        const result = await registerUser({ email: 'new@example.com', password: '12345678' })
 
-        it('should return token and public user if login successful', async () => {
-            sinon.stub(AuthDAO.prototype, 'findUserByEmail').resolves(fakeUser)
-            sinon.stub(bcrypt, 'compare').resolves(true)
-            sinon.stub(tokenService, 'generateAccessToken').returns('fake-token')
-            sinon.stub(dto, 'asUserPublic').returns(publicUser)
+        expect(result).toEqual(mockUser)
+        expect(factory.userDAO.create).toHaveBeenCalled()
+    })
 
-            const result = await AuthService.loginUser({ email: 'jane@example.com', password: '12345678' })
+    test('registerUser - already exists', async () => {
+        factory.userDAO.getByEmail.mockResolvedValue({ email: 'existing@example.com' })
 
-            expect(result).to.deep.equal({ token: 'fake-token', user: publicUser })
-        })
+        await expect(() => registerUser({ email: 'existing@example.com', password: '12345678' }))
+            .rejects
+            .toThrow(ApiError)
+    })
+
+    test('logoutUser - success', async () => {
+        const mockUser = { _id: 'u1', resetToken: 'old-token' }
+        factory.userDAO.getById.mockResolvedValue(mockUser)
+        factory.userDAO.update.mockResolvedValue({ ...mockUser, resetToken: null })
+
+        const result = await logoutUser('u1')
+
+        expect(result.resetToken).toBeNull()
+    })
+
+    test('getUserByEmail - found', async () => {
+        const mockUser = { _id: 'u1', email: 'test@example.com' }
+        factory.userDAO.getByEmail.mockResolvedValue(mockUser)
+
+        const result = await getUserByEmail('test@example.com')
+
+        expect(result).toEqual(mockUser)
+    })
+
+    test('getUserByEmail - not found', async () => {
+        factory.userDAO.getByEmail.mockResolvedValue(null)
+
+        await expect(() => getUserByEmail('notfound@example.com'))
+            .rejects
+            .toThrow(ApiError)
+    })
+
+    test('updateResetToken - success', async () => {
+        const mockUser = { _id: 'u1', email: 'a@example.com' }
+        factory.userDAO.update.mockResolvedValue({ ...mockUser, resetToken: 'token123' })
+
+        const result = await updateResetToken('u1', 'token123')
+
+        expect(result.resetToken).toBe('token123')
+    })
+
+    test('updatePassword - success', async () => {
+        const encrypted = 'encryptedPassword'
+        passwordUtil.encryptPassword.mockResolvedValue(encrypted)
+        factory.userDAO.update.mockResolvedValue({ _id: 'u1', password: encrypted })
+
+        const result = await updatePassword('u1', 'newpassword')
+
+        expect(result.password).toBe(encrypted)
     })
 })
