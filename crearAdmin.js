@@ -1,9 +1,8 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
-import config from './src/config/index.js'
+import { config } from './src/config/index.js'
 import UserModel from './src/models/user.model.js'
 import CartModel from './src/models/cart.model.js'
-import hashPassword from './src/utils/hash.js'
 
 dotenv.config({
     path: config.mode === 'test' ? './.env.test' : './.env'
@@ -26,7 +25,7 @@ const run = async () => {
             firstName: 'Maxi',
             lastName: 'Sastre',
             email: 'maxi@example.com',
-            password: hashPassword('12345678'),
+            password: '12345678',
             role: 'admin',
             cart: cart._id,
             age: 24

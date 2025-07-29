@@ -1,5 +1,5 @@
-import logger from './config/logger.js'
-import config from './config/index.js'
+import { logger } from './config/logger.js'
+import { config } from './config/index.js'
 import startServer from './appServer.js'
 
 const dbName = config.mongoUri.split('/').pop().split('?')[0]
@@ -17,3 +17,4 @@ startServer()
         logger.fatal(err)
         process.exit(1)
     })
+

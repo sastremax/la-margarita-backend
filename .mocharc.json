@@ -1,6 +1,0 @@
-{
-  "extension": ["js"],
-  "spec": "tests/**/*.test.js",
-  "loader": "./tests/setup.js",
-  "recursive": true
-}
