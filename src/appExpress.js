@@ -14,7 +14,19 @@ import swagger from './config/swagger.config.js'
 import { config } from './config/index.js'
 import { auditLogger } from './middlewares/auditLogger.js'
 
+import { getFactory } from './dao/factory.js'
+import { setDAOs as setReservationDAOs } from './services/reservation.service.js'
+
 const app = express()
+
+const initializeServices = async () => {
+    const { ReservationDAO, LodgingDAO } = await getFactory()
+    setReservationDAOs({
+        reservationDAO: new ReservationDAO(),
+        lodgingDAO: new LodgingDAO()
+    })
+}
+await initializeServices()
 
 app.use(cookieParser())
 app.use(loggerMiddleware)

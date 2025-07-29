@@ -1,10 +1,12 @@
-import { ReservationDAO } from '../dao/reservation.dao.js'
-import { LodgingDAO } from '../dao/lodging.dao.js'
 import dayjs from 'dayjs'
 import { asPublicReservation } from '../dto/reservation.dto.js'
 
-const reservationDAO = new ReservationDAO()
-const lodgingDAO = new LodgingDAO()
+let reservationDAO, lodgingDAO
+
+export const setDAOs = (deps) => {
+    reservationDAO = deps.reservationDAO
+    lodgingDAO = deps.lodgingDAO
+}
 
 export class ReservationService {
 

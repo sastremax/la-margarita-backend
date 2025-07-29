@@ -1,5 +1,5 @@
-import { contactService } from '../services/contact.service.js'
 import { contactDTO } from '../dto/contact.dto.js'
+import { contactService } from '../services/contact.service.js'
 
 export const submitContactForm = async (req, res, next) => {
     try {

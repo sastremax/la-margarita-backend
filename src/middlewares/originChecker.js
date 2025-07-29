@@ -1,5 +1,5 @@
-import ApiError from '../utils/apiError.js'
 import config from '../config/index.js'
+import ApiError from '../utils/apiError.js'
 
 const allowedOriginsString = config.corsOrigin || 'https://tu-dominio.com'
 const allowedOrigins = allowedOriginsString.split(',')

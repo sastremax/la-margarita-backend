@@ -1,5 +1,5 @@
-import jwtUtil from '../utils/jwt.util.js'
 import ApiError from '../utils/apiError.js'
+import jwtUtil from '../utils/jwt.util.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
 

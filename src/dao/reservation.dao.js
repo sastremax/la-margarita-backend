@@ -1,5 +1,5 @@
-import ReservationModel from '../models/reservation.model.js'
 import mongoose from 'mongoose'
+import ReservationModel from '../models/reservation.model.js'
 
 export class ReservationDAO {
 
@@ -53,7 +53,7 @@ export class ReservationDAO {
 
     async getReservationSummaryByLodging(lodgingId) {
         const results = await ReservationModel.aggregate([
-            { $match: { lodging: new mongoose.Types.ObjectId(lodgingId), status: 'confirmed' } },
+            { $match: { lodging: new mongoose.Types.ObjectId(String(lodgingId)), status: 'confirmed' } },
             {
                 $project: {
                     nights: {
