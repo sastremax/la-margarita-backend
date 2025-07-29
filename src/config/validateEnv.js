@@ -1,5 +1,3 @@
-import { config } from './index.js'
-
 const requiredVariables = [
     'PORT',
     'MONGO_URI',
