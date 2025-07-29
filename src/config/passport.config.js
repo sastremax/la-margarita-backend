@@ -1,6 +1,7 @@
-import { config } from './index.js'
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
 import passport from 'passport'
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
+
+import { config } from './index.js'
 import User from '../models/user.model.js'
 
 const opts = {
