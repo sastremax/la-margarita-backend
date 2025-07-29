@@ -1,12 +1,15 @@
 import { asUserPublic } from '../dto/user.dto.js'
 import { AuditService } from '../services/audit.service.js'
-import { authService } from '../services/auth.service.js'
+import {
+    loginUser,
+    registerUser
+} from '../services/auth.service.js'
 import { jwtUtil } from '../utils/jwt.util.js'
 
 export const postLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body
-        const user = await authService.loginUser(email, password)
+        const user = await loginUser(email, password)
 
         const accessToken = jwtUtil.createAccessToken(user)
         const refreshToken = jwtUtil.createRefreshToken(user)
@@ -49,7 +52,7 @@ export const postLogin = async (req, res, next) => {
 export const postRegister = async (req, res, next) => {
     try {
         const { firstName, lastName, email, password } = req.body
-        const user = await authService.registerUser({ firstName, lastName, email, password })
+        const user = await registerUser({ firstName, lastName, email, password })
         res.status(201).json({ status: 'success', data: asUserPublic(user) })
     } catch (error) {
         next(error)
