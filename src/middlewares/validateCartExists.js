@@ -1,5 +1,5 @@
-import cartService from '../services/cart.service.js'
-import ApiError from '../utils/apiError.js'
+import { cartService } from '../services/cart.service.js'
+import { ApiError } from '../utils/apiError.js'
 
 export const validateCartExists = async (req, res, next) => {
     try {
@@ -10,3 +10,4 @@ export const validateCartExists = async (req, res, next) => {
         next(error)
     }
 }
+

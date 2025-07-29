@@ -1,5 +1,5 @@
-import ApiError from '../utils/apiError.js'
+import { ApiError } from '../utils/apiError.js'
 
-export const notFound = function (req, res, next) {
-    next(new ApiError(404, 'Route ' + req.originalUrl + ' not found'))
+export const notFound = (req, _, next) => {
+    next(new ApiError(404, `Route ${req.originalUrl} not found`))
 }

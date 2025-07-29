@@ -1,13 +1,13 @@
-import logger from '../config/logger.js'
+import { logger } from '../config/logger.js'
 
-export const requestLogger = function (req, res, next) {
+export const requestLogger = (req, res, next) => {
     const start = Date.now()
     const user = req.user?.email || req.user?.id || 'Guest'
     const ip = req.ip || req.connection?.remoteAddress || 'Unknown IP'
     const requestId = req.requestId || 'no-request-id'
     let logged = false
 
-    function logRequest() {
+    const logRequest = () => {
         if (logged) return
         logged = true
         const duration = Date.now() - start
@@ -23,9 +23,9 @@ export const requestLogger = function (req, res, next) {
         }
 
         if (res.statusCode >= 400) {
-            logger.error('[REQUEST]', logEntry)
+            logger.error('REQUEST', logEntry)
         } else {
-            logger.info('[REQUEST]', logEntry)
+            logger.info('REQUEST', logEntry)
         }
     }
 

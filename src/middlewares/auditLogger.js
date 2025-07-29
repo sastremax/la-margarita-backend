@@ -1,4 +1,4 @@
-import logger from '../config/logger.js'
+import { logger } from '../config/logger.js'
 
 export const auditLogger = (req, res, next) => {
     const userId = req.user?.id || 'anonymous'
@@ -11,3 +11,4 @@ export const auditLogger = (req, res, next) => {
 
     next()
 }
+

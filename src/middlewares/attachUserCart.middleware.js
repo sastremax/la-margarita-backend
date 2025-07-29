@@ -1,9 +1,9 @@
-import CartDAO from '../dao/cart.dao.js'
-import ApiError from '../utils/apiError.js'
+import { CartDAO } from '../dao/cart.dao.js'
+import { ApiError } from '../utils/apiError.js'
 
 const cartDao = new CartDAO()
 
-export default async function attachUserCart(req, res, next) {
+export const attachUserCart = async (req, res, next) => {
     try {
         if (!req?.user?.cart) {
             throw new ApiError(400, 'User has no cart assigned')

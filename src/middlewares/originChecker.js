@@ -4,7 +4,7 @@ import { ApiError } from '../utils/apiError.js'
 const allowedOriginsString = config.corsOrigin || 'https://tu-dominio.com'
 const allowedOrigins = allowedOriginsString.split(',')
 
-export const originChecker = function (origin, callback) {
+export const originChecker = (origin, callback) => {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true)
     } else {

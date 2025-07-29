@@ -1,4 +1,4 @@
-import ApiError from '../utils/apiError.js'
+import { ApiError } from '../utils/apiError.js'
 
 export const verifyOwnership = (getResourceOwnerId) => {
     return async (req, res, next) => {

@@ -1,5 +1,5 @@
-import jwtUtil from '../utils/jwt.util.js'
 import { ApiError } from '../utils/apiError.js'
+import { jwtUtil } from '../utils/jwt.util.js'
 
 export const universalAuth = (req, res, next) => {
     let token = req.cookies?.token

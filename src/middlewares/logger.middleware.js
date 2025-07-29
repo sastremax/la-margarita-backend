@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
-import logger from '../config/logger.js'
+import { logger } from '../config/logger.js'
 
-export const loggerMiddleware = function (req, res, next) {
+export const loggerMiddleware = (req, res, next) => {
     const requestId = uuidv4()
     const start = Date.now()
     req.requestId = requestId
@@ -29,12 +29,12 @@ export const loggerMiddleware = function (req, res, next) {
                 ip: req.ip,
                 durationMs: duration,
                 userAgent: req.headers['user-agent'] || '',
-                referer: req.headers['referer'] || ''
+                referer: req.headers.referer || ''
             }
 
-            logger[level]('[AUDIT]', logEntry)
+            logger[level]('AUDIT', logEntry)
         } catch (error) {
-            logger.error('[AUDIT ERROR] Logging failed: ' + error.message)
+            logger.error(`AUDIT ERROR - Logging failed: ${error.message}`)
         }
     })
 
