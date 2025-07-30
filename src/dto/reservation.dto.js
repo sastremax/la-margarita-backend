@@ -2,10 +2,10 @@ import { z } from 'zod'
 
 export const reservationSchema = z.object({
     lodgingId: z.string().min(1, { message: 'Lodging ID is required' }),
-    checkIn: z.string().refine(date => !isNaN(Date.parse(date)), {
+    checkIn: z.string().refine(date => !Number.isNaN(Date.parse(date)), {
         message: 'Invalid check-in date'
     }),
-    checkOut: z.string().refine(date => !isNaN(Date.parse(date)), {
+    checkOut: z.string().refine(date => !Number.isNaN(Date.parse(date)), {
         message: 'Invalid check-out date'
     }).refine((checkOut, ctx) => {
         const checkIn = ctx.parent.checkIn

@@ -9,17 +9,20 @@ import {
 } from '../controllers/reservation.controller.js'
 import { authPolicy } from '../middlewares/authPolicy.middleware.js'
 import { validateDTO } from '../middlewares/validateDTO.middleware.js'
-import reservationDTO from '../dto/reservation.dto.js'
+import {
+    reservationSchema,
+    reservationQuerySchema
+} from '../dto/reservation.dto.js'
 import { validateReservationExists } from '../middlewares/exists/validateReservationExists.js'
 import { verifyOwnership } from '../middlewares/verifyOwnership.js'
-import reservationService from '../services/reservation.service.js'
+import { reservationService } from '../services/reservation.service.js'
 
 export const reservationRouter = express.Router()
 
 reservationRouter.get(
     '/',
     authPolicy(['admin']),
-    validateDTO(reservationDTO.reservationQuerySchema, 'query'),
+    validateDTO(reservationQuerySchema, 'query'),
     getReservations
 )
 
@@ -49,7 +52,7 @@ reservationRouter.get(
 reservationRouter.post(
     '/',
     authPolicy(['user']),
-    validateDTO(reservationDTO.reservationSchema),
+    validateDTO(reservationSchema),
     createReservation
 )
 

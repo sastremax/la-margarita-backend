@@ -1,13 +1,15 @@
-import { ApiError } from '../utils/apiError.js'
+import {
+    asPublicReservation
+} from '../dto/reservation.dto.js'
 import { AuditService } from '../services/audit.service.js'
-import { reservationDTO } from '../dto/reservation.dto.js'
 import { reservationService } from '../services/reservation.service.js'
+import { ApiError } from '../utils/apiError.js'
 
 export const getReservations = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, userId, lodgingId, status } = req.query
         const reservations = await reservationService.getReservationsWithFilters({ page, limit, userId, lodgingId, status })
-        const data = reservations.data.map(reservationDTO.asPublicReservation)
+        const data = reservations.data.map(asPublicReservation)
 
         res.status(200).json({
             status: 'success',
@@ -40,7 +42,7 @@ export const createReservation = async (req, res, next) => {
         const userId = req.user._id
         const { lodgingId, checkIn, checkOut } = req.body
         const reservation = await reservationService.createReservation({ userId, lodgingId, checkIn, checkOut })
-        res.status(201).json({ status: 'success', data: reservationDTO.asPublicReservation(reservation) })
+        res.status(201).json({ status: 'success', data: asPublicReservation(reservation) })
     } catch (error) {
         next(error)
     }
@@ -50,7 +52,7 @@ export const getReservationsByUser = async (req, res, next) => {
     try {
         const userId = req.user._id
         const reservations = await reservationService.getReservationsByUser(userId)
-        res.status(200).json({ status: 'success', data: reservations.map(reservationDTO.asPublicReservation) })
+        res.status(200).json({ status: 'success', data: reservations.map(asPublicReservation) })
     } catch (error) {
         next(error)
     }
@@ -86,7 +88,7 @@ export const getReservationById = async (req, res, next) => {
             return next(new ApiError(404, 'Reservation not found'))
         }
 
-        res.status(200).json({ status: 'success', data: reservationDTO.asPublicReservation(reservation) })
+        res.status(200).json({ status: 'success', data: asPublicReservation(reservation) })
     } catch (error) {
         next(error)
     }
