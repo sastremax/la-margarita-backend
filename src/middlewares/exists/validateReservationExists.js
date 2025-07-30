@@ -1,5 +1,5 @@
-import reservationService from '../../services/reservation.service.js'
-import ApiError from '../../utils/apiError.js'
+import { reservationService } from '../../services/reservation.service.js'
+import { ApiError } from '../../utils/apiError.js'
 
 export const validateReservationExists = async (req, res, next) => {
     try {
