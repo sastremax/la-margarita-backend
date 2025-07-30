@@ -12,6 +12,11 @@ const reviewSchema = z.object({
     comment: z.string().min(1)
 })
 
+const reviewQuerySchema = z.object({
+    lodgingId: z.string().optional(),
+    status: z.enum(['confirmed', 'cancelled']).optional()
+})
+
 function asPublicReview(review) {
     return {
         id: review._id,
@@ -36,5 +41,6 @@ function asPublicReview(review) {
 
 export const reviewDTO = {
     reviewSchema,
+    reviewQuerySchema,
     asPublicReview
 }
