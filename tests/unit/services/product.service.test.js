@@ -1,73 +1,181 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { ProductService } from '../../../src/services/product.service.js'
+import { productService } from '../../../src/services/product.service.js'
 
-vi.mock('../../../src/dao/product.dao.js', () => {
-    return {
-        ProductDAO: vi.fn().mockImplementation(() => ({
-            getAllProducts: vi.fn().mockResolvedValue([{ id: '1' }, { id: '2' }]),
-            getProductById: vi.fn().mockResolvedValue({ id: '1' }),
-            getProductByCode: vi.fn().mockResolvedValue({ code: 'ABC123' }),
-            createProduct: vi.fn().mockResolvedValue({ title: 'Test' }),
-            updateProduct: vi.fn().mockResolvedValue({ title: 'Updated' }),
+vi.mock('../../../src/dao/factory.js', () => ({
+    getFactory: vi.fn().mockResolvedValue({
+        ProductDAO: {
+            getAllProducts: vi.fn().mockResolvedValue([
+                {
+                    _id: '1',
+                    title: 'A',
+                    description: 'desc A',
+                    price: 10,
+                    code: 'A1',
+                    category: 'food',
+                    stock: 5,
+                    images: []
+                },
+                {
+                    _id: '2',
+                    title: 'B',
+                    description: 'desc B',
+                    price: 20,
+                    code: 'B1',
+                    category: 'service',
+                    stock: 10,
+                    images: []
+                }
+            ]),
+            getProductById: vi.fn().mockResolvedValue({
+                _id: '1',
+                title: 'A',
+                description: 'desc A',
+                price: 10,
+                code: 'A1',
+                category: 'food',
+                stock: 5,
+                images: []
+            }),
+            getProductByCode: vi.fn().mockResolvedValue({
+                _id: 'p1',
+                title: 'By Code',
+                description: 'desc',
+                price: 50,
+                code: 'ABC123',
+                category: 'food',
+                stock: 20,
+                images: []
+            }),
+            createProduct: vi.fn().mockResolvedValue({
+                _id: 'new',
+                title: 'New Product',
+                description: 'desc new',
+                price: 100,
+                code: 'NEW123',
+                category: 'service',
+                stock: 30,
+                images: []
+            }),
+            updateProduct: vi.fn().mockResolvedValue({
+                _id: '1',
+                title: 'Updated Product',
+                description: 'updated desc',
+                price: 150,
+                code: 'A1',
+                category: 'food',
+                stock: 7,
+                images: []
+            }),
             deleteProduct: vi.fn().mockResolvedValue({ acknowledged: true })
-        }))
-    }
-})
-
-vi.mock('../../../src/dto/product.dto.js', async (importOriginal) => {
-    const actual = await importOriginal()
-    return {
-        ...actual,
-        asPublicProduct: vi.fn((product) => {
-            return { ...(product || {}), public: true }
-        })
-    }
-})
+        }
+    })
+}))
 
 describe('ProductService', () => {
-    const dao = new (vi.importActual('../../../src/dao/product.dao.js')).ProductDAO()
-
     beforeEach(() => {
         vi.clearAllMocks()
     })
 
     test('getAllProducts', async () => {
-        const result = await ProductService.getAllProducts()
+        const result = await productService.getAllProducts()
+
         expect(result).toEqual([
-            { id: '1', public: true },
-            { id: '2', public: true }
+            {
+                id: '1',
+                title: 'A',
+                description: 'desc A',
+                price: 10,
+                code: 'A1',
+                category: 'food',
+                stock: 5,
+                images: []
+            },
+            {
+                id: '2',
+                title: 'B',
+                description: 'desc B',
+                price: 20,
+                code: 'B1',
+                category: 'service',
+                stock: 10,
+                images: []
+            }
         ])
     })
 
     test('getProductById', async () => {
-        const result = await ProductService.getProductById('1')
-        expect(result).toEqual({ id: '1', public: true })
-        expect(dao.getProductById).toHaveBeenCalledWith('1')
+        const result = await productService.getProductById('1')
+
+        expect(result).toEqual({
+            id: '1',
+            title: 'A',
+            description: 'desc A',
+            price: 10,
+            code: 'A1',
+            category: 'food',
+            stock: 5,
+            images: []
+        })
     })
 
     test('getProductByCode', async () => {
-        const result = await ProductService.getProductByCode('ABC123')
-        expect(result).toEqual({ code: 'ABC123', public: true })
-        expect(dao.getProductByCode).toHaveBeenCalledWith('ABC123')
+        const result = await productService.getProductByCode('ABC123')
+
+        expect(result).toEqual({
+            id: 'p1',
+            title: 'By Code',
+            description: 'desc',
+            price: 50,
+            code: 'ABC123',
+            category: 'food',
+            stock: 20,
+            images: []
+        })
     })
 
     test('createProduct', async () => {
-        const newProduct = { title: 'Test' }
-        const result = await ProductService.createProduct(newProduct)
-        expect(result).toEqual({ title: 'Test', public: true })
-        expect(dao.createProduct).toHaveBeenCalledWith(newProduct)
+        const result = await productService.createProduct({
+            title: 'New Product',
+            description: 'desc new',
+            price: 100,
+            code: 'NEW123',
+            category: 'service',
+            stock: 30,
+            images: []
+        })
+
+        expect(result).toEqual({
+            id: 'new',
+            title: 'New Product',
+            description: 'desc new',
+            price: 100,
+            code: 'NEW123',
+            category: 'service',
+            stock: 30,
+            images: []
+        })
     })
 
     test('updateProduct', async () => {
-        const updated = { title: 'Updated' }
-        const result = await ProductService.updateProduct('1', updated)
-        expect(result).toEqual({ title: 'Updated', public: true })
-        expect(dao.updateProduct).toHaveBeenCalledWith('1', updated)
+        const result = await productService.updateProduct('1', {
+            title: 'Updated Product',
+            description: 'updated desc'
+        })
+
+        expect(result).toEqual({
+            id: '1',
+            title: 'Updated Product',
+            description: 'updated desc',
+            price: 150,
+            code: 'A1',
+            category: 'food',
+            stock: 7,
+            images: []
+        })
     })
 
     test('deleteProduct', async () => {
-        const result = await ProductService.deleteProduct('1')
+        const result = await productService.deleteProduct('1')
         expect(result).toEqual({ acknowledged: true })
-        expect(dao.deleteProduct).toHaveBeenCalledWith('1')
     })
 })
