@@ -30,6 +30,20 @@ export const reviewService = {
         return reviewDTO.asPublicReview(created)
     },
 
+    async updateReview(id, userId, updateData) {
+        const review = await reviewDAO.getReviewById(id)
+        if (!review) {
+            throw new Error('Review not found')
+        }
+
+        if (String(review.user?._id || review.user) !== String(userId)) {
+            throw new Error('Not authorized to update this review')
+        }
+
+        const updated = await reviewDAO.updateReview(id, updateData)
+        return reviewDTO.asPublicReview(updated)
+    },
+
     async deleteReview(id) {
         const deleted = await reviewDAO.deleteReview(id)
         return reviewDTO.asPublicReview(deleted)

@@ -111,4 +111,14 @@ export class ReviewDAO {
 
         return { total, page, limit, reviews }
     }
+
+    async updateReview(reviewId, updateData) {
+        const review = await ReviewModel.findById(reviewId)
+        if (!review || review.isDeleted) return null
+
+        Object.assign(review, updateData)
+
+        await review.save()
+        return review
+    }
 }

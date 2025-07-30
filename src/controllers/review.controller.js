@@ -124,3 +124,17 @@ export const getRepliedReviewsByLodging = async (req, res, next) => {
         next(error)
     }
 }
+
+export const updateReview = async (req, res, next) => {
+    try {
+        const reviewId = req.params.rid
+        const userId = req.user._id
+        const updateData = req.body
+
+        const updatedReview = await reviewService.updateReview(reviewId, userId, updateData)
+
+        res.status(200).json({ status: 'success', data: reviewDTO.asPublicReview(updatedReview) })
+    } catch (error) {
+        next(error)
+    }
+}

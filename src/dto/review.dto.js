@@ -17,6 +17,19 @@ const reviewQuerySchema = z.object({
     status: z.enum(['confirmed', 'cancelled']).optional()
 })
 
+const reviewUpdateSchema = z.object({
+    rating: z.number().int().min(1).max(5).optional(),
+    cleanliness: z.number().min(1).max(5).optional(),
+    location: z.number().min(1).max(5).optional(),
+    service: z.number().min(1).max(5).optional(),
+    valueForMoney: z.number().min(1).max(5).optional(),
+    comment: z.string().min(1).optional(),
+    adminReply: z.object({
+        message: z.string().min(1),
+        createdAt: z.date().optional()
+    }).optional()
+})
+
 function asPublicReview(review) {
     return {
         id: review._id,
@@ -42,5 +55,6 @@ function asPublicReview(review) {
 export const reviewDTO = {
     reviewSchema,
     reviewQuerySchema,
+    reviewUpdateSchema,
     asPublicReview
 }
