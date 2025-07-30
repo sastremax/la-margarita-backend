@@ -35,14 +35,6 @@ vi.mock('../../../src/utils/password.util.js', () => ({
     }
 }))
 
-vi.mock('../../../src/dto/user.dto.js', () => ({
-    asUserPublic: (user) => ({
-        id: user._id,
-        email: user.email,
-        role: user.role
-    })
-}))
-
 import {
     loginUser,
     registerUser,
@@ -64,7 +56,14 @@ describe('Auth Service', () => {
 
     test('registerUser - success', async () => {
         __mocks.findUserByEmail.mockResolvedValue(null)
-        __mocks.createUser.mockResolvedValue({ _id: '1', email: 'new@example.com', role: 'user' })
+        __mocks.createUser.mockResolvedValue({
+            _id: '1',
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'new@example.com',
+            role: 'user',
+            cart: null
+        })
 
         const result = await registerUser({
             firstName: 'John',
@@ -75,8 +74,10 @@ describe('Auth Service', () => {
 
         expect(result).toEqual({
             id: '1',
+            fullName: 'John Doe',
             email: 'new@example.com',
-            role: 'user'
+            role: 'user',
+            cartId: null
         })
     })
 
@@ -96,12 +97,15 @@ describe('Auth Service', () => {
     test('loginUser - success', async () => {
         __mocks.findUserByEmail.mockResolvedValue({
             _id: 'u1',
+            firstName: 'Test',
+            lastName: 'User',
             email: 'test@example.com',
             password: 'hashedpass',
-            role: 'user'
+            role: 'user',
+            cart: null
         })
         passwordUtil.comparePassword.mockResolvedValue(true)
-        tokenService.generateAccessToken.mockReturnValue('mock-token')        
+        tokenService.generateAccessToken.mockReturnValue('mock-token')
 
         const result = await loginUser({ email: 'test@example.com', password: '123456' })
 
@@ -109,8 +113,10 @@ describe('Auth Service', () => {
             token: 'mock-token',
             user: {
                 id: 'u1',
+                fullName: 'Test User',
                 email: 'test@example.com',
-                role: 'user'
+                role: 'user',
+                cartId: null
             }
         })
     })

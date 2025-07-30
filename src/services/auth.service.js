@@ -1,6 +1,8 @@
 import { AuthDAO } from '../dao/auth.dao.js'
+import { asUserPublic } from '../dto/user.dto.js'
 import { ApiError } from '../utils/apiError.js'
 import { passwordUtil } from '../utils/password.util.js'
+import { tokenService } from './token.service.js'
 
 const authDAO = new AuthDAO()
 
@@ -15,17 +17,18 @@ export const registerUser = async ({ firstName, lastName, email, password }) => 
         password
     })
 
-    return newUser
+    return asUserPublic(newUser)
 }
 
-export const loginUser = async (email, password) => {
+export const loginUser = async ({ email, password }) => {
     const user = await authDAO.findUserByEmail(email)
     if (!user) throw new ApiError(401, 'Invalid credentials')
 
     const validPassword = await passwordUtil.comparePassword(password, user.password)
     if (!validPassword) throw new ApiError(401, 'Invalid credentials')
 
-    return user
+    const token = tokenService.generateAccessToken(user)
+    return { token, user: asUserPublic(user) }
 }
 
 export const logoutUser = async (userId) => {
