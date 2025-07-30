@@ -1,6 +1,6 @@
-import { reviewService } from '../services/review.service.js'
-import { reviewDTO } from '../dto/review.dto.js'
 import { getFactory } from '../dao/factory.js'
+import { reviewDTO } from '../dto/review.dto.js'
+import { reviewService } from '../services/review.service.js'
 
 const ReviewDAO = (await getFactory()).reviewDAO
 

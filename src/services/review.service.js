@@ -1,46 +1,46 @@
 import { ReviewDAO } from '../dao/review.dao.js'
-import { asPublicReview } from '../dto/review.dto.js'
+import { reviewDTO } from '../dto/review.dto.js'
 
 const reviewDAO = new ReviewDAO()
 
-export class ReviewService {
-    static async getAllReviews({ page = 1, limit = 10 }) {
+export const reviewService = {
+    async getAllReviews({ page = 1, limit = 10 }) {
         const result = await reviewDAO.getAllReviews({ page, limit })
-        result.data = result.data.map(asPublicReview)
+        result.data = result.data.map(reviewDTO.asPublicReview)
         return result
-    }
+    },
 
-    static async getReviewById(id) {
+    async getReviewById(id) {
         const review = await reviewDAO.getReviewById(id)
-        return asPublicReview(review)
-    }
+        return reviewDTO.asPublicReview(review)
+    },
 
-    static async getReviewsByLodgingId(lodgingId, { page = 1, limit = 10, filters = {} }) {
+    async getReviewsByLodgingId(lodgingId, { page = 1, limit = 10, filters = {} }) {
         const result = await reviewDAO.getReviewsByLodgingWithFilters(lodgingId, { page, limit, filters })
-        result.reviews = result.reviews.map(asPublicReview)
+        result.reviews = result.reviews.map(reviewDTO.asPublicReview)
         return result
-    }
+    },
 
-    static async getReviewByReservation(reservationId) {
+    async getReviewByReservation(reservationId) {
         return await reviewDAO.getReviewByReservationId(reservationId)
-    }
+    },
 
-    static async createReview(data) {
+    async createReview(data) {
         const created = await reviewDAO.createReview(data)
-        return asPublicReview(created)
-    }
+        return reviewDTO.asPublicReview(created)
+    },
 
-    static async deleteReview(id) {
+    async deleteReview(id) {
         const deleted = await reviewDAO.deleteReview(id)
-        return asPublicReview(deleted)
-    }
+        return reviewDTO.asPublicReview(deleted)
+    },
 
-    static async replyToReview(id, message) {
+    async replyToReview(id, message) {
         const replied = await reviewDAO.replyToReview(id, message)
-        return asPublicReview(replied)
-    }
+        return reviewDTO.asPublicReview(replied)
+    },
 
-    static async getReviewSummary(lodgingId) {
+    async getReviewSummary(lodgingId) {
         return await reviewDAO.getReviewSummary(lodgingId)
     }
 }
