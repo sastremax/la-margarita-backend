@@ -1,8 +1,8 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import { securityMiddleware } from './middlewares/security.middleware.js'
-import { corsConfig } from './middlewares/corsConfig.middleware.js'
-import { rateLimit } from './middlewares/rateLimit.middleware.js'
+import { corsMiddleware } from './middlewares/corsConfig.middleware.js'
+import { globalLimiter } from './middlewares/rateLimit.middleware.js'
 import { sanitizeMiddleware } from './middlewares/sanitize.middleware.js'
 import { trimBody } from './middlewares/trimBody.middleware.js'
 import { notFound } from './middlewares/notFound.middleware.js'
@@ -32,12 +32,12 @@ app.use(cookieParser())
 app.use(loggerMiddleware)
 app.use(auditLogger)
 app.use(securityMiddleware)
-app.use(corsConfig)
+app.use(corsMiddleware)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(trimBody)
 app.use(sanitizeMiddleware)
-app.use(rateLimit)
+app.use(globalLimiter)
 
 if (config.mode !== 'test') {
     app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs))
