@@ -1,10 +1,10 @@
-import { cartDTO } from '../dto/cart.dto.js'
+import { asPublicCart } from '../dto/cart.dto.js'
 import { cartService } from '../services/cart.service.js'
 
 export const createCart = async (req, res, next) => {
     try {
         const cart = await cartService.createCart()
-        res.status(201).json({ status: 'success', data: cartDTO.asPublicCart(cart) })
+        res.status(201).json({ status: 'success', data: asPublicCart(cart) })
     } catch (error) {
         next(error)
     }
@@ -13,7 +13,7 @@ export const createCart = async (req, res, next) => {
 export const getCartById = async (req, res, next) => {
     try {
         const cart = await cartService.getCartById(req.params.id)
-        res.status(200).json({ status: 'success', data: cartDTO.asPublicCart(cart) })
+        res.status(200).json({ status: 'success', data: asPublicCart(cart) })
     } catch (error) {
         next(error)
     }
@@ -23,7 +23,7 @@ export const addProductToCart = async (req, res, next) => {
     try {
         const { cid, pid } = req.params
         const cart = await cartService.addProductToCart(cid, pid)
-        res.status(200).json({ status: 'success', data: cartDTO.asPublicCart(cart) })
+        res.status(200).json({ status: 'success', data: asPublicCart(cart) })
     } catch (error) {
         next(error)
     }
@@ -42,7 +42,7 @@ export const removeProductFromCart = async (req, res, next) => {
     try {
         const { cid, pid } = req.params
         const updatedCart = await cartService.removeProductFromCart(cid, pid)
-        res.status(200).json({ status: 'success', data: cartDTO.asPublicCart(updatedCart) })
+        res.status(200).json({ status: 'success', data: asPublicCart(updatedCart) })
     } catch (error) {
         next(error)
     }
@@ -53,7 +53,7 @@ export const updateCartProducts = async (req, res, next) => {
         const { cid } = req.params
         const { products } = req.body
         const updatedCart = await cartService.updateCartProducts(cid, products)
-        res.status(200).json({ status: 'success', data: cartDTO.asPublicCart(updatedCart) })
+        res.status(200).json({ status: 'success', data: asPublicCart(updatedCart) })
     } catch (error) {
         next(error)
     }
@@ -64,7 +64,7 @@ export const updateProductQuantity = async (req, res, next) => {
         const { cid, pid } = req.params
         const { quantity } = req.body
         const updatedCart = await cartService.updateProductQuantity(cid, pid, quantity)
-        res.status(200).json({ status: 'success', data: cartDTO.asPublicCart(updatedCart) })
+        res.status(200).json({ status: 'success', data: asPublicCart(updatedCart) })
     } catch (error) {
         next(error)
     }
