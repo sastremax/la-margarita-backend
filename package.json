@@ -2,16 +2,17 @@
 	"name": "la-margarita-backend",
 	"version": "1.0.0",
 	"description": "Backend del proyecto LaMargarita (Node.js + Express + MongoDB + JWT)",
-	"main": "src/index.js",
 	"type": "module",
-	"scripts": {		
-		"start": "node src/app.js",
-		"dev": "cross-env NODE_ENV=dev nodemon src/app.js",
-		"prod": "cross-env NODE_ENV=prod node src/app.js",
+	"scripts": {
+		"dev": "cross-env NODE_ENV=development nodemon src/app.js",
+		"start": "cross-env NODE_ENV=production node src/app.js",
 		"test": "cross-env NODE_ENV=test vitest run",
 		"test:watch": "cross-env NODE_ENV=test vitest",
+		"test:coverage": "cross-env NODE_ENV=test vitest run --coverage",
+		"lint": "biome lint .",
 		"format": "biome format . --write",
-		"lint": "biome lint ."
+		"coverage": "c8 vitest run",
+		"prepare": "echo 'Preparing for deployment...'"
 	},
 	"keywords": [
 		"backend",
