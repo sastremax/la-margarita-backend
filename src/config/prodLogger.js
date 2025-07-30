@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import winston from 'winston'
 import { customLevels } from './customLevels.js'
 
@@ -19,6 +21,11 @@ const logFormat = printf((info) => {
     return `${ts} [${lvl}]: ${msg}`
 })
 
+const logDir = path.resolve('logs')
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir)
+}
+
 export const prodLogger = winston.createLogger({
     levels: customLevels.levels,
     level: 'info',
@@ -29,6 +36,7 @@ export const prodLogger = winston.createLogger({
     ),
     transports: [
         new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'logs/combined.log' })
+        new winston.transports.File({ filename: 'logs/combined.log' }),
+        new winston.transports.Console({ level: 'error' })
     ]
 })
