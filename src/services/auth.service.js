@@ -1,6 +1,6 @@
 import { AuthDAO } from '../dao/auth.dao.js'
-import { passwordUtil } from '../utils/password.util.js'
 import { ApiError } from '../utils/apiError.js'
+import { passwordUtil } from '../utils/password.util.js'
 
 const authDAO = new AuthDAO()
 

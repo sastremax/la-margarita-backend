@@ -1,3 +1,4 @@
+import { CartDAO } from '../dao/cart.dao.js'
 import { asPublicCart } from '../dto/cart.dto.js'
 
 export class CartService {
@@ -59,3 +60,6 @@ export class CartService {
         return asPublicCart(cart)
     }
 }
+
+const cartDAO = new CartDAO()
+export const cartService = new CartService(cartDAO)
