@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 export const reservationSchema = z.object({
     lodgingId: z.string().min(1, { message: 'Lodging ID is required' }),

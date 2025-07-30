@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 const reviewSchema = z.object({
     user: z.string().min(1),

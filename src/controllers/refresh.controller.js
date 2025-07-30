@@ -1,5 +1,5 @@
 import { ApiError } from '../utils/apiError.js'
-import { cookieConfig } from '../config/cookie.config.js'
+import { accessTokenCookieOptions, refreshTokenCookieOptions} from '../config/cookie.config.js'
 import { jwtUtil } from '../utils/jwt.util.js'
 import { tokenService } from '../services/token.service.js'
 import { tokenStore } from '../utils/tokenStore.js'
@@ -26,8 +26,8 @@ export const postRefresh = async (req, res, next) => {
 
         tokenStore.saveRefreshToken(newRefreshToken)
 
-        res.cookie('token', newAccessToken, cookieConfig.accessTokenCookieOptions)
-        res.cookie('refreshToken', newRefreshToken, cookieConfig.refreshTokenCookieOptions)
+        res.cookie('token', newAccessToken, accessTokenCookieOptions)
+        res.cookie('refreshToken', newRefreshToken, refreshTokenCookieOptions)
 
         res.status(200).json({ status: 'success', message: 'Token refreshed' })
     } catch (error) {
