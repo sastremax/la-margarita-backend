@@ -10,33 +10,35 @@ const init = async () => {
     }
 }
 
-export class ContactService {
-    static async createContact(contactData) {
+class ContactService {
+    async createContact(contactData) {
         await init()
         const contact = await contactDAO.createContact(contactData)
         return contactDTO.asPublicContact(contact)
     }
 
-    static async getAllContacts() {
+    async getAllContacts() {
         await init()
         const contacts = await contactDAO.getAllContacts()
         return contacts.map(contactDTO.asPublicContact)
     }
 
-    static async getContactById(id) {
+    async getContactById(id) {
         await init()
         const contact = await contactDAO.getContactById(id)
         return contact ? contactDTO.asPublicContact(contact) : null
     }
 
-    static async updateReplyStatus(id, updateData) {
+    async updateReplyStatus(id, updateData) {
         await init()
         const contact = await contactDAO.updateReplyStatus(id, updateData)
         return contact ? contactDTO.asPublicContact(contact) : null
     }
 
-    static async deleteContact(id) {
+    async deleteContact(id) {
         await init()
         return await contactDAO.deleteContact(id)
     }
 }
+
+export const contactService = new ContactService()

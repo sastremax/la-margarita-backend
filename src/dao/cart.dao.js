@@ -1,5 +1,5 @@
-import CartModel from '../models/cart.model.js'
 import mongoose from 'mongoose'
+import CartModel from '../models/cart.model.js'
 
 export class CartDAO {
     async getAllCarts() {

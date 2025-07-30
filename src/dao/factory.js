@@ -1,5 +1,5 @@
-import config from '../config/index.js'
-import logger from '../config/logger.js'
+import { config } from '../config/index.js'
+import { logger } from '../config/logger.js'
 
 let initialized = false
 
@@ -35,6 +35,6 @@ export const getFactory = async () => {
         return daos
     } else {
         logger.error(`Unsupported persistence source: ${persistence}`)
-        throw new Error('Unsupported persistence source: ' + persistence)
+        throw new Error(`Unsupported persistence source: ${persistence}`)
     }
 }
