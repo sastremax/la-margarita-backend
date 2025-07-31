@@ -1,12 +1,10 @@
 import { ApiError } from '../utils/apiError.js'
 import { jwtUtil } from '../utils/jwt.util.js'
 
-const isProduction = process.env.NODE_ENV === 'production'
-
 export function authMiddleware(req, res, next) {
     try {
         const authHeader = req.headers.authorization
-        if (!authHeader || authHeader.indexOf('Bearer ') !== 0) {
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
             throw new ApiError(401, 'No token provided')
         }
 
@@ -19,12 +17,16 @@ export function authMiddleware(req, res, next) {
         req.user = decoded
         next()
     } catch (error) {
-        if (isProduction && error instanceof ApiError && error.status === 401) {
+        const isProduction = process.env.NODE_ENV === 'production'
+
+        if (isProduction && error instanceof ApiError && error.statusCode === 401) {
             return next(new ApiError(401, 'Unauthorized'))
         }
+
         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
             return next(new ApiError(401, isProduction ? 'Unauthorized' : error.message))
         }
+
         next(error)
     }
 }

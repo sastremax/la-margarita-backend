@@ -18,11 +18,7 @@ const createRefreshToken = (user, expiresIn = '7d') => {
 }
 
 const verifyAccessToken = (token) => {
-    try {
-        return jwt.verify(token, config.jwt.secret)
-    } catch {
-        throw new ApiError(401, 'Invalid or expired access token')
-    }
+    return jwt.verify(token, config.jwt.secret)
 }
 
 const verifyRefreshToken = (token) => {
