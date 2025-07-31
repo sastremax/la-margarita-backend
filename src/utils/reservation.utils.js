@@ -1,17 +1,14 @@
 import dayjs from 'dayjs'
+import { ApiError } from './apiError.js'
 
 export function calculateTotalPrice(pricingMap, checkIn, checkOut) {
     const nights = dayjs(checkOut).diff(dayjs(checkIn), 'day')
     if (nights < 1) {
-        const error = new Error('Reservation must be at least 1 night')
-        error.statusCode = 400
-        throw error
+        throw new ApiError(400, 'Reservation must be at least 1 night')
     }
 
     if (!pricingMap || pricingMap.size === 0) {
-        const error = new Error('No pricing available for this lodging')
-        error.statusCode = 400
-        throw error
+        throw new ApiError(400, 'No pricing available for this lodging')
     }
 
     if (pricingMap.has(String(nights))) {
