@@ -26,6 +26,8 @@ export const reservationQuerySchema = z.object({
 })
 
 export function asPublicReservation(reservation) {
+    if (!reservation) return null
+
     return {
         id: reservation._id,
         userId: reservation.user?._id || reservation.user || null,
