@@ -31,6 +31,8 @@ const reviewUpdateSchema = z.object({
 })
 
 function asPublicReview(review) {
+    if (!review) return null
+
     return {
         id: review._id,
         lodgingId: review.lodging?._id || review.lodging || null,
