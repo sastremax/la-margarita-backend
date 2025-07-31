@@ -1,30 +1,10 @@
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookie.config.js'
-import { ApiError } from '../utils/apiError.js'
+import { handleRefresh } from '../services/refresh.service.js'
 
-import { tokenService } from '../services/token.service.js'
-import { tokenStore } from '../utils/tokenStore.js'
-
-
-export const postRefresh = async (req, res, next) => {
+export const postRefresh = (req, res, next) => {
     try {
         const refreshToken = req.cookies?.refreshToken
-        if (!refreshToken) {
-            return next(new ApiError(401, 'Refresh token missing'))
-        }
-
-        const isValid = tokenStore.isRefreshTokenValid(refreshToken)
-        if (!isValid) {
-            return next(new ApiError(403, 'Refresh token is invalid or expired'))
-        }
-
-        const decoded = tokenService.verifyRefreshToken(refreshToken)
-
-        tokenStore.removeRefreshToken(refreshToken)
-
-        const newAccessToken = tokenService.generateAccessToken({ id: decoded.id, role: decoded.role })
-        const newRefreshToken = tokenService.generateRefreshToken({ id: decoded.id })
-
-        tokenStore.saveRefreshToken(newRefreshToken)
+        const { newAccessToken, newRefreshToken } = handleRefresh(refreshToken)
 
         res.cookie('token', newAccessToken, accessTokenCookieOptions)
         res.cookie('refreshToken', newRefreshToken, refreshTokenCookieOptions)
