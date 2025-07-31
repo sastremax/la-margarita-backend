@@ -1,6 +1,6 @@
+import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookie.config.js'
 import { ApiError } from '../utils/apiError.js'
-import { accessTokenCookieOptions, refreshTokenCookieOptions} from '../config/cookie.config.js'
-import { jwtUtil } from '../utils/jwt.util.js'
+
 import { tokenService } from '../services/token.service.js'
 import { tokenStore } from '../utils/tokenStore.js'
 
@@ -17,7 +17,7 @@ export const postRefresh = async (req, res, next) => {
             return next(new ApiError(403, 'Refresh token is invalid or expired'))
         }
 
-        const decoded = jwtUtil.verifyToken(refreshToken, process.env.JWT_REFRESH_SECRET)
+        const decoded = tokenService.verifyRefreshToken(refreshToken)
 
         tokenStore.removeRefreshToken(refreshToken)
 
