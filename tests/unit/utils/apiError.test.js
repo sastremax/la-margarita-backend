@@ -1,5 +1,5 @@
+import { describe, expect, test } from 'vitest'
 import { ApiError } from '../../../src/utils/apiError.js'
-import { describe, test, expect } from 'vitest'
 
 describe('ApiError', () => {
     test('should set message and statusCode correctly', () => {
