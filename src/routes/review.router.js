@@ -6,6 +6,8 @@ import { reviewDTO } from '../dto/review.dto.js'
 import { validateReviewExists } from '../middlewares/exists/validateReviewExists.js'
 import { verifyOwnership } from '../middlewares/verifyOwnership.js'
 import { reviewService } from '../services/review.service.js'
+import { param } from 'express-validator'
+import { validateRequest } from '../middlewares/validateRequest.middleware.js'
 
 const router = express.Router()
 
@@ -18,6 +20,8 @@ router.get(
 
 router.get(
     '/:rid',
+    param('rid').isMongoId().withMessage('Invalid review ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateReviewExists,
     verifyOwnership(async (req) => {
@@ -36,6 +40,8 @@ router.post(
 
 router.put(
     '/:rid',
+    param('rid').isMongoId().withMessage('Invalid review ID'),
+    validateRequest,
     authPolicy(['user']),
     validateReviewExists,
     verifyOwnership(async (req) => {
@@ -48,6 +54,8 @@ router.put(
 
 router.delete(
     '/:rid',
+    param('rid').isMongoId().withMessage('Invalid review ID'),
+    validateRequest,
     authPolicy(['user']),
     validateReviewExists,
     verifyOwnership(async (req) => {

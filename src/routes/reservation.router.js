@@ -16,6 +16,8 @@ import {
 import { validateReservationExists } from '../middlewares/exists/validateReservationExists.js'
 import { verifyOwnership } from '../middlewares/verifyOwnership.js'
 import { reservationService } from '../services/reservation.service.js'
+import { param } from 'express-validator'
+import { validateRequest } from '../middlewares/validateRequest.middleware.js'
 
 export const reservationRouter = express.Router()
 
@@ -40,6 +42,8 @@ reservationRouter.get(
 
 reservationRouter.get(
     '/:rid',
+    param('rid').isMongoId().withMessage('Invalid reservation ID'),
+    validateRequest,
     authPolicy(['admin', 'user']),
     validateReservationExists,
     verifyOwnership(async (req) => {
@@ -58,6 +62,8 @@ reservationRouter.post(
 
 reservationRouter.delete(
     '/:rid',
+    param('rid').isMongoId().withMessage('Invalid reservation ID'),
+    validateRequest,
     authPolicy(['admin']),
     deleteReservation
 )

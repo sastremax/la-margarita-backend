@@ -15,11 +15,15 @@ import { cartItemSchema } from '../dto/cart.dto.js'
 import { validateCartExists } from '../middlewares/validateCartExists.js'
 import { verifyOwnership } from '../middlewares/verifyOwnership.js'
 import { cartService } from '../services/cart.service.js'
+import { param } from 'express-validator'
+import { validateRequest } from '../middlewares/validateRequest.middleware.js'
 
 export const cartRouter = express.Router()
 
 cartRouter.get(
     '/:cid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
     verifyOwnership(async (req) => {
@@ -33,6 +37,9 @@ cartRouter.post('/', authPolicy(['user', 'admin']), createCart)
 
 cartRouter.post(
     '/:cid/product/:pid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    param('pid').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
     verifyOwnership(async (req) => {
@@ -45,6 +52,9 @@ cartRouter.post(
 
 cartRouter.delete(
     '/:cid/product/:pid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    param('pid').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
     verifyOwnership(async (req) => {
@@ -56,6 +66,8 @@ cartRouter.delete(
 
 cartRouter.put(
     '/:cid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
     verifyOwnership(async (req) => {
@@ -67,6 +79,9 @@ cartRouter.put(
 
 cartRouter.put(
     '/:cid/product/:pid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    param('pid').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
     verifyOwnership(async (req) => {
@@ -78,6 +93,8 @@ cartRouter.put(
 
 cartRouter.delete(
     '/:cid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
     verifyOwnership(async (req) => {
@@ -89,6 +106,8 @@ cartRouter.delete(
 
 cartRouter.post(
     '/:cid/purchase',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
     verifyOwnership(async (req) => {

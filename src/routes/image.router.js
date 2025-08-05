@@ -9,6 +9,8 @@ import {
 import { imageSchema } from '../dto/image.dto.js'
 import { authPolicy } from '../middlewares/authPolicy.middleware.js'
 import { validateDTO } from '../middlewares/validateDTO.middleware.js'
+import { param } from 'express-validator'
+import { validateRequest } from '../middlewares/validateRequest.middleware.js'
 
 export const imageRouter = express.Router()
 
@@ -21,8 +23,26 @@ imageRouter.post(
 
 imageRouter.get('/', authPolicy(['admin']), getAllImages)
 
-imageRouter.get('/:id', authPolicy(['admin']), getImageById)
+imageRouter.get(
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid image ID'),
+    validateRequest,
+    authPolicy(['admin']),
+    getImageById
+)
 
-imageRouter.get('/lodging/:lodgingId', authPolicy(['admin']), getImagesByLodgingId)
+imageRouter.get(
+    '/lodging/:lodgingId',
+    param('lodgingId').isMongoId().withMessage('Invalid lodging ID'),
+    validateRequest,
+    authPolicy(['admin']),
+    getImagesByLodgingId
+)
 
-imageRouter.delete('/:id', authPolicy(['admin']), deleteImage)
+imageRouter.delete(
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid image ID'),
+    validateRequest,
+    authPolicy(['admin']),
+    deleteImage
+)
