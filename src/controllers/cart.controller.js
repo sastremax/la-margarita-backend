@@ -75,6 +75,11 @@ export const purchaseCart = async (req, res, next) => {
         const { cid } = req.params
         const user = req.user
         const ticket = await cartService.purchaseCart(cid, user)
+
+        if (!ticket) {
+            return res.status(400).json({ status: 'error', message: 'Purchase failed: cart not found or empty' })
+        }
+
         res.status(200).json({ status: 'success', data: ticket })
     } catch (error) {
         next(error)

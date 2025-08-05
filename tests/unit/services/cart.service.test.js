@@ -136,11 +136,18 @@ describe('CartService', () => {
     })
 
     test('purchaseCart', async () => {
-        purchaseCart.mockResolvedValue({ _id: 'purchasedCart' })
+        const ticket = {
+            code: 'abc-123',
+            purchaser: 'user1@example.com',
+            amount: 500,
+            products: [{ product: { title: 'Product A', price: 250 }, quantity: 2 }]
+        }
 
-        const result = await service.purchaseCart('purchasedCart', { user: 'user1' })
+        purchaseCart.mockResolvedValue(ticket)
 
-        expect(purchaseCart).toHaveBeenCalledWith('purchasedCart', { user: 'user1' })
-        expect(result).toEqual({ id: 'purchasedCart' })
+        const result = await service.purchaseCart('cartId123', { email: 'user1@example.com' })
+
+        expect(purchaseCart).toHaveBeenCalledWith('cartId123', { email: 'user1@example.com' })
+        expect(result).toEqual(ticket)
     })
 })

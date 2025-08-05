@@ -56,8 +56,8 @@ export class CartService {
     }
 
     async purchaseCart(cartId, user) {
-        const cart = await this.dao.purchaseCart(cartId, user)
-        return asPublicCart(cart)
+        const ticket = await this.dao.purchaseCart(cartId, user)
+        return ticket
     }
 }
 

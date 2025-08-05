@@ -1,5 +1,7 @@
-import mongoose from 'mongoose'
 import CartModel from '../models/cart.model.js'
+import mongoose from 'mongoose'
+import TicketModel from '../models/ticket.model.js'
+import { v4 as uuidv4 } from 'uuid'
 
 export class CartDAO {
     async getAllCarts() {
@@ -74,5 +76,37 @@ export class CartDAO {
         }
 
         return cart.populate('products.product')
+    }
+
+    async purchaseCart(cartId, user) {
+        const cart = await CartModel.findById(cartId).populate('products.product')
+        if (!cart || !Array.isArray(cart.products) || cart.products.length === 0) {
+            return null
+        }
+
+        const productsForTicket = cart.products.map(p => ({
+            product: {
+                _id: p.product._id,
+                title: p.product.title,
+                price: p.product.price
+            },
+            quantity: p.quantity
+        }))
+
+        const amount = cart.products.reduce((total, p) => {
+            return total + p.product.price * p.quantity
+        }, 0)
+
+        const ticket = await TicketModel.create({
+            code: uuidv4(),
+            purchaser: user.email,
+            amount,
+            products: productsForTicket
+        })
+
+        cart.products = []
+        await cart.save()
+
+        return ticket
     }
 }
