@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 vi.mock('../../../src/dao/auth.dao.js', () => {
     const findUserByEmail = vi.fn()
@@ -22,12 +22,6 @@ vi.mock('../../../src/dao/auth.dao.js', () => {
     }
 })
 
-vi.mock('../../../src/services/token.service.js', () => ({
-    tokenService: {
-        generateAccessToken: vi.fn()
-    }
-}))
-
 vi.mock('../../../src/utils/password.util.js', () => ({
     passwordUtil: {
         encryptPassword: vi.fn(),
@@ -44,7 +38,6 @@ import {
     updatePassword
 } from '../../../src/services/auth.service.js'
 
-import { tokenService } from '../../../src/services/token.service.js'
 import { passwordUtil } from '../../../src/utils/password.util.js'
 import { ApiError } from '../../../src/utils/apiError.js'
 import { __mocks } from '../../../src/dao/auth.dao.js'
@@ -95,7 +88,7 @@ describe('Auth Service', () => {
     })
 
     test('loginUser - success', async () => {
-        __mocks.findUserByEmail.mockResolvedValue({
+        const mockUser = {
             _id: 'u1',
             firstName: 'Test',
             lastName: 'User',
@@ -103,22 +96,14 @@ describe('Auth Service', () => {
             password: 'hashedpass',
             role: 'user',
             cart: null
-        })
+        }
+
+        __mocks.findUserByEmail.mockResolvedValue(mockUser)
         passwordUtil.comparePassword.mockResolvedValue(true)
-        tokenService.generateAccessToken.mockReturnValue('mock-token')
 
         const result = await loginUser({ email: 'test@example.com', password: '123456' })
 
-        expect(result).toEqual({
-            token: 'mock-token',
-            user: {
-                id: 'u1',
-                fullName: 'Test User',
-                email: 'test@example.com',
-                role: 'user',
-                cartId: null
-            }
-        })
+        expect(result).toEqual(mockUser)
     })
 
     test('loginUser - user not found', async () => {

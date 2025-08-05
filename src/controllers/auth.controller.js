@@ -1,15 +1,16 @@
 import { asUserPublic } from '../dto/user.dto.js'
 import { AuditService } from '../services/audit.service.js'
+import { jwtUtil } from '../utils/jwt.util.js'
+import { logger } from '../config/logger.js'
 import {
     loginUser,
     registerUser
 } from '../services/auth.service.js'
-import { jwtUtil } from '../utils/jwt.util.js'
 
 export const postLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body
-        const user = await loginUser(email, password)
+        const user = await loginUser({ email, password })
 
         const accessToken = jwtUtil.createAccessToken(user)
         const refreshToken = jwtUtil.createRefreshToken(user)
@@ -38,13 +39,18 @@ export const postLogin = async (req, res, next) => {
 
         res.status(200).json({ status: 'success', data: { user: asUserPublic(user) } })
     } catch (error) {
-        await AuditService.logEvent({
-            userId: null,
-            event: 'login',
-            success: false,
-            ip: req.ip,
-            userAgent: req.headers['user-agent']
-        })
+        try {
+            await AuditService.logEvent({
+                userId: null,
+                event: 'login',
+                success: false,
+                ip: req.ip,
+                userAgent: req.headers['user-agent']
+            })
+        } catch (auditError) {
+            logger.warn('Failed to log failed login attempt', auditError)
+        }
+
         next(error)
     }
 }
@@ -53,8 +59,29 @@ export const postRegister = async (req, res, next) => {
     try {
         const { firstName, lastName, email, password } = req.body
         const user = await registerUser({ firstName, lastName, email, password })
+
+        await AuditService.logEvent({
+            userId: user.id || user._id,
+            event: 'register',
+            success: true,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
+
         res.status(201).json({ status: 'success', data: asUserPublic(user) })
     } catch (error) {
+        try {
+            await AuditService.logEvent({
+                userId: null,
+                event: 'register',
+                success: false,
+                ip: req.ip,
+                userAgent: req.headers['user-agent']
+            })
+        } catch (auditError) {
+            logger.warn('Failed to log failed register attempt', auditError)
+        }
+
         next(error)
     }
 }
@@ -65,7 +92,7 @@ export const postLogout = async (req, res, next) => {
         res.clearCookie('refreshToken')
 
         await AuditService.logEvent({
-            userId: req.user?._id,
+            userId: req.user?._id || null,
             event: 'logout',
             success: true,
             ip: req.ip,
@@ -74,6 +101,18 @@ export const postLogout = async (req, res, next) => {
 
         res.status(200).json({ status: 'success', message: 'User logged out successfully' })
     } catch (error) {
+        try {
+            await AuditService.logEvent({
+                userId: req.user?._id || null,
+                event: 'logout',
+                success: false,
+                ip: req.ip,
+                userAgent: req.headers['user-agent']
+            })
+        } catch (auditError) {
+            logger.warn('Failed to log failed logout attempt', auditError)
+        }
+
         next(error)
     }
 }
