@@ -1,10 +1,16 @@
-import { asPublicProduct } from '../dto/product.dto.js'
+import { productSchema } from '../dto/product.dto.js'
 import { productService } from '../services/product.service.js'
+import { ApiError } from '../utils/apiError.js'
 
 export const createProduct = async (req, res, next) => {
     try {
-        const product = await productService.createProduct(req.body)
-        res.status(201).json({ status: 'success', data: asPublicProduct(product) })
+        const parsed = productSchema.safeParse(req.body)
+        if (!parsed.success) {
+            throw new ApiError(400, 'Invalid product data')
+        }
+
+        const product = await productService.createProduct(parsed.data)
+        res.status(201).json({ status: 'success', data: product })
     } catch (error) {
         next(error)
     }
@@ -13,8 +19,7 @@ export const createProduct = async (req, res, next) => {
 export const getAllProducts = async (req, res, next) => {
     try {
         const products = await productService.getAllProducts()
-        const publicProducts = products.map(asPublicProduct)
-        res.status(200).json({ status: 'success', data: publicProducts })
+        res.status(200).json({ status: 'success', data: products })
     } catch (error) {
         next(error)
     }
@@ -23,7 +28,8 @@ export const getAllProducts = async (req, res, next) => {
 export const getProductById = async (req, res, next) => {
     try {
         const product = await productService.getProductById(req.params.id)
-        res.status(200).json({ status: 'success', data: asPublicProduct(product) })
+        if (!product) throw new ApiError(404, 'Product not found')
+        res.status(200).json({ status: 'success', data: product })
     } catch (error) {
         next(error)
     }
@@ -31,8 +37,15 @@ export const getProductById = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
     try {
-        const updatedProduct = await productService.updateProduct(req.params.id, req.body)
-        res.status(200).json({ status: 'success', data: asPublicProduct(updatedProduct) })
+        const parsed = productSchema.partial().safeParse(req.body)
+        if (!parsed.success) {
+            throw new ApiError(400, 'Invalid product data')
+        }
+
+        const updated = await productService.updateProduct(req.params.id, parsed.data)
+        if (!updated) throw new ApiError(404, 'Product not found')
+
+        res.status(200).json({ status: 'success', data: updated })
     } catch (error) {
         next(error)
     }
@@ -40,7 +53,8 @@ export const updateProduct = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
     try {
-        await productService.deleteProduct(req.params.id)
+        const deleted = await productService.deleteProduct(req.params.id)
+        if (!deleted) throw new ApiError(404, 'Product not found')
         res.status(204).end()
     } catch (error) {
         next(error)
