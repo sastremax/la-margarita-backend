@@ -21,6 +21,9 @@ export const getAllImages = async (req, res, next) => {
 export const getImageById = async (req, res, next) => {
     try {
         const image = await ImageService.getImageById(req.params.id)
+        if (!image) {
+            return res.status(404).json({ status: 'error', message: 'Image not found' })
+        }
         res.status(200).json({ status: 'success', data: image })
     } catch (error) {
         next(error)
@@ -38,7 +41,10 @@ export const getImagesByLodgingId = async (req, res, next) => {
 
 export const deleteImage = async (req, res, next) => {
     try {
-        await ImageService.deleteImage(req.params.id)
+        const result = await ImageService.deleteImage(req.params.id)
+        if (!result) {
+            return res.status(404).json({ status: 'error', message: 'Image not found' })
+        }
         res.status(200).json({ status: 'success', message: 'Image deleted' })
     } catch (error) {
         next(error)
