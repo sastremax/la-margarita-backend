@@ -1,3 +1,5 @@
+import { asPublicCart } from '../dto/cart.dto.js'
+import { asPublicReservation } from '../dto/reservation.dto.js'
 import { asUserPublic } from '../dto/user.dto.js'
 import { AuditService } from '../services/audit.service.js'
 import { cartService } from '../services/cart.service.js'
@@ -67,23 +69,17 @@ export const updateUserRole = async (req, res, next) => {
 }
 
 export const getCurrentUser = (req, res) => {
-    res.json({
+    res.status(200).json({
         status: 'success',
-        data: {
-            user: req.user
-        }
+        data: asUserPublic(req.user)
     })
 }
 
 export const getCurrentUserReservations = async (req, res, next) => {
     try {
         const reservations = await reservationService.getReservationsByUserId(req.user.id)
-        res.json({
-            status: 'success',
-            data: {
-                reservations
-            }
-        })
+        const publicReservations = reservations.map(asPublicReservation)
+        res.status(200).json({ status: 'success', data: publicReservations })
     } catch (error) {
         next(error)
     }
@@ -92,12 +88,7 @@ export const getCurrentUserReservations = async (req, res, next) => {
 export const getCurrentUserCart = async (req, res, next) => {
     try {
         const cart = await cartService.getCartByUserId(req.user.id)
-        res.json({
-            status: 'success',
-            data: {
-                cart
-            }
-        })
+        res.status(200).json({ status: 'success', data: asPublicCart(cart) })
     } catch (error) {
         next(error)
     }
