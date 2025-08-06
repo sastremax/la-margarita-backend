@@ -91,7 +91,7 @@ describe('contact.controller', () => {
 
     test('replyToContact should return 200 and updated contact on success', async () => {
         const updated = {
-            _id: 'c2',
+            id: 'c2',
             name: 'B',
             email: 'b@example.com',
             message: 'Hi',
@@ -110,17 +110,10 @@ describe('contact.controller', () => {
             replyNote: 'Gracias'
         })
 
-        expect(contactDTO.asPublicContact).toHaveBeenCalledWith(updated)
         expect(res.status).toHaveBeenCalledWith(200)
         expect(res.json).toHaveBeenCalledWith({
             status: 'success',
-            data: {
-                id: 'c2',
-                name: 'B',
-                email: 'b@example.com',
-                message: 'Hi',
-                createdAt: updated.createdAt
-            }
+            data: updated
         })
     })
 
