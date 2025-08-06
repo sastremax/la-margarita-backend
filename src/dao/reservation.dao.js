@@ -4,10 +4,16 @@ import ReservationModel from '../models/reservation.model.js'
 export class ReservationDAO {
 
     async getReservationById(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error('Invalid reservation ID')
+        }
         return await ReservationModel.findById(id)
     }
 
     async getReservationsByUserId(userId) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error('Invalid user ID')
+        }
         return await ReservationModel.find({ user: userId })
     }
 
@@ -16,10 +22,16 @@ export class ReservationDAO {
     }
 
     async updateReservation(id, updateData) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error('Invalid reservation ID')
+        }
         return await ReservationModel.findByIdAndUpdate(id, updateData, { new: true })
     }
 
     async isLodgingAvailable(lodgingId, checkIn, checkOut) {
+        if (!mongoose.Types.ObjectId.isValid(lodgingId)) {
+            throw new Error('Invalid lodging ID')
+        }
         return await ReservationModel.findOne({
             lodging: lodgingId,
             status: 'confirmed',
@@ -53,7 +65,12 @@ export class ReservationDAO {
 
     async getReservationSummaryByLodging(lodgingId) {
         const results = await ReservationModel.aggregate([
-            { $match: { lodging: new mongoose.Types.ObjectId(String(lodgingId)), status: 'confirmed' } },
+            {
+                $match: {
+                    lodging: new mongoose.Types.ObjectId(String(lodgingId)),
+                    status: 'confirmed'
+                }
+            },
             {
                 $project: {
                     nights: {
@@ -96,5 +113,4 @@ export class ReservationDAO {
             averageDuration: Math.round(summary.averageDuration)
         }
     }
-
 }
