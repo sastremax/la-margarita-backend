@@ -56,5 +56,10 @@ export const reviewService = {
 
     async getReviewSummary(lodgingId) {
         return await reviewDAO.getReviewSummary(lodgingId)
+    },
+
+    async getRepliedReviewsByLodging(lodgingId) {
+        const reviews = await reviewDAO.getReviewsWithReplyByLodging(lodgingId)
+        return reviews.map(reviewDTO.asPublicReview)
     }
 }

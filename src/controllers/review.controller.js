@@ -1,8 +1,4 @@
-import { getFactory } from '../dao/factory.js'
-import { reviewDTO } from '../dto/review.dto.js'
 import { reviewService } from '../services/review.service.js'
-
-const ReviewDAO = (await getFactory()).reviewDAO
 
 export const getAllReviews = async (req, res, next) => {
     try {
@@ -36,18 +32,13 @@ export const getReviewsByLodging = async (req, res, next) => {
             minRating: numericMinRating
         }
 
-        const result = await reviewService.getReviewsByLodging(req.params.lodgingId, {
+        const result = await reviewService.getReviewsByLodgingId(req.params.lodgingId, {
             page: numericPage,
             limit: numericLimit,
             filters
         })
 
-        const publicData = {
-            ...result,
-            reviews: result.reviews.map(reviewDTO.asPublicReview)
-        }
-
-        res.status(200).json({ status: 'success', data: publicData })
+        res.status(200).json({ status: 'success', data: result })
     } catch (error) {
         next(error)
     }
@@ -56,7 +47,7 @@ export const getReviewsByLodging = async (req, res, next) => {
 export const createReview = async (req, res, next) => {
     try {
         const review = await reviewService.createReview(req.body)
-        res.status(201).json({ status: 'success', data: reviewDTO.asPublicReview(review) })
+        res.status(201).json({ status: 'success', data: review })
     } catch (error) {
         next(error)
     }
@@ -90,7 +81,7 @@ export const putAdminReply = async (req, res, next) => {
 
         const updatedReview = await reviewService.replyToReview(reviewId, message)
 
-        res.status(200).json({ status: 'success', data: reviewDTO.asPublicReview(updatedReview) })
+        res.status(200).json({ status: 'success', data: updatedReview })
     } catch (error) {
         next(error)
     }
@@ -114,7 +105,7 @@ export const getReviewById = async (req, res, next) => {
 export const getRepliedReviewsByLodging = async (req, res, next) => {
     try {
         const { lodgingId } = req.params
-        const reviews = await ReviewDAO.getReviewsWithReplyByLodging(lodgingId)
+        const reviews = await reviewService.getRepliedReviewsByLodging(lodgingId)
 
         res.status(200).json({
             status: 'success',
@@ -133,7 +124,7 @@ export const updateReview = async (req, res, next) => {
 
         const updatedReview = await reviewService.updateReview(reviewId, userId, updateData)
 
-        res.status(200).json({ status: 'success', data: reviewDTO.asPublicReview(updatedReview) })
+        res.status(200).json({ status: 'success', data: updatedReview })
     } catch (error) {
         next(error)
     }
