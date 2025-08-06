@@ -1,7 +1,7 @@
-import CartModel from '../models/cart.model.js'
 import mongoose from 'mongoose'
-import TicketModel from '../models/ticket.model.js'
 import { v4 as uuidv4 } from 'uuid'
+import CartModel from '../models/cart.model.js'
+import TicketModel from '../models/ticket.model.js'
 
 export class CartDAO {
     async getAllCarts() {
