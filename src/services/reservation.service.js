@@ -19,6 +19,22 @@ export class ReservationService {
         return reservations.map(asPublicReservation)
     }
 
+    async getReservationsByLodging(lodgingId) {
+        const reservations = await this.reservationDAO.getReservationsByLodging(lodgingId)
+        return reservations.map(asPublicReservation)
+    }
+
+    async getReservationsWithFilters({ page = 1, limit = 10, userId, lodgingId, status }) {
+        const query = {}
+        if (userId) query.user = userId
+        if (lodgingId) query.lodging = lodgingId
+        if (status) query.status = status
+
+        const result = await this.reservationDAO.getReservations(query, { page, limit })
+        result.data = result.data.map(asPublicReservation)
+        return result
+    }
+
     async createReservation(reservationData) {
         const { userId, lodgingId, checkIn, checkOut } = reservationData
 
@@ -88,15 +104,8 @@ export class ReservationService {
         return asPublicReservation(updated)
     }
 
-    async getReservationsWithFilters({ page = 1, limit = 10, userId, lodgingId, status }) {
-        const query = {}
-        if (userId) query.user = userId
-        if (lodgingId) query.lodging = lodgingId
-        if (status) query.status = status
-
-        const result = await this.reservationDAO.getReservations(query, { page, limit })
-        result.data = result.data.map(asPublicReservation)
-        return result
+    async deleteReservation(id) {
+        return await this.reservationDAO.deleteReservation(id)
     }
 
     async getReservationSummary(lodgingId) {

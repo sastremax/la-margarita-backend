@@ -1,34 +1,29 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
-vi.mock('../../../src/dao/lodging.dao.js', () => {
-    return {
-        LodgingDAO: vi.fn().mockImplementation(() => ({}))
-    }
-})
+vi.mock('../../../src/dao/lodging.dao.js', () => ({
+    LodgingDAO: vi.fn().mockImplementation(() => ({}))
+}))
 
-vi.mock('../../../src/dao/reservation.dao.js', () => {
-    return {
-        ReservationDAO: vi.fn().mockImplementation(() => ({}))
-    }
-})
+vi.mock('../../../src/dao/reservation.dao.js', () => ({
+    ReservationDAO: vi.fn().mockImplementation(() => ({}))
+}))
 
-// Importación ocurre después del mock
 import { reservationService } from '../../../src/services/reservation.service.js'
 
-// Asignamos manualmente los mocks a las instancias reales
 const lodgingDAO = reservationService.lodgingDAO
 const reservationDAO = reservationService.reservationDAO
 
-// Creamos los mocks y se los pegamos directamente a las instancias
 beforeEach(() => {
     lodgingDAO.getLodgingById = vi.fn()
     reservationDAO.getReservationById = vi.fn()
     reservationDAO.getReservationsByUserId = vi.fn()
+    reservationDAO.getReservationsByLodging = vi.fn()
     reservationDAO.isLodgingAvailable = vi.fn()
     reservationDAO.createReservation = vi.fn()
     reservationDAO.updateReservation = vi.fn()
     reservationDAO.getReservations = vi.fn()
     reservationDAO.getReservationSummaryByLodging = vi.fn()
+    reservationDAO.deleteReservation = vi.fn()
     vi.clearAllMocks()
 })
 
@@ -43,6 +38,27 @@ describe('ReservationService', () => {
         reservationDAO.getReservationsByUserId.mockResolvedValue([{ _id: '1', user: 'user1' }])
         const result = await reservationService.getReservationsByUserId('user1')
         expect(result).toHaveLength(1)
+    })
+
+    test('getReservationsByLodging', async () => {
+        reservationDAO.getReservationsByLodging.mockResolvedValue([{ _id: 'r1', lodging: 'l1' }])
+        const result = await reservationService.getReservationsByLodging('l1')
+        expect(result).toEqual([{ id: 'r1', lodgingId: 'l1', userId: null, checkIn: undefined, checkOut: undefined, guests: undefined, totalPrice: undefined, status: undefined }])
+    })
+
+    test('getReservationsWithFilters', async () => {
+        reservationDAO.getReservations.mockResolvedValue({
+            data: [{ _id: 'r1', user: 'u1' }]
+        })
+        const result = await reservationService.getReservationsWithFilters({ userId: 'u1' })
+        expect(result.data[0]).toHaveProperty('id', 'r1')
+    })
+
+    test('deleteReservation', async () => {
+        reservationDAO.deleteReservation.mockResolvedValue(true)
+        const result = await reservationService.deleteReservation('r1')
+        expect(reservationDAO.deleteReservation).toHaveBeenCalledWith('r1')
+        expect(result).toBe(true)
     })
 
     test('createReservation throws if lodging not found', async () => {

@@ -1,135 +1,74 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { submitContactForm, replyToContact } from '../../../src/controllers/contact.controller.js'
-import { contactService } from '../../../src/services/contact.service.js'
-import { contactDTO } from '../../../src/dto/contact.dto.js'
+import { reservationService } from '../services/reservation.service.js'
 
-vi.mock('../../../src/services/contact.service.js', () => ({
-    contactService: {
-        createContact: vi.fn(),
-        updateReplyStatus: vi.fn()
+export const getAllReservations = async (req, res, next) => {
+    try {
+        const filters = req.query
+        const reservations = await reservationService.getReservationsWithFilters(filters)
+        res.status(200).json({ status: 'success', data: reservations.data })
+    } catch (error) {
+        next(error)
     }
-}))
+}
 
-vi.mock('../../../src/dto/contact.dto.js', async () => {
-    const actual = await vi.importActual('../../../src/dto/contact.dto.js')
-    return {
-        contactDTO: {
-            ...actual.contactDTO,
-            asPublicContact: vi.fn((c) => ({
-                id: c._id,
-                name: c.name,
-                email: c.email,
-                message: c.message,
-                createdAt: c.createdAt
-            }))
-        }
+export const getReservationById = async (req, res, next) => {
+    try {
+        const reservation = await reservationService.getReservationById(req.params.rid)
+        res.status(200).json({ status: 'success', data: reservation })
+    } catch (error) {
+        next(error)
     }
-})
+}
 
-describe('contact.controller', () => {
-    let req, res, next
+export const getReservationsByLodging = async (req, res, next) => {
+    try {
+        const reservations = await reservationService.getReservationsByLodging(req.params.lid)
+        res.status(200).json({ status: 'success', data: reservations })
+    } catch (error) {
+        next(error)
+    }
+}
 
-    beforeEach(() => {
-        vi.clearAllMocks()
+export const getReservationsByUser = async (req, res, next) => {
+    try {
+        const reservations = await reservationService.getReservationsByUserId(req.params.uid)
+        res.status(200).json({ status: 'success', data: reservations })
+    } catch (error) {
+        next(error)
+    }
+}
 
-        req = {
-            body: {},
-            params: {}
-        }
+export const createReservation = async (req, res, next) => {
+    try {
+        const reservation = await reservationService.createReservation(req.body)
+        res.status(201).json({ status: 'success', data: reservation })
+    } catch (error) {
+        next(error)
+    }
+}
 
-        res = {
-            status: vi.fn().mockReturnThis(),
-            json: vi.fn(),
-            end: vi.fn()
-        }
+export const updateReservation = async (req, res, next) => {
+    try {
+        const updated = await reservationService.updateReservation(req.params.rid, req.body)
+        res.status(200).json({ status: 'success', data: updated })
+    } catch (error) {
+        next(error)
+    }
+}
 
-        next = vi.fn()
-    })
+export const cancelReservation = async (req, res, next) => {
+    try {
+        const updated = await reservationService.cancelReservation(req.params.rid, req.user.id)
+        res.status(200).json({ status: 'success', data: updated })
+    } catch (error) {
+        next(error)
+    }
+}
 
-    test('submitContactForm should return 201 with public contact', async () => {
-        const fakeContact = {
-            _id: 'c1',
-            name: 'Test User',
-            email: 'test@example.com',
-            message: 'Hello',
-            createdAt: new Date()
-        }
-
-        req.body = {
-            name: 'Test User',
-            email: 'test@example.com',
-            message: 'Hello'
-        }
-
-        contactService.createContact.mockResolvedValue(fakeContact)
-
-        await submitContactForm(req, res, next)
-
-        expect(contactService.createContact).toHaveBeenCalledWith(req.body)
-        expect(contactDTO.asPublicContact).toHaveBeenCalledWith(fakeContact)
-        expect(res.status).toHaveBeenCalledWith(201)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'success',
-            data: {
-                id: 'c1',
-                name: 'Test User',
-                email: 'test@example.com',
-                message: 'Hello',
-                createdAt: fakeContact.createdAt
-            }
-        })
-    })
-
-    test('submitContactForm should call next on error', async () => {
-        const error = new Error('fail')
-        contactService.createContact.mockRejectedValue(error)
-
-        await submitContactForm(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
-    })
-
-    test('replyToContact should return 200 and updated contact on success', async () => {
-        const updated = {
-            _id: 'c2',
-            name: 'B',
-            email: 'b@example.com',
-            message: 'Hi',
-            createdAt: new Date()
-        }
-
-        req.params.id = 'c2'
-        req.body = { replied: true, replyNote: 'Gracias' }
-
-        contactService.updateReplyStatus.mockResolvedValue(updated)
-
-        await replyToContact(req, res, next)
-
-        expect(contactService.updateReplyStatus).toHaveBeenCalledWith('c2', {
-            replied: true,
-            replyNote: 'Gracias'
-        })
-
-        expect(contactDTO.asPublicContact).toHaveBeenCalledWith(updated)
-        expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'success',
-            data: {
-                id: 'c2',
-                name: 'B',
-                email: 'b@example.com',
-                message: 'Hi',
-                createdAt: updated.createdAt
-            }
-        })
-    })
-
-    test('replyToContact should call next on error', async () => {
-        const error = new Error('fail')
-        contactService.updateReplyStatus.mockRejectedValue(error)
-
-        await replyToContact(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
-    })
-})
+export const deleteReservation = async (req, res, next) => {
+    try {
+        await reservationService.deleteReservation(req.params.rid)
+        res.status(204).end()
+    } catch (error) {
+        next(error)
+    }
+}

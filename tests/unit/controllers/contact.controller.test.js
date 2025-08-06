@@ -1,7 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { submitContactForm, replyToContact } from '../../../src/controllers/contact.controller.js'
-import { contactService } from '../../../src/services/contact.service.js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { replyToContact, submitContactForm } from '../../../src/controllers/contact.controller.js'
 import { contactDTO } from '../../../src/dto/contact.dto.js'
+import { contactService } from '../../../src/services/contact.service.js'
 
 vi.mock('../../../src/services/contact.service.js', () => ({
     contactService: {
