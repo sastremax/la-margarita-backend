@@ -1,6 +1,6 @@
-import { ApiError } from '../utils/apiError.js'
 import { tokenService } from './token.service.js'
 import { tokenStore } from '../utils/tokenStore.js'
+import { ApiError } from '../utils/apiError.js'
 
 export const refreshService = {
     rotateRefreshToken: (refreshToken) => {
