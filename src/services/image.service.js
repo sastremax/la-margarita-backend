@@ -1,5 +1,5 @@
 import { getFactory } from '../dao/factory.js'
-import { imageSchema, asPublicImage } from '../dto/image.dto.js'
+import { asPublicImage, imageSchema } from '../dto/image.dto.js'
 
 let imageDAO
 
@@ -18,16 +18,19 @@ export class ImageService {
     }
 
     static async getImageById(id) {
+        await init()
         const image = await imageDAO.getImageById(id)
         return asPublicImage(image)
     }
 
     static async getImagesByLodgingId(lodgingId) {
+        await init()
         const images = await imageDAO.getImagesByLodgingId(lodgingId)
         return images.map(asPublicImage)
     }
 
     static async uploadImage(imageData) {
+        await init()
         const validated = imageSchema.parse(imageData)
 
         const dbImage = {
@@ -43,6 +46,7 @@ export class ImageService {
     }
 
     static async deleteImage(id) {
+        await init()
         return await imageDAO.deleteImage(id)
     }
 }

@@ -13,7 +13,7 @@ const imageSchema = new mongoose.Schema(
         },
         associatedType: {
             type: String,
-            enum: ['product', 'accommodation', 'other'],
+            enum: ['profile', 'product', 'lodging', 'review', 'other'],
             required: true
         },
         associatedId: {
