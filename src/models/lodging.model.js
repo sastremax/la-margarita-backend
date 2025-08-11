@@ -17,9 +17,7 @@ const lodgingSchema = new mongoose.Schema(
             type: [String],
             default: [],
             validate: {
-                validator: function (arr) {
-                    return arr.every(url => typeof url === 'string')
-                },
+                validator: (arr) => arr.every((url) => typeof url === 'string'),
                 message: 'All images must be valid strings'
             }
         },
