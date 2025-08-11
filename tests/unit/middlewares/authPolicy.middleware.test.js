@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 let authPolicy
 const passportAuthenticateMock = vi.fn(() => (req, res, next) => next())

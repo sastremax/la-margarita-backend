@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { CartService } from '../../../src/services/cart.service.js'
 
 const getAllCarts = vi.fn()

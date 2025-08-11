@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
 import mongoose from 'mongoose'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 vi.mock('../../../src/models/product.model.js', async () => {
     return {

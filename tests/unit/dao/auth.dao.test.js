@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import mongoose from 'mongoose'
-import { AuthDAO } from '../../../src/dao/auth.dao.js'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { connectToDB } from '../../../src/config/db.js'
+import { AuthDAO } from '../../../src/dao/auth.dao.js'
 import UserModel from '../../../src/models/user.model.js'
 
 describe('AuthDAO', () => {

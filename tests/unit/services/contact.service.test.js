@@ -1,5 +1,5 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { contactService } from '../../../src/services/contact.service.js'
-import { describe, test, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../../../src/dao/factory.js', () => ({
     getFactory: vi.fn().mockResolvedValue({

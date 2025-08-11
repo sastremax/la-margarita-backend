@@ -7,7 +7,7 @@ describe('factory', () => {
         const { getFactory } = await import('../../../src/dao/factory.js')
         const daos = await getFactory()
         expect(daos).toBeTruthy()
-        expect(Object.keys(daos).sort()).toEqual([
+        expect(Object.keys(daos).sort((a, b) => a.localeCompare(b))).toEqual([
             'CartDAO',
             'ContactDAO',
             'ImageDAO',

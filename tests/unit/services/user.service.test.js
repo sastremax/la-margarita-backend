@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { asUserPublic } from '../../../src/dto/user.dto.js'
 
 vi.mock('../../../src/dao/user.dao.js', () => {

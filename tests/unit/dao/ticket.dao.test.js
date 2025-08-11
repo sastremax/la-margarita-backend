@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import TicketModel from '../../../src/models/ticket.model.js'
 import { TicketDAO } from '../../../src/dao/ticket.dao.js'
+import TicketModel from '../../../src/models/ticket.model.js'
 
 vi.mock('../../../src/models/ticket.model.js', () => ({
     default: {
@@ -16,13 +16,12 @@ const thenableChain = (result) => {
         sort: vi.fn(),
         skip: vi.fn(),
         limit: vi.fn(),
-        lean: vi.fn(),
-        then: vi.fn((resolve) => resolve(result))
+        lean: vi.fn()
     }
     chain.sort.mockReturnValue(chain)
     chain.skip.mockReturnValue(chain)
     chain.limit.mockReturnValue(chain)
-    chain.lean.mockReturnValue(chain)
+    chain.lean.mockReturnValue(Promise.resolve(result))
     return chain
 }
 

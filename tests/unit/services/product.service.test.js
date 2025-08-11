@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { productService } from '../../../src/services/product.service.js'
 
 vi.mock('../../../src/dao/factory.js', () => ({

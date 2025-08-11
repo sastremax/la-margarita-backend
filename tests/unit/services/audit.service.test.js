@@ -1,5 +1,5 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
 import mongoose from 'mongoose'
+import { beforeEach, describe, expect, test, vi, } from 'vitest'
 import AuditLog from '../../../src/models/auditLog.model.js'
 import { AuditService } from '../../../src/services/audit.service.js'
 

@@ -1,8 +1,7 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest'
 import jwt from 'jsonwebtoken'
-
-import { tokenService } from '../../../src/services/token.service.js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { config } from '../../../src/config/index.js'
+import { tokenService } from '../../../src/services/token.service.js'
 
 vi.mock('jsonwebtoken')
 

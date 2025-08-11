@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { tokenStore } from '../../../src/utils/tokenStore.js'
 
 describe('tokenStore', () => {

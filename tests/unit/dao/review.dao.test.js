@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import ReviewModel from '../../../src/models/review.model.js'
 import { ReviewDAO } from '../../../src/dao/review.dao.js'
+import ReviewModel from '../../../src/models/review.model.js'
 
 vi.mock('../../../src/models/review.model.js', () => ({
     default: {
@@ -14,18 +14,21 @@ vi.mock('../../../src/models/review.model.js', () => ({
     }
 }))
 
-const thenableChain = (result) => {
+const chainResult = (result) => {
     const chain = {
         populate: vi.fn(),
         skip: vi.fn(),
         limit: vi.fn(),
         sort: vi.fn(),
-        then: vi.fn((resolve) => resolve(result))
+        lean: vi.fn(),
+        exec: vi.fn()
     }
     chain.populate.mockReturnValue(chain)
     chain.skip.mockReturnValue(chain)
     chain.limit.mockReturnValue(chain)
     chain.sort.mockReturnValue(chain)
+    chain.lean.mockReturnValue(Promise.resolve(result))
+    chain.exec.mockReturnValue(Promise.resolve(result))
     return chain
 }
 
@@ -41,7 +44,7 @@ describe('ReviewDAO', () => {
     test('getAllReviews should return paginated reviews', async () => {
         const rows = [{ _id: validId }]
         ReviewModel.countDocuments.mockResolvedValue(5)
-        ReviewModel.find.mockReturnValue(thenableChain(rows))
+        ReviewModel.find.mockReturnValue(chainResult(rows))
         const result = await dao.getAllReviews({ page: 1, limit: 2 })
         expect(result.total).toBe(5)
         expect(result.pages).toBe(3)
@@ -51,7 +54,7 @@ describe('ReviewDAO', () => {
 
     test('getReviewById should return review with populated fields', async () => {
         const row = { _id: validId }
-        const chain = thenableChain(row)
+        const chain = chainResult(row)
         ReviewModel.findById.mockReturnValue(chain)
         const result = await dao.getReviewById(validId)
         expect(result).toEqual(row)
@@ -121,7 +124,7 @@ describe('ReviewDAO', () => {
     test('getReviewsByLodgingWithFilters should apply filters and paginate', async () => {
         const rows = [{ _id: validId }]
         ReviewModel.countDocuments.mockResolvedValue(1)
-        ReviewModel.find.mockReturnValue(thenableChain(rows))
+        ReviewModel.find.mockReturnValue(chainResult(rows))
         const result = await dao.getReviewsByLodgingWithFilters(validId, { page: 1, limit: 2, filters: {} })
         expect(result.total).toBe(1)
         expect(Array.isArray(result.reviews)).toBe(true)

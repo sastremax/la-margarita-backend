@@ -1,6 +1,6 @@
-import { describe, test, expect } from 'vitest'
-import { calculateTotalPrice } from '../../../src/utils/reservation.utils.js'
+import { describe, expect, test } from 'vitest'
 import { ApiError } from '../../../src/utils/apiError.js'
+import { calculateTotalPrice } from '../../../src/utils/reservation.utils.js'
 
 describe('calculateTotalPrice', () => {
     const baseDate = '2025-01-01'

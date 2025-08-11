@@ -1,5 +1,5 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { validateRequest, _setValidator } from '../../../src/middlewares/validateRequest.middleware.js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { _setValidator, validateRequest } from '../../../src/middlewares/validateRequest.middleware.js'
 import { ApiError } from '../../../src/utils/apiError.js'
 
 describe('validateRequest middleware', () => {

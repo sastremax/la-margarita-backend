@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import mongoose from 'mongoose'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { connectToDB } from '../../../src/config/db.js'
-import ContactModel from '../../../src/models/contact.model.js'
 import { ContactDAO } from '../../../src/dao/contact.dao.js'
+import ContactModel from '../../../src/models/contact.model.js'
 
 describe('ContactDAO', () => {
     const dao = new ContactDAO()

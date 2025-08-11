@@ -1,7 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { refreshService } from '../../../src/services/refresh.service.js'
-import { tokenStore } from '../../../src/utils/tokenStore.js'
 import { tokenService } from '../../../src/services/token.service.js'
+import { tokenStore } from '../../../src/utils/tokenStore.js'
 
 vi.mock('../../../src/utils/tokenStore.js', () => ({
     tokenStore: {

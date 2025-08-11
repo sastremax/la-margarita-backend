@@ -1,6 +1,6 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { reviewService } from '../../../src/services/review.service.js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { reviewDTO } from '../../../src/dto/review.dto.js'
+import { reviewService } from '../../../src/services/review.service.js'
 
 const mockFns = {
     getAllReviews: vi.fn(),

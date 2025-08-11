@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { validateReviewExists } from '../../../../src/middlewares/exists/validateReviewExists.js'
 import { reviewService } from '../../../../src/services/review.service.js'
 import { ApiError } from '../../../../src/utils/apiError.js'

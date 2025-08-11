@@ -1,6 +1,5 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
 import bcrypt from 'bcrypt'
-
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { passwordUtil } from '../../../src/utils/password.util.js'
 
 vi.mock('bcrypt')
