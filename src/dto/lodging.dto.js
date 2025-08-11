@@ -9,22 +9,39 @@ export const lodgingSchema = z.object({
         province: z.string().min(1),
         city: z.string().min(1)
     }),
-    capacity: z.number().int().positive(),
-    pricing: z.record(z.string(), z.number().positive()),
-    owner: z.string().min(1).optional(),
+    capacity: z.coerce.number().int().positive(),
+    pricing: z.object({
+        weekday: z.coerce.number().min(0),
+        weekend: z.coerce.number().min(0),
+        holiday: z.coerce.number().min(0).optional()
+    }),
+    owner: z.string().min(1),
     isActive: z.boolean().optional()
 })
 
 export function asPublicLodging(lodging) {
+    if (!lodging) return null
+    const id = lodging._id?.toString?.() || lodging.id || null
+    const ownerId =
+        lodging.owner?._id?.toString?.() ||
+        lodging.owner?.toString?.() ||
+        lodging.owner?.id ||
+        null
+    const images = Array.isArray(lodging.images) ? lodging.images : []
+    const pricing = lodging.pricing || {}
     return {
-        id: lodging._id,
-        title: lodging.title,
-        description: lodging.description,
-        images: lodging.images || [],
-        location: lodging.location,
-        capacity: lodging.capacity,
-        pricing: lodging.pricing,
-        ownerId: lodging.owner?._id || lodging.owner || null,
-        isActive: lodging.isActive
+        id,
+        title: lodging.title || null,
+        description: lodging.description || null,
+        images,
+        location: lodging.location || null,
+        capacity: typeof lodging.capacity === 'number' ? lodging.capacity : null,
+        pricing: {
+            weekday: Number.isFinite(pricing.weekday) ? pricing.weekday : 0,
+            weekend: Number.isFinite(pricing.weekend) ? pricing.weekend : 0,
+            holiday: Number.isFinite(pricing.holiday) ? pricing.holiday : undefined
+        },
+        ownerId,
+        isActive: typeof lodging.isActive === 'boolean' ? lodging.isActive : true
     }
 }
