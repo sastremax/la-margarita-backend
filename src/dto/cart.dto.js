@@ -9,17 +9,25 @@ export const cartSchema = z.object({
     items: z.array(cartItemSchema).min(1)
 })
 
-export function asPublicCart(cart) {
-    return {
-        id: cart._id,
-        userId: cart.user?._id || null,
-        products: Array.isArray(cart.products)
-            ? cart.products.map(p => ({
-                productId: p.product?._id || null,
-                title: p.product?.title || '',
-                price: p.product?.price || 0,
-                quantity: p.quantity
-            }))
-            : []
-    }
+export const asPublicCart = (cart) => {
+    if (!cart) return null
+    const id = cart._id?.toString?.() || cart.id || null
+    const userId =
+        cart.user?._id?.toString?.() ||
+        cart.user?.toString?.() ||
+        cart.user?.id ||
+        null
+    const products = Array.isArray(cart.products)
+        ? cart.products.map((p) => ({
+            productId:
+                p.product?._id?.toString?.() ||
+                p.product?.toString?.() ||
+                p.product?.id ||
+                null,
+            title: p.product?.title || '',
+            price: Number.isFinite(p.product?.price) ? p.product.price : 0,
+            quantity: p.quantity
+        }))
+        : []
+    return { id, userId, products }
 }

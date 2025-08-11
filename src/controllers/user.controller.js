@@ -9,8 +9,7 @@ import { userService } from '../services/user.service.js'
 export const getAllUsers = async (req, res, next) => {
     try {
         const users = await userService.getAllUsers()
-        const publicUsers = users.map(asUserPublic)
-        res.status(200).json({ status: 'success', data: publicUsers })
+        res.status(200).json({ status: 'success', data: users })
     } catch (error) {
         next(error)
     }
@@ -19,7 +18,7 @@ export const getAllUsers = async (req, res, next) => {
 export const getUserById = async (req, res, next) => {
     try {
         const user = await userService.getUserById(req.params.id)
-        res.status(200).json({ status: 'success', data: asUserPublic(user) })
+        res.status(200).json({ status: 'success', data: user })
     } catch (error) {
         next(error)
     }
@@ -28,7 +27,7 @@ export const getUserById = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
     try {
         const updatedUser = await userService.updateUser(req.params.id, req.body)
-        res.status(200).json({ status: 'success', data: asUserPublic(updatedUser) })
+        res.status(200).json({ status: 'success', data: updatedUser })
     } catch (error) {
         next(error)
     }
@@ -62,7 +61,7 @@ export const updateUserRole = async (req, res, next) => {
             userAgent: req.headers['user-agent']
         })
 
-        res.status(200).json({ status: 'success', data: asUserPublic(updatedUser) })
+        res.status(200).json({ status: 'success', data: updatedUser })
     } catch (error) {
         next(error)
     }
