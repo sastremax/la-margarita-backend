@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import ContactModel from '../models/contact.model.js'
 
 export class ContactDAO {
@@ -6,6 +7,9 @@ export class ContactDAO {
     }
 
     async getContactById(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error('Invalid contact ID')
+        }
         return await ContactModel.findById(id)
     }
 
@@ -14,6 +18,9 @@ export class ContactDAO {
     }
 
     async updateReplyStatus(id, { replied, replyNote }) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error('Invalid contact ID')
+        }
         return await ContactModel.findByIdAndUpdate(
             id,
             { replied, replyNote },
@@ -22,6 +29,9 @@ export class ContactDAO {
     }
 
     async deleteContact(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error('Invalid contact ID')
+        }
         return await ContactModel.findByIdAndDelete(id)
     }
 
