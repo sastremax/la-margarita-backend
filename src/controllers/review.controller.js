@@ -1,3 +1,4 @@
+import { reviewReplySchema } from '../dto/reviewReply.dto.js'
 import { reviewService } from '../services/review.service.js'
 
 export const getAllReviews = async (req, res, next) => {
@@ -76,11 +77,9 @@ export const deleteReview = async (req, res, next) => {
 
 export const putAdminReply = async (req, res, next) => {
     try {
-        const reviewId = req.params.id
-        const { message } = req.body
-
-        const updatedReview = await reviewService.replyToReview(reviewId, message)
-
+        const { id } = req.params
+        const parsed = reviewReplySchema.parse(req.body)
+        const updatedReview = await reviewService.replyToReview(id, parsed.message)
         res.status(200).json({ status: 'success', data: updatedReview })
     } catch (error) {
         next(error)
