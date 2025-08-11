@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import { v4 as uuidv4 } from 'uuid'
 import CartModel from '../models/cart.model.js'
 import TicketModel from '../models/ticket.model.js'
 
@@ -47,17 +46,14 @@ export class CartDAO {
         if (!mongoose.Types.ObjectId.isValid(pid)) {
             throw new Error('Invalid product ID')
         }
-
         const cart = await CartModel.findById(cid)
         if (!cart) return null
-
         const existing = cart.products.find(p => p.product.toString() === pid)
         if (existing) {
             existing.quantity += quantity
         } else {
             cart.products.push({ product: new mongoose.Types.ObjectId(String(pid)), quantity })
         }
-
         await cart.save()
         return cart.populate('products.product')
     }
@@ -69,10 +65,8 @@ export class CartDAO {
         if (!mongoose.Types.ObjectId.isValid(pid)) {
             throw new Error('Invalid product ID')
         }
-
         const cart = await CartModel.findById(cid)
         if (!cart) return null
-
         cart.products = cart.products.filter(p => p.product.toString() !== pid)
         await cart.save()
         return cart.populate('products.product')
@@ -82,21 +76,17 @@ export class CartDAO {
         if (!mongoose.Types.ObjectId.isValid(cid)) {
             throw new Error('Invalid cart ID')
         }
-
         for (const p of products) {
             if (!mongoose.Types.ObjectId.isValid(p.product)) {
                 throw new Error('Invalid product ID in products list')
             }
         }
-
         const cart = await CartModel.findById(cid)
         if (!cart) return null
-
         cart.products = products.map(p => ({
             product: new mongoose.Types.ObjectId(String(p.product)),
             quantity: p.quantity
         }))
-
         await cart.save()
         return cart.populate('products.product')
     }
@@ -108,16 +98,13 @@ export class CartDAO {
         if (!mongoose.Types.ObjectId.isValid(pid)) {
             throw new Error('Invalid product ID')
         }
-
         const cart = await CartModel.findById(cid)
         if (!cart) return null
-
         const item = cart.products.find(p => p.product.toString() === pid)
         if (item) {
             item.quantity = quantity
             await cart.save()
         }
-
         return cart.populate('products.product')
     }
 
@@ -125,12 +112,10 @@ export class CartDAO {
         if (!mongoose.Types.ObjectId.isValid(cartId)) {
             throw new Error('Invalid cart ID')
         }
-
         const cart = await CartModel.findById(cartId).populate('products.product')
         if (!cart || !Array.isArray(cart.products) || cart.products.length === 0) {
             return null
         }
-
         const productsForTicket = cart.products.map(p => ({
             product: {
                 _id: p.product._id,
@@ -139,21 +124,17 @@ export class CartDAO {
             },
             quantity: p.quantity
         }))
-
-        const amount = cart.products.reduce((total, p) => {
-            return total + p.product.price * p.quantity
-        }, 0)
-
+        const amount = cart.products.reduce((total, p) => total + p.product.price * p.quantity, 0)
+        if (amount <= 0) {
+            return null
+        }
         const ticket = await TicketModel.create({
-            code: uuidv4(),
             purchaser: user.email,
             amount,
             products: productsForTicket
         })
-
         cart.products = []
         await cart.save()
-
         return ticket
     }
 }
