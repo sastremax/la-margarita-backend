@@ -11,6 +11,11 @@ const imageSchema = new mongoose.Schema(
             type: String,
             maxlength: 255
         },
+        name: {
+            type: String,
+            required: true,
+            maxlength: 255
+        },
         associatedType: {
             type: String,
             enum: ['profile', 'product', 'lodging', 'review', 'other'],
