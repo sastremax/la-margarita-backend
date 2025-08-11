@@ -16,7 +16,6 @@ export class ReviewDAO {
         ])
 
         const pages = Math.ceil(total / limit)
-
         return { total, page, pages, data }
     }
 
@@ -93,11 +92,16 @@ export class ReviewDAO {
 
     async getReviewsByLodgingWithFilters(lodgingId, { page = 1, limit = 10, filters = {} }) {
         const skip = (page - 1) * limit
+
+        const safeFilters = typeof filters === 'object' && filters !== null ? filters : {}
         const query = { lodging: lodgingId, isDeleted: false }
 
-        if (filters.hasReply) query['adminReply.message'] = { $ne: null }
-        if (filters.minRating !== null && !isNaN(filters.minRating)) {
-            query.rating = { $gte: filters.minRating }
+        if (safeFilters.hasReply) {
+            query['adminReply.message'] = { $ne: null }
+        }
+
+        if (safeFilters.minRating !== null && !Number.isNaN(safeFilters.minRating)) {
+            query.rating = { $gte: safeFilters.minRating }
         }
 
         const [total, reviews] = await Promise.all([
@@ -110,6 +114,14 @@ export class ReviewDAO {
         ])
 
         return { total, page, limit, reviews }
+    }
+
+    async getReviewsWithReplyByLodging(lodgingId) {
+        return await ReviewModel.find({
+            lodging: lodgingId,
+            isDeleted: false,
+            'adminReply.message': { $ne: null }
+        }).populate('user', 'firstName lastName country')
     }
 
     async updateReview(reviewId, updateData) {
