@@ -4,7 +4,6 @@ import ReviewModel from '../models/review.model.js'
 export class ReviewDAO {
     async getAllReviews({ page = 1, limit = 10 }) {
         const skip = (page - 1) * limit
-
         const [total, data] = await Promise.all([
             ReviewModel.countDocuments({ isDeleted: false }),
             ReviewModel.find({ isDeleted: false })
@@ -13,8 +12,8 @@ export class ReviewDAO {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
+                .lean()
         ])
-
         const pages = Math.ceil(total / limit)
         return { total, page, pages, data }
     }
@@ -23,6 +22,7 @@ export class ReviewDAO {
         return await ReviewModel.findById(id)
             .populate('user', 'firstName lastName country')
             .populate('lodging', 'title location')
+            .lean()
     }
 
     async getReviewByReservationId(reservationId) {
@@ -36,7 +36,6 @@ export class ReviewDAO {
     async deleteReview(reviewId) {
         const review = await ReviewModel.findById(reviewId)
         if (!review) return null
-
         review.isDeleted = true
         await review.save()
         return review
@@ -45,65 +44,35 @@ export class ReviewDAO {
     async replyToReview(reviewId, message) {
         const review = await ReviewModel.findById(reviewId)
         if (!review) return null
-
-        review.adminReply = {
-            message,
-            createdAt: new Date()
-        }
-
+        review.adminReply = { message, createdAt: new Date() }
         await review.save()
         return review
     }
 
     async getReviewSummary(lodgingId) {
         const id = String(lodgingId)
-
         if (!mongoose.isValidObjectId(id)) {
-            return {
-                totalReviews: 0,
-                averageRating: '0.00'
-            }
+            return { totalReviews: 0, averageRating: '0.00' }
         }
-
         const [totalReviews, avgResult] = await Promise.all([
             ReviewModel.countDocuments({ lodging: id, isDeleted: false }),
             ReviewModel.aggregate([
-                {
-                    $match: {
-                        lodging: new mongoose.Types.ObjectId(id),
-                        isDeleted: false
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        avgRating: { $avg: '$rating' }
-                    }
-                }
+                { $match: { lodging: new mongoose.Types.ObjectId(id), isDeleted: false } },
+                { $group: { _id: null, avgRating: { $avg: '$rating' } } }
             ])
         ])
-
         const averageRating = avgResult[0]?.avgRating || 0
-        return {
-            totalReviews,
-            averageRating: averageRating.toFixed(2)
-        }
+        return { totalReviews, averageRating: averageRating.toFixed(2) }
     }
 
     async getReviewsByLodgingWithFilters(lodgingId, { page = 1, limit = 10, filters = {} }) {
         const skip = (page - 1) * limit
-
         const safeFilters = typeof filters === 'object' && filters !== null ? filters : {}
         const query = { lodging: lodgingId, isDeleted: false }
-
-        if (safeFilters.hasReply) {
-            query['adminReply.message'] = { $ne: null }
-        }
-
+        if (safeFilters.hasReply) query['adminReply.message'] = { $ne: null }
         if (safeFilters.minRating !== null && !Number.isNaN(safeFilters.minRating)) {
             query.rating = { $gte: safeFilters.minRating }
         }
-
         const [total, reviews] = await Promise.all([
             ReviewModel.countDocuments(query),
             ReviewModel.find(query)
@@ -111,8 +80,8 @@ export class ReviewDAO {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
+                .lean()
         ])
-
         return { total, page, limit, reviews }
     }
 
@@ -127,9 +96,7 @@ export class ReviewDAO {
     async updateReview(reviewId, updateData) {
         const review = await ReviewModel.findById(reviewId)
         if (!review || review.isDeleted) return null
-
         Object.assign(review, updateData)
-
         await review.save()
         return review
     }
