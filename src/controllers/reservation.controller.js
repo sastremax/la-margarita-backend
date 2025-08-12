@@ -2,9 +2,15 @@ import { reservationService } from '../services/reservation.service.js'
 
 export const getAllReservations = async (req, res, next) => {
     try {
-        const filters = req.query
-        const reservations = await reservationService.getReservationsWithFilters(filters)
-        res.status(200).json({ status: 'success', data: reservations.data })
+        const filters = req.query || {}
+        const result = await reservationService.getReservationsWithFilters(filters)
+        res.status(200).json({
+            status: 'success',
+            total: result.total,
+            page: result.page,
+            pages: result.pages,
+            data: result.data
+        })
     } catch (error) {
         next(error)
     }
@@ -75,7 +81,11 @@ export const deleteReservation = async (req, res, next) => {
 
 export const getReservationSummary = async (req, res, next) => {
     try {
-        const summary = await reservationService.getReservationSummary(req.query || {})
+        const lodgingId = req.query?.lodgingId
+        if (!lodgingId) {
+            return res.status(400).json({ status: 'error', message: 'lodgingId is required' })
+        }
+        const summary = await reservationService.getReservationSummary(lodgingId)
         res.status(200).json({ status: 'success', data: summary })
     } catch (error) {
         next(error)

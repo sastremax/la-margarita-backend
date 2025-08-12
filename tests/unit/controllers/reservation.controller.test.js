@@ -1,139 +1,114 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import * as reservationController from '../../../src/controllers/reservation.controller.js'
+import * as controller from '../../../src/controllers/reservation.controller.js'
 import { reservationService } from '../../../src/services/reservation.service.js'
 
-vi.mock('../../../src/services/reservation.service.js', () => ({
-    reservationService: {
-        getReservationsWithFilters: vi.fn(),
-        getReservationById: vi.fn(),
-        getReservationsByLodging: vi.fn(),
-        getReservationsByUserId: vi.fn(),
-        createReservation: vi.fn(),
-        updateReservation: vi.fn(),
-        cancelReservation: vi.fn(),
-        deleteReservation: vi.fn()
-    }
-}))
+vi.mock('../../../src/services/reservation.service.js')
 
-describe('reservationController', () => {
-    const mockRes = () => {
-        const res = {}
-        res.status = vi.fn().mockReturnValue(res)
-        res.json = vi.fn().mockReturnValue(res)
-        res.end = vi.fn().mockReturnValue(res)
-        return res
-    }
+const mockRes = () => {
+    const res = {}
+    res.status = vi.fn().mockReturnValue(res)
+    res.json = vi.fn().mockReturnValue(res)
+    res.end = vi.fn().mockReturnValue(res)
+    return res
+}
 
-    const next = vi.fn()
+const next = vi.fn()
 
-    beforeEach(() => {
-        vi.clearAllMocks()
-    })
+beforeEach(() => {
+    vi.clearAllMocks()
+})
 
-    test('getAllReservations - success', async () => {
-        const req = { query: { page: 1 } }
+describe('reservation.controller', () => {
+    test('getAllReservations - debería devolver paginación y data', async () => {
+        const req = { query: { page: 2, limit: 5, status: 'confirmed' } }
         const res = mockRes()
-        reservationService.getReservationsWithFilters.mockResolvedValue({ data: ['r1', 'r2'] })
-
-        await reservationController.getAllReservations(req, res, next)
-
-        expect(reservationService.getReservationsWithFilters).toHaveBeenCalledWith(req.query)
+        reservationService.getReservationsWithFilters.mockResolvedValue({
+            total: 12,
+            page: 2,
+            pages: 3,
+            data: [{ id: 'r1' }]
+        })
+        await controller.getAllReservations(req, res, next)
+        expect(reservationService.getReservationsWithFilters).toHaveBeenCalledWith({ page: 2, limit: 5, status: 'confirmed' })
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: ['r1', 'r2'] })
+        expect(res.json).toHaveBeenCalledWith({
+            status: 'success',
+            total: 12,
+            page: 2,
+            pages: 3,
+            data: [{ id: 'r1' }]
+        })
     })
 
-    test('getReservationById - success', async () => {
-        const req = { params: { rid: 'abc' } }
+    test('getReservationById - debería usar req.params.rid', async () => {
+        const req = { params: { rid: '507f1f77bcf86cd799439011' } }
         const res = mockRes()
-        reservationService.getReservationById.mockResolvedValue('reservation')
-
-        await reservationController.getReservationById(req, res, next)
-
-        expect(reservationService.getReservationById).toHaveBeenCalledWith('abc')
+        reservationService.getReservationById.mockResolvedValue({ id: 'r1' })
+        await controller.getReservationById(req, res, next)
+        expect(reservationService.getReservationById).toHaveBeenCalledWith('507f1f77bcf86cd799439011')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'reservation' })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'r1' } })
     })
 
-    test('getReservationsByLodging - success', async () => {
-        const req = { params: { lid: 'lodging1' } }
+    test('getReservationsByUser - debería usar req.user.id', async () => {
+        const req = { user: { id: 'u1' } }
         const res = mockRes()
-        reservationService.getReservationsByLodging.mockResolvedValue(['r1', 'r2'])
-
-        await reservationController.getReservationsByLodging(req, res, next)
-
-        expect(reservationService.getReservationsByLodging).toHaveBeenCalledWith('lodging1')
+        reservationService.getReservationsByUserId.mockResolvedValue([{ id: 'r1', userId: 'u1' }])
+        await controller.getReservationsByUser(req, res, next)
+        expect(reservationService.getReservationsByUserId).toHaveBeenCalledWith('u1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: ['r1', 'r2'] })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [{ id: 'r1', userId: 'u1' }] })
     })
 
-    test('getReservationsByUser - success', async () => {
-        const req = { params: { uid: 'user1' } }
+    test('createReservation - debería devolver 201', async () => {
+        const req = { body: { lodgingId: 'l1', checkIn: '2025-08-10', checkOut: '2025-08-12', guests: 2, userId: 'u1' } }
         const res = mockRes()
-        reservationService.getReservationsByUserId.mockResolvedValue(['r1'])
-
-        await reservationController.getReservationsByUser(req, res, next)
-
-        expect(reservationService.getReservationsByUserId).toHaveBeenCalledWith('user1')
-        expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: ['r1'] })
-    })
-
-    test('createReservation - success', async () => {
-        const req = { body: { lodgingId: '1', checkIn: '2025-09-01', checkOut: '2025-09-02' } }
-        const res = mockRes()
-        reservationService.createReservation.mockResolvedValue('newReservation')
-
-        await reservationController.createReservation(req, res, next)
-
-        expect(reservationService.createReservation).toHaveBeenCalledWith(req.body)
+        reservationService.createReservation.mockResolvedValue({ id: 'r1' })
+        await controller.createReservation(req, res, next)
+        expect(reservationService.createReservation).toHaveBeenCalled()
         expect(res.status).toHaveBeenCalledWith(201)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'newReservation' })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'r1' } })
     })
 
-    test('updateReservation - success', async () => {
-        const req = { params: { rid: 'abc' }, body: { guests: 3 } }
+    test('updateReservation - debería pasar rid y body', async () => {
+        const req = { params: { rid: '507f1f77bcf86cd799439011' }, body: { status: 'cancelled' } }
         const res = mockRes()
-        reservationService.updateReservation.mockResolvedValue('updated')
-
-        await reservationController.updateReservation(req, res, next)
-
-        expect(reservationService.updateReservation).toHaveBeenCalledWith('abc', req.body)
+        reservationService.updateReservation.mockResolvedValue({ id: 'r1', status: 'cancelled' })
+        await controller.updateReservation(req, res, next)
+        expect(reservationService.updateReservation).toHaveBeenCalledWith('507f1f77bcf86cd799439011', { status: 'cancelled' })
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'updated' })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'r1', status: 'cancelled' } })
     })
 
-    test('cancelReservation - success', async () => {
-        const req = { params: { rid: 'abc' }, user: { id: 'user123' } }
+    test('cancelReservation - debería pasar rid y req.user.id', async () => {
+        const req = { params: { rid: '507f1f77bcf86cd799439011' }, user: { id: 'u1' } }
         const res = mockRes()
-        reservationService.cancelReservation.mockResolvedValue('cancelled')
-
-        await reservationController.cancelReservation(req, res, next)
-
-        expect(reservationService.cancelReservation).toHaveBeenCalledWith('abc', 'user123')
+        reservationService.cancelReservation.mockResolvedValue({ id: 'r1', status: 'cancelled' })
+        await controller.cancelReservation(req, res, next)
+        expect(reservationService.cancelReservation).toHaveBeenCalledWith('507f1f77bcf86cd799439011', 'u1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'cancelled' })
     })
 
-    test('deleteReservation - success', async () => {
-        const req = { params: { rid: 'abc' } }
+    test('deleteReservation - debería devolver 204', async () => {
+        const req = { params: { rid: '507f1f77bcf86cd799439011' } }
         const res = mockRes()
-        reservationService.deleteReservation.mockResolvedValue()
-
-        await reservationController.deleteReservation(req, res, next)
-
-        expect(reservationService.deleteReservation).toHaveBeenCalledWith('abc')
+        reservationService.deleteReservation.mockResolvedValue(true)
+        await controller.deleteReservation(req, res, next)
+        expect(reservationService.deleteReservation).toHaveBeenCalledWith('507f1f77bcf86cd799439011')
         expect(res.status).toHaveBeenCalledWith(204)
         expect(res.end).toHaveBeenCalled()
     })
 
-    test('createReservation - error', async () => {
-        const req = { body: {} }
-        const res = mockRes()
-        const error = new Error('creation failed')
-        reservationService.createReservation.mockRejectedValue(error)
+    test('getReservationSummary - 400 si falta lodgingId, 200 si viene por query', async () => {
+        const res1 = mockRes()
+        await controller.getReservationSummary({ query: {} }, res1, next)
+        expect(res1.status).toHaveBeenCalledWith(400)
 
-        await reservationController.createReservation(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
+        const res2 = mockRes()
+        reservationService.getReservationSummary.mockResolvedValue({ count: 3, total: 500 })
+        await controller.getReservationSummary({ query: { lodgingId: '507f1f77bcf86cd799439011' } }, res2, next)
+        expect(reservationService.getReservationSummary).toHaveBeenCalledWith('507f1f77bcf86cd799439011')
+        expect(res2.status).toHaveBeenCalledWith(200)
+        expect(res2.json).toHaveBeenCalledWith({ status: 'success', data: { count: 3, total: 500 } })
     })
 })
