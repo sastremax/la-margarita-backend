@@ -1,210 +1,146 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
-
-const mockGetAllUsers = vi.fn()
-const mockGetUserById = vi.fn()
-const mockUpdateUser = vi.fn()
-const mockDeleteUser = vi.fn()
-const mockUpdateUserRole = vi.fn()
-const mockGetReservationsByUserId = vi.fn()
-const mockGetCartByUserId = vi.fn()
-const mockLogEvent = vi.fn()
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../src/services/user.service.js', () => ({
     userService: {
-        getAllUsers: mockGetAllUsers,
-        getUserById: mockGetUserById,
-        updateUser: mockUpdateUser,
-        deleteUser: mockDeleteUser,
-        updateUserRole: mockUpdateUserRole
+        getAllUsers: vi.fn(),
+        getUserById: vi.fn(),
+        updateUser: vi.fn(),
+        deleteUser: vi.fn(),
+        updateUserRole: vi.fn()
     }
 }))
 
 vi.mock('../../../src/services/reservation.service.js', () => ({
     reservationService: {
-        getReservationsByUserId: mockGetReservationsByUserId
+        getReservationsByUserId: vi.fn()
     }
 }))
 
 vi.mock('../../../src/services/cart.service.js', () => ({
     cartService: {
-        getCartByUserId: mockGetCartByUserId
+        getCartByUserId: vi.fn()
     }
 }))
 
 vi.mock('../../../src/services/audit.service.js', () => ({
     AuditService: {
-        logEvent: mockLogEvent
+        logEvent: vi.fn()
     }
 }))
 
-// DTOs
-vi.mock('../../../src/dto/user.dto.js', async () => {
-    const actual = await vi.importActual('../../../src/dto/user.dto.js')
-    return {
-        ...actual,
-        asUserPublic: vi.fn(actual.asUserPublic)
-    }
-})
-
-vi.mock('../../../src/dto/reservation.dto.js', async () => {
-    const actual = await vi.importActual('../../../src/dto/reservation.dto.js')
-    return {
-        ...actual,
-        asPublicReservation: vi.fn(actual.asPublicReservation)
-    }
-})
-
-vi.mock('../../../src/dto/cart.dto.js', async () => {
-    const actual = await vi.importActual('../../../src/dto/cart.dto.js')
-    return {
-        ...actual,
-        asPublicCart: vi.fn(actual.asPublicCart)
-    }
-})
-
-// Importar el controller después de los mocks
-const {
-    getAllUsers,
-    getUserById,
-    updateUser,
-    deleteUser,
-    updateUserRole,
-    getCurrentUser,
-    getCurrentUserReservations,
-    getCurrentUserCart
-} = await import('../../../src/controllers/user.controller.js')
+const resMock = () => {
+    const res = {}
+    res.status = vi.fn(() => res)
+    res.json = vi.fn(() => res)
+    res.end = vi.fn(() => res)
+    return res
+}
 
 describe('user.controller', () => {
-    const mockRes = () => {
-        const res = {}
-        res.status = vi.fn().mockReturnValue(res)
-        res.json = vi.fn().mockReturnValue(res)
-        res.end = vi.fn()
-        return res
-    }
+    let controller
+    let userService
+    let reservationService
+    let cartService
+    let AuditService
 
-    const next = vi.fn()
-
-    beforeEach(() => {
-        vi.clearAllMocks()
+    beforeEach(async () => {
+        vi.resetModules()
+            ; ({ userService } = await import('../../../src/services/user.service.js'))
+            ; ({ reservationService } = await import('../../../src/services/reservation.service.js'))
+            ; ({ cartService } = await import('../../../src/services/cart.service.js'))
+            ; ({ AuditService } = await import('../../../src/services/audit.service.js'))
+        controller = await import('../../../src/controllers/user.controller.js')
     })
 
-    test('getAllUsers - success', async () => {
+    it('debería devolver todos los usuarios', async () => {
+        userService.getAllUsers.mockResolvedValueOnce([{ id: 'u1' }])
         const req = {}
-        const res = mockRes()
-        mockGetAllUsers.mockResolvedValue([{ _id: '1' }])
-
-        await getAllUsers(req, res, next)
-
-        expect(mockGetAllUsers).toHaveBeenCalled()
+        const res = resMock()
+        const next = vi.fn()
+        await controller.getAllUsers(req, res, next)
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalled()
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [{ id: 'u1' }] })
     })
 
-    test('getUserById - success', async () => {
-        const req = { params: { id: '123' } }
-        const res = mockRes()
-        mockGetUserById.mockResolvedValue({ _id: '123' })
-
-        await getUserById(req, res, next)
-
-        expect(mockGetUserById).toHaveBeenCalledWith('123')
+    it('debería usar req.params.uid en getUserById', async () => {
+        userService.getUserById.mockResolvedValueOnce({ id: 'u1' })
+        const req = { params: { uid: 'u1' } }
+        const res = resMock()
+        const next = vi.fn()
+        await controller.getUserById(req, res, next)
+        expect(userService.getUserById).toHaveBeenCalledWith('u1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalled()
     })
 
-    test('updateUser - success', async () => {
-        const req = { params: { id: '123' }, body: { email: 'a@a.com' } }
-        const res = mockRes()
-        mockUpdateUser.mockResolvedValue({ _id: '123', email: 'a@a.com' })
-
-        await updateUser(req, res, next)
-
-        expect(mockUpdateUser).toHaveBeenCalledWith('123', { email: 'a@a.com' })
+    it('debería usar req.params.uid en updateUser y retornar 200', async () => {
+        userService.updateUser.mockResolvedValueOnce({ id: 'u1', role: 'user' })
+        const req = { params: { uid: 'u1' }, body: { role: 'user' } }
+        const res = resMock()
+        const next = vi.fn()
+        await controller.updateUser(req, res, next)
+        expect(userService.updateUser).toHaveBeenCalledWith('u1', { role: 'user' })
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalled()
     })
 
-    test('deleteUser - success', async () => {
-        const req = { params: { id: '123' } }
-        const res = mockRes()
-        mockDeleteUser.mockResolvedValue()
-
-        await deleteUser(req, res, next)
-
-        expect(mockDeleteUser).toHaveBeenCalledWith('123')
+    it('debería usar req.params.uid en deleteUser y retornar 204', async () => {
+        userService.deleteUser.mockResolvedValueOnce(true)
+        const req = { params: { uid: 'u1' } }
+        const res = resMock()
+        const next = vi.fn()
+        await controller.deleteUser(req, res, next)
+        expect(userService.deleteUser).toHaveBeenCalledWith('u1')
         expect(res.status).toHaveBeenCalledWith(204)
         expect(res.end).toHaveBeenCalled()
     })
 
-    test('updateUserRole - success', async () => {
-        const req = {
-            params: { uid: '123' },
-            body: { role: 'admin' },
-            user: { _id: 'adminUser' },
-            ip: '127.0.0.1',
-            headers: { 'user-agent': 'agent' }
-        }
-        const res = mockRes()
-        mockUpdateUserRole.mockResolvedValue({ _id: '123', role: 'admin' })
+    it('debería validar rol en updateUserRole y registrar auditoría con req.user.id', async () => {
+        const reqBad = { params: { uid: 'u1' }, body: { role: 'guest' }, ip: '1.1.1.1', headers: { 'user-agent': 'x' }, user: { id: 'admin1' } }
+        const resBad = resMock()
+        const nextBad = vi.fn()
+        await controller.updateUserRole(reqBad, resBad, nextBad)
+        expect(resBad.status).toHaveBeenCalledWith(400)
 
-        await updateUserRole(req, res, next)
+        userService.updateUserRole.mockResolvedValueOnce({ id: 'u1', role: 'admin' })
+        const reqOk = { params: { uid: 'u1' }, body: { role: 'admin' }, ip: '1.1.1.1', headers: { 'user-agent': 'x' }, user: { id: 'admin1' } }
+        const resOk = resMock()
+        const nextOk = vi.fn()
+        await controller.updateUserRole(reqOk, resOk, nextOk)
+        expect(userService.updateUserRole).toHaveBeenCalledWith('u1', 'admin')
+        expect(AuditService.logEvent).toHaveBeenCalledWith(expect.objectContaining({ userId: 'admin1', event: 'update_user_role', success: true }))
+        expect(resOk.status).toHaveBeenCalledWith(200)
+    })
 
-        expect(mockUpdateUserRole).toHaveBeenCalledWith('123', 'admin')
-        expect(mockLogEvent).toHaveBeenCalled()
+    it('debería devolver el usuario actual con asUserPublic', async () => {
+        const req = { user: { id: 'u1', role: 'user', firstName: 'A', lastName: 'B', email: 'e' } }
+        const res = resMock()
+        await controller.getCurrentUser(req, res)
         expect(res.status).toHaveBeenCalledWith(200)
         expect(res.json).toHaveBeenCalled()
+        const payload = res.json.mock.calls[0][0]
+        expect(payload.status).toBe('success')
+        expect(payload.data.id).toBe('u1')
+        expect(payload.data.role).toBe('user')
     })
 
-    test('getCurrentUser - success', () => {
-        const req = {
-            user: {
-                _id: 'u1',
-                firstName: 'Test',
-                lastName: 'User',
-                email: 'test@example.com',
-                role: 'user',
-                cart: { _id: 'cart1' }
-            }
-        }
-        const res = mockRes()
-
-        getCurrentUser(req, res)
-
-        expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'success',
-            data: {
-                id: 'u1',
-                fullName: 'Test User',
-                email: 'test@example.com',
-                role: 'user',
-                cartId: 'cart1'
-            }
-        })
-    })
-
-    test('getCurrentUserReservations - success', async () => {
+    it('debería usar reservationService y no remapear en getCurrentUserReservations', async () => {
+        reservationService.getReservationsByUserId.mockResolvedValueOnce([{ id: 'r1', userId: 'u1' }])
         const req = { user: { id: 'u1' } }
-        const res = mockRes()
-        mockGetReservationsByUserId.mockResolvedValue([{ _id: 'r1' }])
-
-        await getCurrentUserReservations(req, res, next)
-
-        expect(mockGetReservationsByUserId).toHaveBeenCalledWith('u1')
+        const res = resMock()
+        const next = vi.fn()
+        await controller.getCurrentUserReservations(req, res, next)
+        expect(reservationService.getReservationsByUserId).toHaveBeenCalledWith('u1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalled()
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [{ id: 'r1', userId: 'u1' }] })
     })
 
-    test('getCurrentUserCart - success', async () => {
+    it('debería usar cartService y no remapear en getCurrentUserCart', async () => {
+        cartService.getCartByUserId.mockResolvedValueOnce({ id: 'c1', userId: 'u1', products: [] })
         const req = { user: { id: 'u1' } }
-        const res = mockRes()
-        mockGetCartByUserId.mockResolvedValue({ _id: 'cart1' })
-
-        await getCurrentUserCart(req, res, next)
-
-        expect(mockGetCartByUserId).toHaveBeenCalledWith('u1')
+        const res = resMock()
+        const next = vi.fn()
+        await controller.getCurrentUserCart(req, res, next)
+        expect(cartService.getCartByUserId).toHaveBeenCalledWith('u1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalled()
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'c1', userId: 'u1', products: [] } })
     })
 })
