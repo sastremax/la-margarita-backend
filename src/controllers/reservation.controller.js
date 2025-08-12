@@ -30,7 +30,7 @@ export const getReservationsByLodging = async (req, res, next) => {
 
 export const getReservationsByUser = async (req, res, next) => {
     try {
-        const reservations = await reservationService.getReservationsByUserId(req.params.uid)
+        const reservations = await reservationService.getReservationsByUserId(req.user.id)
         res.status(200).json({ status: 'success', data: reservations })
     } catch (error) {
         next(error)
@@ -68,6 +68,15 @@ export const deleteReservation = async (req, res, next) => {
     try {
         await reservationService.deleteReservation(req.params.rid)
         res.status(204).end()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getReservationSummary = async (req, res, next) => {
+    try {
+        const summary = await reservationService.getReservationSummary(req.query || {})
+        res.status(200).json({ status: 'success', data: summary })
     } catch (error) {
         next(error)
     }

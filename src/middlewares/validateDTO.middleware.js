@@ -1,11 +1,10 @@
-export const validateDTO = (schema) => {
+export const validateDTO = (schema, location = 'body') => {
     if (!schema || typeof schema.safeParse !== 'function') {
         throw new Error('Invalid schema provided to validateDTO middleware')
     }
-
     return (req, res, next) => {
-        const result = schema.safeParse(req.body)
-
+        const input = location === 'query' ? req.query : req.body
+        const result = schema.safeParse(input)
         if (!result.success) {
             return res.status(400).json({
                 status: 'error',
@@ -15,8 +14,8 @@ export const validateDTO = (schema) => {
                 }))
             })
         }
-
-        req.body = result.data
+        if (location === 'query') req.query = result.data
+        else req.body = result.data
         next()
     }
 }
