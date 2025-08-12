@@ -1,4 +1,5 @@
 import express from 'express'
+import { param } from 'express-validator'
 
 import {
     createProduct,
@@ -7,11 +8,9 @@ import {
     getProductById,
     updateProduct
 } from '../controllers/product.controller.js'
-
+import { productSchema } from '../dto/product.dto.js'
 import { authPolicy } from '../middlewares/authPolicy.middleware.js'
 import { validateDTO } from '../middlewares/validateDTO.middleware.js'
-import { productSchema } from '../dto/product.dto.js'
-import { param } from 'express-validator'
 import { validateRequest } from '../middlewares/validateRequest.middleware.js'
 
 export const productRouter = express.Router()
@@ -19,8 +18,8 @@ export const productRouter = express.Router()
 productRouter.get('/', getAllProducts)
 
 productRouter.get(
-    '/:pid',
-    param('pid').isMongoId().withMessage('Invalid product ID'),
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid product ID'),
     validateRequest,
     getProductById
 )
@@ -33,17 +32,17 @@ productRouter.post(
 )
 
 productRouter.put(
-    '/:pid',
-    param('pid').isMongoId().withMessage('Invalid product ID'),
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid product ID'),
     validateRequest,
     authPolicy(['admin']),
-    validateDTO(productSchema),
+    validateDTO(productSchema.partial()),
     updateProduct
 )
 
 productRouter.delete(
-    '/:pid',
-    param('pid').isMongoId().withMessage('Invalid product ID'),
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid product ID'),
     validateRequest,
     authPolicy(['admin']),
     deleteProduct
