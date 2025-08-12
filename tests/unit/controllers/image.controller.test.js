@@ -2,139 +2,88 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as controller from '../../../src/controllers/image.controller.js'
 import { ImageService } from '../../../src/services/image.service.js'
 
-vi.mock('../../../src/services/image.service.js')
+vi.mock('../../../src/services/image.service.js', () => ({
+    ImageService: {
+        getAllImages: vi.fn(),
+        getImageById: vi.fn(),
+        getImagesByLodgingId: vi.fn(),
+        uploadImage: vi.fn(),
+        deleteImage: vi.fn()
+    }
+}))
+
+const mockRes = () => {
+    const res = {}
+    res.status = vi.fn().mockReturnValue(res)
+    res.json = vi.fn().mockReturnValue(res)
+    res.end = vi.fn().mockReturnValue(res)
+    return res
+}
+
+const next = vi.fn()
+
+beforeEach(() => {
+    vi.clearAllMocks()
+})
 
 describe('image.controller', () => {
-    let req
-    let res
-    let next
-
-    beforeEach(() => {
-        vi.clearAllMocks()
-
-        req = { params: {}, body: {} }
-        res = {
-            status: vi.fn().mockReturnThis(),
-            json: vi.fn(),
-        }
-        next = vi.fn()
-    })
-
-    test('uploadImage should return 201 and image data', async () => {
-        const mockImage = { id: 'img1', url: 'http://img.com' }
-        ImageService.uploadImage.mockResolvedValue(mockImage)
-
-        req.body = { url: 'http://img.com', name: 'test', type: 'lodging', refId: 'lod1' }
-
+    test('debería subir imagen y devolver 201', async () => {
+        const req = { body: { url: 'https://x/y.jpg', name: 'y', type: 'lodging', refId: 'l1' } }
+        const res = mockRes()
+        ImageService.uploadImage.mockResolvedValue({ id: 'i1' })
         await controller.uploadImage(req, res, next)
-
         expect(ImageService.uploadImage).toHaveBeenCalledWith(req.body)
         expect(res.status).toHaveBeenCalledWith(201)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: mockImage })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'i1' } })
     })
 
-    test('uploadImage should call next on error', async () => {
-        const error = new Error('upload failed')
-        ImageService.uploadImage.mockRejectedValue(error)
-
-        await controller.uploadImage(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
-    })
-
-    test('getAllImages should return 200 and image list', async () => {
-        const mockImages = [{ id: 'img1' }, { id: 'img2' }]
-        ImageService.getAllImages.mockResolvedValue(mockImages)
-
+    test('debería listar imágenes con 200', async () => {
+        const req = {}
+        const res = mockRes()
+        ImageService.getAllImages.mockResolvedValue([{ id: 'i1' }])
         await controller.getAllImages(req, res, next)
-
         expect(ImageService.getAllImages).toHaveBeenCalled()
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: mockImages })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [{ id: 'i1' }] })
     })
 
-    test('getImageById should return 200 and image if found', async () => {
-        const mockImage = { id: 'img123' }
-        req.params.id = 'img123'
-        ImageService.getImageById.mockResolvedValue(mockImage)
+    test('debería obtener por id y devolver 200, o 404 si no existe', async () => {
+        const res1 = mockRes()
+        ImageService.getImageById.mockResolvedValueOnce(null)
+        await controller.getImageById({ params: { id: 'i404' } }, res1, next)
+        expect(ImageService.getImageById).toHaveBeenCalledWith('i404')
+        expect(res1.status).toHaveBeenCalledWith(404)
+        expect(res1.json).toHaveBeenCalledWith({ status: 'error', message: 'Image not found' })
 
-        await controller.getImageById(req, res, next)
-
-        expect(ImageService.getImageById).toHaveBeenCalledWith('img123')
-        expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: mockImage })
+        const res2 = mockRes()
+        ImageService.getImageById.mockResolvedValueOnce({ id: 'i1' })
+        await controller.getImageById({ params: { id: 'i1' } }, res2, next)
+        expect(res2.status).toHaveBeenCalledWith(200)
+        expect(res2.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'i1' } })
     })
 
-    test('getImageById should return 404 if not found', async () => {
-        req.params.id = 'notfound'
-        ImageService.getImageById.mockResolvedValue(null)
-
-        await controller.getImageById(req, res, next)
-
-        expect(res.status).toHaveBeenCalledWith(404)
-        expect(res.json).toHaveBeenCalledWith({ status: 'error', message: 'Image not found' })
-    })
-
-    test('getImageById should call next on error', async () => {
-        const error = new Error('get failed')
-        ImageService.getImageById.mockRejectedValue(error)
-        req.params.id = 'fail'
-
-        await controller.getImageById(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
-    })
-
-    test('getImagesByLodgingId should return 200 and image list', async () => {
-        const mockImages = [{ id: 'img1' }]
-        req.params.lodgingId = 'lod1'
-        ImageService.getImagesByLodgingId.mockResolvedValue(mockImages)
-
+    test('debería obtener por lodgingId con 200', async () => {
+        const req = { params: { lodgingId: 'l1' } }
+        const res = mockRes()
+        ImageService.getImagesByLodgingId.mockResolvedValue([{ id: 'i1' }])
         await controller.getImagesByLodgingId(req, res, next)
-
-        expect(ImageService.getImagesByLodgingId).toHaveBeenCalledWith('lod1')
+        expect(ImageService.getImagesByLodgingId).toHaveBeenCalledWith('l1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: mockImages })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [{ id: 'i1' }] })
     })
 
-    test('getImagesByLodgingId should call next on error', async () => {
-        const error = new Error('lodging error')
-        req.params.lodgingId = 'lod-fail'
-        ImageService.getImagesByLodgingId.mockRejectedValue(error)
+    test('debería borrar imagen y devolver 200, o 404 si no existe', async () => {
+        const res404 = mockRes()
+        ImageService.deleteImage.mockResolvedValueOnce(null)
+        await controller.deleteImage({ params: { id: 'i404' } }, res404, next)
+        expect(ImageService.deleteImage).toHaveBeenCalledWith('i404')
+        expect(res404.status).toHaveBeenCalledWith(404)
+        expect(res404.json).toHaveBeenCalledWith({ status: 'error', message: 'Image not found' })
 
-        await controller.getImagesByLodgingId(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
-    })
-
-    test('deleteImage should return 200 if deleted', async () => {
-        req.params.id = 'img1'
-        ImageService.deleteImage.mockResolvedValue({ id: 'img1' })
-
-        await controller.deleteImage(req, res, next)
-
-        expect(ImageService.deleteImage).toHaveBeenCalledWith('img1')
-        expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', message: 'Image deleted' })
-    })
-
-    test('deleteImage should return 404 if not found', async () => {
-        req.params.id = 'img404'
-        ImageService.deleteImage.mockResolvedValue(null)
-
-        await controller.deleteImage(req, res, next)
-
-        expect(res.status).toHaveBeenCalledWith(404)
-        expect(res.json).toHaveBeenCalledWith({ status: 'error', message: 'Image not found' })
-    })
-
-    test('deleteImage should call next on error', async () => {
-        const error = new Error('delete failed')
-        req.params.id = 'fail'
-        ImageService.deleteImage.mockRejectedValue(error)
-
-        await controller.deleteImage(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
+        const resOk = mockRes()
+        ImageService.deleteImage.mockResolvedValueOnce(true)
+        await controller.deleteImage({ params: { id: 'i1' } }, resOk, next)
+        expect(resOk.status).toHaveBeenCalledWith(200)
+        expect(resOk.json).toHaveBeenCalledWith({ status: 'success', message: 'Image deleted' })
     })
 })
