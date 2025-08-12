@@ -47,9 +47,8 @@ export const getReviewSummary = async (req, res, next) => {
 
 export const deleteReview = async (req, res, next) => {
     try {
-        const reviewId = req.params.id
-        const userId = req.user._id
-        await reviewService.deleteReview(reviewId, userId)
+        const reviewId = req.params.rid
+        await reviewService.deleteReview(reviewId)
         res.status(200).json({ status: 'success', message: 'Review deleted' })
     } catch (error) {
         next(error)
@@ -69,7 +68,7 @@ export const putAdminReply = async (req, res, next) => {
 
 export const getReviewById = async (req, res, next) => {
     try {
-        const reviewId = req.params.id
+        const reviewId = req.params.rid
         const review = await reviewService.getReviewById(reviewId)
         if (!review) {
             return res.status(404).json({ status: 'error', message: 'Review not found' })
@@ -92,8 +91,8 @@ export const getRepliedReviewsByLodging = async (req, res, next) => {
 
 export const updateReview = async (req, res, next) => {
     try {
-        const reviewId = req.params.id
-        const userId = req.user._id
+        const reviewId = req.params.rid
+        const userId = req.user.id
         const updateData = req.body
         const updatedReview = await reviewService.updateReview(reviewId, userId, updateData)
         res.status(200).json({ status: 'success', data: updatedReview })
