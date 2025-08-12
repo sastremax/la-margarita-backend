@@ -1,74 +1,102 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
-
-vi.mock('../../../src/services/cart.service.js', () => ({
-    cartService: {
-        purchaseCart: vi.fn()
-    }
-}))
-
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import * as cartController from '../../../src/controllers/cart.controller.js'
 import { cartService } from '../../../src/services/cart.service.js'
-import { purchaseCart } from '../../../src/controllers/cart.controller.js'
 
-describe('cart.controller - purchaseCart', () => {
-    let req, res, next
+vi.mock('../../../src/services/cart.service.js')
 
-    beforeEach(() => {
-        vi.clearAllMocks()
+const mockRes = () => {
+    const res = {}
+    res.status = vi.fn().mockReturnValue(res)
+    res.json = vi.fn().mockReturnValue(res)
+    res.end = vi.fn().mockReturnValue(res)
+    return res
+}
 
-        req = {
-            params: { cid: 'cart123' },
-            user: { email: 'user@example.com' }
-        }
+const next = vi.fn()
 
-        res = {
-            status: vi.fn().mockReturnThis(),
-            json: vi.fn()
-        }
+beforeEach(() => {
+    vi.clearAllMocks()
+})
 
-        next = vi.fn()
+describe('cart.controller', () => {
+    test('debería crear carrito y devolver 201', async () => {
+        const req = {}
+        const res = mockRes()
+        cartService.createCart.mockResolvedValue({ id: 'c1', userId: 'u1', products: [] })
+        await cartController.createCart(req, res, next)
+        expect(cartService.createCart).toHaveBeenCalled()
+        expect(res.status).toHaveBeenCalledWith(201)
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'c1', userId: 'u1', products: [] } })
     })
 
-    test('should return 200 and ticket on success', async () => {
-        const fakeTicket = {
-            code: 'abc-123',
-            purchaser: 'user@example.com',
-            amount: 300,
-            products: [
-                { product: { title: 'A', price: 150 }, quantity: 2 }
-            ]
-        }
-
-        cartService.purchaseCart.mockResolvedValue(fakeTicket)
-
-        await purchaseCart(req, res, next)
-
-        expect(cartService.purchaseCart).toHaveBeenCalledWith('cart123', req.user)
+    test('debería obtener por id y conservar userId (sin remapear) en GET', async () => {
+        const req = { params: { id: 'c1' } }
+        const res = mockRes()
+        cartService.getCartById.mockResolvedValue({ id: 'c1', userId: 'u1', products: [] })
+        await cartController.getCartById(req, res, next)
+        expect(cartService.getCartById).toHaveBeenCalledWith('c1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'success',
-            data: fakeTicket
-        })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'c1', userId: 'u1', products: [] } })
     })
 
-    test('should return 400 if purchaseCart returns null', async () => {
-        cartService.purchaseCart.mockResolvedValue(null)
-
-        await purchaseCart(req, res, next)
-
-        expect(cartService.purchaseCart).toHaveBeenCalledWith('cart123', req.user)
-        expect(res.status).toHaveBeenCalledWith(400)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'error',
-            message: 'Purchase failed: cart not found or empty'
-        })
+    test('debería agregar producto y devolver 200', async () => {
+        const req = { params: { cid: 'c1', pid: 'p1' } }
+        const res = mockRes()
+        cartService.addProductToCart.mockResolvedValue({ id: 'c1', userId: 'u1', products: [{ productId: 'p1', quantity: 1 }] })
+        await cartController.addProductToCart(req, res, next)
+        expect(cartService.addProductToCart).toHaveBeenCalledWith('c1', 'p1')
+        expect(res.status).toHaveBeenCalledWith(200)
     })
 
-    test('should call next(error) on exception', async () => {
-        const error = new Error('DB error')
-        cartService.purchaseCart.mockRejectedValue(error)
+    test('debería eliminar carrito y devolver 204', async () => {
+        const req = { params: { cid: 'c1' } }
+        const res = mockRes()
+        cartService.deleteCart.mockResolvedValue(true)
+        await cartController.deleteCart(req, res, next)
+        expect(cartService.deleteCart).toHaveBeenCalledWith('c1')
+        expect(res.status).toHaveBeenCalledWith(204)
+        expect(res.end).toHaveBeenCalled()
+    })
 
-        await purchaseCart(req, res, next)
+    test('debería remover producto y devolver 200', async () => {
+        const req = { params: { cid: 'c1', pid: 'p1' } }
+        const res = mockRes()
+        cartService.removeProductFromCart.mockResolvedValue({ id: 'c1', userId: 'u1', products: [] })
+        await cartController.removeProductFromCart(req, res, next)
+        expect(cartService.removeProductFromCart).toHaveBeenCalledWith('c1', 'p1')
+        expect(res.status).toHaveBeenCalledWith(200)
+    })
 
-        expect(next).toHaveBeenCalledWith(error)
+    test('debería actualizar productos del carrito y devolver 200', async () => {
+        const req = { params: { cid: 'c1' }, body: { products: [{ productId: 'p1', quantity: 2 }] } }
+        const res = mockRes()
+        cartService.updateCartProducts.mockResolvedValue({ id: 'c1', userId: 'u1', products: [{ productId: 'p1', quantity: 2 }] })
+        await cartController.updateCartProducts(req, res, next)
+        expect(cartService.updateCartProducts).toHaveBeenCalledWith('c1', [{ productId: 'p1', quantity: 2 }])
+        expect(res.status).toHaveBeenCalledWith(200)
+    })
+
+    test('debería actualizar cantidad de un producto y devolver 200', async () => {
+        const req = { params: { cid: 'c1', pid: 'p1' }, body: { quantity: 3 } }
+        const res = mockRes()
+        cartService.updateProductQuantity.mockResolvedValue({ id: 'c1', userId: 'u1', products: [{ productId: 'p1', quantity: 3 }] })
+        await cartController.updateProductQuantity(req, res, next)
+        expect(cartService.updateProductQuantity).toHaveBeenCalledWith('c1', 'p1', 3)
+        expect(res.status).toHaveBeenCalledWith(200)
+    })
+
+    test('debería devolver 400 si purchaseCart no genera ticket, y 200 si genera', async () => {
+        const reqBad = { params: { cid: 'c404' }, user: { id: 'u1' } }
+        const resBad = mockRes()
+        cartService.purchaseCart.mockResolvedValueOnce(null)
+        await cartController.purchaseCart(reqBad, resBad, next)
+        expect(resBad.status).toHaveBeenCalledWith(400)
+
+        const reqOk = { params: { cid: 'c1' }, user: { id: 'u1' } }
+        const resOk = mockRes()
+        cartService.purchaseCart.mockResolvedValueOnce({ ticketId: 't1', amount: 100 })
+        await cartController.purchaseCart(reqOk, resOk, next)
+        expect(resOk.status).toHaveBeenCalledWith(200)
+        expect(resOk.json).toHaveBeenCalledWith({ status: 'success', data: { ticketId: 't1', amount: 100 } })
     })
 })

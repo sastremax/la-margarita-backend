@@ -1,8 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
-
-import { ApiError } from '../../../src/utils/apiError.js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as productController from '../../../src/controllers/product.controller.js'
 import { productService } from '../../../src/services/product.service.js'
+import { ApiError } from '../../../src/utils/apiError.js'
 
 vi.mock('../../../src/services/product.service.js')
 
