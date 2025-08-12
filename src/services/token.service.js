@@ -13,10 +13,12 @@ const generateRefreshToken = (payload) => {
 }
 
 const verifyAccessToken = (token) => {
+    if (!config.jwt.secret) throw new ApiError(500, 'JWT secret is missing')
     return jwt.verify(token, config.jwt.secret)
 }
 
 const verifyRefreshToken = (token) => {
+    if (!config.jwt.refreshSecret) throw new ApiError(500, 'JWT refresh secret is missing')
     return jwt.verify(token, config.jwt.refreshSecret)
 }
 
