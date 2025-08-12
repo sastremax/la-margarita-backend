@@ -1,35 +1,39 @@
 import express from 'express'
+import { param } from 'express-validator'
+
 import {
-    createCart,
-    getCartById,
     addProductToCart,
+    createCart,
     deleteCart,
+    getCartById,
+    purchaseCart,
     removeProductFromCart,
     updateCartProducts,
-    updateProductQuantity,
-    purchaseCart
+    updateProductQuantity
 } from '../controllers/cart.controller.js'
-import { authPolicy } from '../middlewares/authPolicy.middleware.js'
-import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 import { cartItemSchema } from '../dto/cart.dto.js'
+import { authPolicy } from '../middlewares/authPolicy.middleware.js'
 import { validateCartExists } from '../middlewares/validateCartExists.js'
-import { verifyOwnership } from '../middlewares/verifyOwnership.js'
-import { cartService } from '../services/cart.service.js'
-import { param } from 'express-validator'
+import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 import { validateRequest } from '../middlewares/validateRequest.middleware.js'
+import { ApiError } from '../utils/apiError.js'
 
 export const cartRouter = express.Router()
 
+const ensureOwnerOrAdmin = (req, res, next) => {
+    if (req.user?.role === 'admin') return next()
+    const ownerId = req.cart?.userId
+    if (req.user?.id && ownerId && req.user.id === ownerId) return next()
+    next(new ApiError(403, 'Access denied'))
+}
+
 cartRouter.get(
-    '/:cid',
-    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid cart ID'),
     validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
-    verifyOwnership(async (req) => {
-        const cart = await cartService.getCartById(req.params.cid)
-        return cart?.userId
-    }),
+    ensureOwnerOrAdmin,
     getCartById
 )
 
@@ -42,10 +46,7 @@ cartRouter.post(
     validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
-    verifyOwnership(async (req) => {
-        const cart = await cartService.getCartById(req.params.cid)
-        return cart?.userId
-    }),
+    ensureOwnerOrAdmin,
     validateDTO(cartItemSchema),
     addProductToCart
 )
@@ -57,10 +58,7 @@ cartRouter.delete(
     validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
-    verifyOwnership(async (req) => {
-        const cart = await cartService.getCartById(req.params.cid)
-        return cart?.userId
-    }),
+    ensureOwnerOrAdmin,
     removeProductFromCart
 )
 
@@ -70,10 +68,7 @@ cartRouter.put(
     validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
-    verifyOwnership(async (req) => {
-        const cart = await cartService.getCartById(req.params.cid)
-        return cart?.userId
-    }),
+    ensureOwnerOrAdmin,
     updateCartProducts
 )
 
@@ -84,10 +79,7 @@ cartRouter.put(
     validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
-    verifyOwnership(async (req) => {
-        const cart = await cartService.getCartById(req.params.cid)
-        return cart?.userId
-    }),
+    ensureOwnerOrAdmin,
     updateProductQuantity
 )
 
@@ -97,10 +89,7 @@ cartRouter.delete(
     validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
-    verifyOwnership(async (req) => {
-        const cart = await cartService.getCartById(req.params.cid)
-        return cart?.userId
-    }),
+    ensureOwnerOrAdmin,
     deleteCart
 )
 
@@ -110,9 +99,6 @@ cartRouter.post(
     validateRequest,
     authPolicy(['user', 'admin']),
     validateCartExists,
-    verifyOwnership(async (req) => {
-        const cart = await cartService.getCartById(req.params.cid)
-        return cart?.userId
-    }),
+    ensureOwnerOrAdmin,
     purchaseCart
 )
