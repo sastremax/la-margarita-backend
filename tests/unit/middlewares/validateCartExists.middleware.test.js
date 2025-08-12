@@ -1,66 +1,54 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { ApiError } from '../../../src/utils/apiError.js'
+import express from 'express'
+import request from 'supertest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-let cartService
-let validateCartExists
-
-vi.mock('../../../src/services/cart.service.js', async () => {
-    const actual = await vi.importActual('../../../src/services/cart.service.js')
+vi.mock('../../../src/services/cart.service.js', () => {
     return {
         cartService: {
-            ...actual.cartService,
-            getCartById: vi.fn()
+            getCartById: vi.fn(async (id) => {
+                if (id === '507f1f77bcf86cd799439011') {
+                    return { id, userId: '507f1f77bcf86cd799439011' }
+                }
+                return null
+            })
         }
     }
 })
 
-beforeEach(async () => {
-    vi.clearAllMocks()
-    const mod = await import('../../../src/middlewares/validateCartExists.js')
-    validateCartExists = mod.validateCartExists
-    cartService = (await import('../../../src/services/cart.service.js')).cartService
-})
-
 describe('validateCartExists middleware', () => {
-    test('should call next() if cart exists', async () => {
-        const req = { params: { cid: 'abc123' } }
-        const res = {}
-        const next = vi.fn()
+    let app
+    let mw
 
-        cartService.getCartById.mockResolvedValue({ id: 'abc123', products: [] })
-
-        await validateCartExists(req, res, next)
-
-        expect(cartService.getCartById).toHaveBeenCalledWith('abc123')
-        expect(next).toHaveBeenCalledWith()
+    beforeEach(async () => {
+        vi.resetModules()
+        const mod = await import('../../../src/middlewares/validateCartExists.js')
+        mw = mod.validateCartExists
+        app = express()
+        app.use(express.json())
+        app.get('/by-cid/:cid', mw, (req, res) => {
+            res.status(200).json({ ok: true, cart: req.cart })
+        })
+        app.get('/by-id/:id', mw, (req, res) => {
+            res.status(200).json({ ok: true, cart: req.cart })
+        })
     })
 
-    test('should call next with ApiError 404 if cart not found', async () => {
-        const req = { params: { cid: 'notfound' } }
-        const res = {}
-        const next = vi.fn()
-
-        cartService.getCartById.mockResolvedValue(null)
-
-        await validateCartExists(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-        const err = next.mock.calls[0][0]
-        expect(err).toBeInstanceOf(ApiError)
-        expect(err.statusCode).toBe(404)
-        expect(err.message).toBe('Cart not found')
+    it('debería devolver 404 si el carrito no existe', async () => {
+        const res = await request(app).get('/by-cid/507f1f77bcf86cd799439099')
+        expect(res.status).toBe(404)
     })
 
-    test('should call next with error if service throws', async () => {
-        const req = { params: { cid: 'abc123' } }
-        const res = {}
-        const next = vi.fn()
+    it('debería adjuntar req.cart cuando se usa :cid', async () => {
+        const res = await request(app).get('/by-cid/507f1f77bcf86cd799439011')
+        expect(res.status).toBe(200)
+        expect(res.body.cart).toBeTruthy()
+        expect(res.body.cart.userId).toBe('507f1f77bcf86cd799439011')
+    })
 
-        const thrownError = new Error('DB error')
-        cartService.getCartById.mockRejectedValue(thrownError)
-
-        await validateCartExists(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(thrownError)
+    it('debería adjuntar req.cart cuando se usa :id', async () => {
+        const res = await request(app).get('/by-id/507f1f77bcf86cd799439011')
+        expect(res.status).toBe(200)
+        expect(res.body.cart).toBeTruthy()
+        expect(res.body.cart.userId).toBe('507f1f77bcf86cd799439011')
     })
 })

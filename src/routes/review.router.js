@@ -1,68 +1,66 @@
 import express from 'express'
-import * as reviewController from '../controllers/review.controller.js'
-import { authPolicy } from '../middlewares/authPolicy.middleware.js'
-import { validateDTO } from '../middlewares/validateDTO.middleware.js'
-import { reviewDTO } from '../dto/review.dto.js'
-import { validateReviewExists } from '../middlewares/exists/validateReviewExists.js'
-import { verifyOwnership } from '../middlewares/verifyOwnership.js'
-import { reviewService } from '../services/review.service.js'
 import { param } from 'express-validator'
+
+import { createReview, deleteReview, getAllReviews, getReviewById, updateReview } from '../controllers/review.controller.js'
+import { reviewDTO } from '../dto/review.dto.js'
+import { authPolicy } from '../middlewares/authPolicy.middleware.js'
+import { validateReviewExists } from '../middlewares/exists/validateReviewExists.js'
+import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 import { validateRequest } from '../middlewares/validateRequest.middleware.js'
+import { ApiError } from '../utils/apiError.js'
 
 const router = express.Router()
+
+const ensureOwnerOrAdmin = (req, res, next) => {
+    if (req.user?.role === 'admin') return next()
+    const ownerId = req.review?.user?.id || req.review?.userId || null
+    if (req.user?.id && ownerId && req.user.id === ownerId) return next()
+    next(new ApiError(403, 'Access denied'))
+}
 
 router.get(
     '/',
     authPolicy(['admin']),
     validateDTO(reviewDTO.reviewQuerySchema, 'query'),
-    reviewController.getAllReviews
+    getAllReviews
 )
 
 router.get(
-    '/:rid',
-    param('rid').isMongoId().withMessage('Invalid review ID'),
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid review ID'),
     validateRequest,
     authPolicy(['user', 'admin']),
     validateReviewExists,
-    verifyOwnership(async (req) => {
-        const review = await reviewService.getReviewById(req.params.rid)
-        return review?.userId
-    }),
-    reviewController.getReviewById
+    ensureOwnerOrAdmin,
+    getReviewById
 )
 
 router.post(
     '/',
     authPolicy(['user']),
     validateDTO(reviewDTO.reviewSchema),
-    reviewController.createReview
+    createReview
 )
 
 router.put(
-    '/:rid',
-    param('rid').isMongoId().withMessage('Invalid review ID'),
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid review ID'),
     validateRequest,
-    authPolicy(['user']),
+    authPolicy(['user', 'admin']),
     validateReviewExists,
-    verifyOwnership(async (req) => {
-        const review = await reviewService.getReviewById(req.params.rid)
-        return review?.userId
-    }),
+    ensureOwnerOrAdmin,
     validateDTO(reviewDTO.reviewUpdateSchema),
-    reviewController.updateReview
+    updateReview
 )
 
 router.delete(
-    '/:rid',
-    param('rid').isMongoId().withMessage('Invalid review ID'),
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid review ID'),
     validateRequest,
-    authPolicy(['user']),
+    authPolicy(['user', 'admin']),
     validateReviewExists,
-    verifyOwnership(async (req) => {
-        const review = await reviewService.getReviewById(req.params.rid)
-        return review?.userId
-    }),
-    reviewController.deleteReview
+    ensureOwnerOrAdmin,
+    deleteReview
 )
 
 export const reviewRouter = router
