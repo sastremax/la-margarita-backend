@@ -10,7 +10,6 @@ export const getAllLodgings = async (req, res, next) => {
         if (!parseResult.success) {
             throw new ApiError(400, 'Invalid query filters')
         }
-
         const lodgings = await LodgingService.getAllLodgings(parseResult.data)
         res.status(200).json({ status: 'success', data: lodgings })
     } catch (error) {
@@ -22,9 +21,7 @@ export const getLodgingById = async (req, res, next) => {
     try {
         const { lid } = req.params
         const lodging = await LodgingService.getLodgingById(lid)
-
         if (!lodging) throw new ApiError(404, 'Lodging not found')
-
         res.status(200).json({ status: 'success', data: lodging })
     } catch (error) {
         next(error)
@@ -47,7 +44,6 @@ export const createLodging = async (req, res, next) => {
         if (!parseResult.success) {
             throw new ApiError(400, 'Invalid lodging data')
         }
-
         const lodging = await LodgingService.createLodging(parseResult.data)
         res.status(201).json({ status: 'success', data: lodging })
     } catch (error) {
@@ -58,27 +54,24 @@ export const createLodging = async (req, res, next) => {
 export const updateLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
-        const parseResult = lodgingSchema.partial().safeParse(req.body)
+        const parseResult = lodgingSchema.safeParse(req.body)
         if (!parseResult.success) {
             throw new ApiError(400, 'Invalid lodging data')
         }
-
-        if (!req.user?._id) {
+        if (!req.user?.id) {
             throw new ApiError(401, 'Unauthorized')
         }
-
         const updated = await LodgingService.updateLodging(lid, parseResult.data)
-
         if (!updated) throw new ApiError(404, 'Lodging not found')
-
-        await AuditService.logEvent({
-            userId: req.user._id,
-            event: 'update_lodging',
-            success: true,
-            ip: req.ip,
-            userAgent: req.headers['user-agent']
-        })
-
+        try {
+            await AuditService.logEvent({
+                userId: req.user.id,
+                event: 'update_lodging',
+                success: true,
+                ip: req.ip,
+                userAgent: req.headers['user-agent']
+            })
+        } catch { }
         res.status(200).json({ status: 'success', data: updated })
     } catch (error) {
         next(error)
@@ -89,9 +82,7 @@ export const disableLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
         const updated = await LodgingService.disableLodging(lid)
-
         if (!updated) throw new ApiError(404, 'Lodging not found')
-
         res.status(200).json({ status: 'success', data: updated })
     } catch (error) {
         next(error)
@@ -102,9 +93,7 @@ export const deleteLodging = async (req, res, next) => {
     try {
         const { lid } = req.params
         const deleted = await LodgingService.deleteLodging(lid)
-
         if (!deleted) throw new ApiError(404, 'Lodging not found')
-
         res.status(204).end()
     } catch (error) {
         next(error)

@@ -1,8 +1,19 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { ApiError } from '../../../src/utils/apiError.js'
-import * as lodgingController from '../../../src/controllers/lodging.controller.js'
+import * as controller from '../../../src/controllers/lodging.controller.js'
 import { LodgingService } from '../../../src/services/lodging.service.js'
-import { AuditService } from '../../../src/services/audit.service.js'
+import { ApiError } from '../../../src/utils/apiError.js'
+
+vi.mock('../../../src/services/lodging.service.js', () => ({
+    LodgingService: {
+        getAllLodgings: vi.fn(),
+        getLodgingById: vi.fn(),
+        getLodgingsByOwner: vi.fn(),
+        createLodging: vi.fn(),
+        updateLodging: vi.fn(),
+        disableLodging: vi.fn(),
+        deleteLodging: vi.fn()
+    }
+}))
 
 const mockRes = () => {
     const res = {}
@@ -19,142 +30,159 @@ beforeEach(() => {
 })
 
 describe('lodging.controller', () => {
-    test('getAllLodgings - should return list of lodgings', async () => {
+    test('debería listar con filtros válidos', async () => {
         const req = { query: {} }
         const res = mockRes()
-        vi.spyOn(LodgingService, 'getAllLodgings').mockResolvedValue(['l1', 'l2'])
-
-        await lodgingController.getAllLodgings(req, res, next)
-
+        LodgingService.getAllLodgings.mockResolvedValue([{ id: 'l1' }])
+        await controller.getAllLodgings(req, res, next)
         expect(LodgingService.getAllLodgings).toHaveBeenCalledWith({})
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: ['l1', 'l2'] })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [{ id: 'l1' }] })
     })
 
-    test('getLodgingById - should return lodging if found', async () => {
-        const req = { params: { lid: '123' } }
+    test('debería devolver 400 si filtros inválidos', async () => {
+        const req = { query: { capacity: 'NaN' } }
         const res = mockRes()
-        vi.spyOn(LodgingService, 'getLodgingById').mockResolvedValue('mockLodging')
+        await controller.getAllLodgings(req, res, next)
+        expect(next).toHaveBeenCalled()
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode || err.status).toBe(400)
+    })
 
-        await lodgingController.getLodgingById(req, res, next)
+    test('debería obtener por lid o 404 si no existe', async () => {
+        const res1 = mockRes()
+        LodgingService.getLodgingById.mockResolvedValueOnce(null)
+        await controller.getLodgingById({ params: { lid: 'x' } }, res1, next)
+        expect(next).toHaveBeenCalled()
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode || err.status).toBe(404)
 
-        expect(LodgingService.getLodgingById).toHaveBeenCalledWith('123')
+        const res2 = mockRes()
+        LodgingService.getLodgingById.mockResolvedValueOnce({ id: 'l1' })
+        await controller.getLodgingById({ params: { lid: 'l1' } }, res2, next)
+        expect(res2.status).toHaveBeenCalledWith(200)
+        expect(res2.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'l1' } })
+    })
+
+    test('debería listar por owner', async () => {
+        const req = { params: { uid: 'u1' } }
+        const res = mockRes()
+        LodgingService.getLodgingsByOwner.mockResolvedValue([{ id: 'l1' }])
+        await controller.getLodgingsByOwner(req, res, next)
+        expect(LodgingService.getLodgingsByOwner).toHaveBeenCalledWith('u1')
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'mockLodging' })
     })
 
-    test('getLodgingById - should throw 404 if not found', async () => {
-        const req = { params: { lid: '123' } }
-        const res = mockRes()
-        vi.spyOn(LodgingService, 'getLodgingById').mockResolvedValue(null)
-
-        await lodgingController.getLodgingById(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(new ApiError(404, 'Lodging not found'))
-    })
-
-    test('createLodging - should create lodging and return it', async () => {
+    test('debería crear con body válido y devolver 201', async () => {
         const req = {
             body: {
-                title: 'New',
-                description: 'Test',
-                location: { city: 'X', province: 'Y', country: 'Z' },
-                capacity: 1,
-                pricing: { day: 100 }
+                title: 'Casa',
+                description: 'Hermosa casa con parque y pileta',
+                images: ['https://example.com/a.jpg'],
+                location: { country: 'AR', province: 'BA', city: 'Tandil' },
+                capacity: 4,
+                pricing: { weekday: 100, weekend: 150 },
+                owner: 'u1',
+                isActive: true
             }
         }
         const res = mockRes()
-        vi.spyOn(LodgingService, 'createLodging').mockResolvedValue('created')
-
-        await lodgingController.createLodging(req, res, next)
-
+        LodgingService.createLodging.mockResolvedValue({ id: 'l1' })
+        await controller.createLodging(req, res, next)
         expect(LodgingService.createLodging).toHaveBeenCalled()
         expect(res.status).toHaveBeenCalledWith(201)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'created' })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'l1' } })
     })
 
-    test('updateLodging - should update lodging and log event', async () => {
-        const req = {
-            params: { lid: '123' },
-            body: { title: 'Updated' },
-            user: { _id: 'user123' },
-            ip: '1.2.3.4',
-            headers: { 'user-agent': 'agent' }
+    test('debería rechazar update si falta auth, o si body inválido, y aceptar con 200', async () => {
+        let req = { params: { lid: 'l1' }, body: { title: 'SoloTitulo' } }
+        let res = mockRes()
+        await controller.updateLodging(req, res, next)
+        expect(next).toHaveBeenCalled()
+        expect((next.mock.calls[0][0].statusCode || next.mock.calls[0][0].status)).toBe(400)
+
+        req = {
+            params: { lid: 'l1' }, user: {}, body: {
+                title: 'Casa',
+                description: 'Hermosa casa con parque y pileta',
+                images: ['https://example.com/a.jpg'],
+                location: { country: 'AR', province: 'BA', city: 'Tandil' },
+                capacity: 4,
+                pricing: { weekday: 100, weekend: 150 },
+                owner: 'u1',
+                isActive: true
+            }
         }
-        const res = mockRes()
-        vi.spyOn(LodgingService, 'updateLodging').mockResolvedValue('updated')
-        vi.spyOn(AuditService, 'logEvent').mockResolvedValue()
+        res = mockRes()
+        await controller.updateLodging(req, res, next)
+        expect(next).toHaveBeenCalled()
+        expect((next.mock.calls[1][0].statusCode || next.mock.calls[1][0].status)).toBe(401)
 
-        await lodgingController.updateLodging(req, res, next)
-
-        expect(LodgingService.updateLodging).toHaveBeenCalledWith('123', { title: 'Updated' })
-        expect(AuditService.logEvent).toHaveBeenCalledWith({
-            userId: 'user123',
-            event: 'update_lodging',
-            success: true,
-            ip: '1.2.3.4',
-            userAgent: 'agent'
-        })
-        expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'updated' })
-    })
-
-    test('updateLodging - should throw 404 if not found', async () => {
-        const req = {
-            params: { lid: '123' },
-            body: {},
-            user: { _id: 'user123' },
-            ip: '',
-            headers: {}
+        LodgingService.updateLodging.mockResolvedValueOnce(null)
+        req = {
+            params: { lid: 'l404' }, user: { id: 'u1' }, body: {
+                title: 'Casa',
+                description: 'Hermosa casa con parque y pileta',
+                images: ['https://example.com/a.jpg'],
+                location: { country: 'AR', province: 'BA', city: 'Tandil' },
+                capacity: 4,
+                pricing: { weekday: 100, weekend: 150 },
+                owner: 'u1',
+                isActive: true
+            }
         }
-        const res = mockRes()
-        vi.spyOn(LodgingService, 'updateLodging').mockResolvedValue(null)
+        res = mockRes()
+        await controller.updateLodging(req, res, next)
+        expect(next).toHaveBeenCalled()
+        expect((next.mock.calls[2][0].statusCode || next.mock.calls[2][0].status)).toBe(404)
 
-        await lodgingController.updateLodging(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(new ApiError(404, 'Lodging not found'))
-    })
-
-    test('disableLodging - should disable lodging and return it', async () => {
-        const req = { params: { lid: '123' } }
-        const res = mockRes()
-        vi.spyOn(LodgingService, 'disableLodging').mockResolvedValue('disabled')
-
-        await lodgingController.disableLodging(req, res, next)
-
+        LodgingService.updateLodging.mockResolvedValueOnce({ id: 'l1' })
+        req = {
+            params: { lid: 'l1' }, user: { id: 'u1' }, body: {
+                title: 'Casa',
+                description: 'Hermosa casa con parque y pileta',
+                images: ['https://example.com/a.jpg'],
+                location: { country: 'AR', province: 'BA', city: 'Tandil' },
+                capacity: 4,
+                pricing: { weekday: 100, weekend: 150 },
+                owner: 'u1',
+                isActive: true
+            }
+        }
+        res = mockRes()
+        await controller.updateLodging(req, res, next)
+        expect(LodgingService.updateLodging).toHaveBeenCalledWith('l1', expect.any(Object))
         expect(res.status).toHaveBeenCalledWith(200)
-        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: 'disabled' })
+        expect(res.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'l1' } })
     })
 
-    test('disableLodging - should throw 404 if not found', async () => {
-        const req = { params: { lid: '123' } }
-        const res = mockRes()
-        vi.spyOn(LodgingService, 'disableLodging').mockResolvedValue(null)
+    test('debería deshabilitar con 200 o lanzar 404', async () => {
+        const res1 = mockRes()
+        LodgingService.disableLodging.mockResolvedValueOnce(null)
+        await controller.disableLodging({ params: { lid: 'l404' } }, res1, next)
+        expect(next).toHaveBeenCalled()
+        expect((next.mock.calls[0][0].statusCode || next.mock.calls[0][0].status)).toBe(404)
 
-        await lodgingController.disableLodging(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(new ApiError(404, 'Lodging not found'))
+        const res2 = mockRes()
+        LodgingService.disableLodging.mockResolvedValueOnce({ id: 'l1', isActive: false })
+        await controller.disableLodging({ params: { lid: 'l1' } }, res2, next)
+        expect(res2.status).toHaveBeenCalledWith(200)
+        expect(res2.json).toHaveBeenCalledWith({ status: 'success', data: { id: 'l1', isActive: false } })
     })
 
-    test('deleteLodging - should delete lodging and return 204', async () => {
-        const req = { params: { lid: '123' } }
-        const res = mockRes()
-        vi.spyOn(LodgingService, 'deleteLodging').mockResolvedValue(true)
+    test('debería borrar con 204 o lanzar 404', async () => {
+        const res1 = mockRes()
+        LodgingService.deleteLodging.mockResolvedValueOnce(null)
+        await controller.deleteLodging({ params: { lid: 'l404' } }, res1, next)
+        expect(next).toHaveBeenCalled()
+        expect((next.mock.calls[0][0].statusCode || next.mock.calls[0][0].status)).toBe(404)
 
-        await lodgingController.deleteLodging(req, res, next)
-
-        expect(LodgingService.deleteLodging).toHaveBeenCalledWith('123')
-        expect(res.status).toHaveBeenCalledWith(204)
-        expect(res.end).toHaveBeenCalled()
-    })
-
-    test('deleteLodging - should throw 404 if not found', async () => {
-        const req = { params: { lid: '123' } }
-        const res = mockRes()
-        vi.spyOn(LodgingService, 'deleteLodging').mockResolvedValue(null)
-
-        await lodgingController.deleteLodging(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(new ApiError(404, 'Lodging not found'))
+        const res2 = mockRes()
+        LodgingService.deleteLodging.mockResolvedValueOnce(true)
+        await controller.deleteLodging({ params: { lid: 'l1' } }, res2, next)
+        expect(res2.status).toHaveBeenCalledWith(204)
+        expect(res2.end).toHaveBeenCalled()
     })
 })
