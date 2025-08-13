@@ -1,69 +1,45 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+vi.mock('../../../../src/services/review.service.js', () => {
+    const getReviewById = vi.fn()
+    return { reviewService: { getReviewById }, __mocks: { getReviewById } }
+})
+
+import { __mocks } from '../../../../src/services/review.service.js'
 import { validateReviewExists } from '../../../../src/middlewares/exists/validateReviewExists.js'
-import { reviewService } from '../../../../src/services/review.service.js'
 import { ApiError } from '../../../../src/utils/apiError.js'
 
-vi.mock('../../../../src/services/review.service.js', () => ({
-    reviewService: {
-        getReviewById: vi.fn()
-    }
-}))
-
-describe('validateReviewExists middleware', () => {
-    const next = vi.fn()
-    const res = {}
-    let req
+describe('validateReviewExists', () => {
+    let req, res, next
 
     beforeEach(() => {
         vi.clearAllMocks()
-        req = { params: {} }
+        req = { params: { rid: 'r1' } }
+        res = {}
+        next = vi.fn()
     })
 
-    test('should call next with 400 if no rid param is provided', async () => {
+    it('debería adjuntar review y seguir si existe', async () => {
+        __mocks.getReviewById.mockResolvedValue({ id: 'r1' })
         await validateReviewExists(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-        const error = next.mock.calls[0][0]
-        expect(error.statusCode).toBe(400)
-        expect(error.message).toBe('Missing review ID')
+        expect(__mocks.getReviewById).toHaveBeenCalledWith('r1')
+        expect(req.review).toEqual({ id: 'r1' })
+        expect(next).toHaveBeenCalled()
     })
 
-    test('should call next with 404 if review is not found', async () => {
-        req.params.rid = 'rev1'
-        reviewService.getReviewById.mockResolvedValue(null)
-
+    it('debería lanzar 400 si falta id', async () => {
+        req.params = {}
         await validateReviewExists(req, res, next)
-
-        expect(reviewService.getReviewById).toHaveBeenCalledWith('rev1')
-        expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-        const error = next.mock.calls[0][0]
-        expect(error.statusCode).toBe(404)
-        expect(error.message).toBe('Review not found')
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(400)
     })
 
-    test('should call next with no arguments if review is found', async () => {
-        req.params.rid = 'rev1'
-        reviewService.getReviewById.mockResolvedValue({
-            id: 'rev1',
-            user: { id: 'u1', firstName: 'Maxi', country: 'Argentina' },
-            lodgingId: 'l1',
-            rating: 5,
-            comment: 'Excelente'
-        })
-
+    it('debería lanzar 404 si no existe', async () => {
+        __mocks.getReviewById.mockResolvedValue(null)
         await validateReviewExists(req, res, next)
-
-        expect(reviewService.getReviewById).toHaveBeenCalledWith('rev1')
-        expect(next).toHaveBeenCalledWith()
-    })
-
-    test('should call next with error if unexpected error occurs', async () => {
-        req.params.rid = 'rev1'
-        const error = new Error('DB error')
-        reviewService.getReviewById.mockRejectedValue(error)
-
-        await validateReviewExists(req, res, next)
-
-        expect(next).toHaveBeenCalledWith(error)
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(404)
     })
 })

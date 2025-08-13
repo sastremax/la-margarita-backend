@@ -1,55 +1,35 @@
-import { describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { authorizeRoles } from '../../../src/middlewares/role.middleware.js'
+import { ApiError } from '../../../src/utils/apiError.js'
 
-describe('authorizeRoles middleware', () => {
-    const rolesAllowed = ['admin', 'manager']
-
-    const createMock = (user) => {
-        const req = { user }
-        const res = {
-            status: vi.fn().mockReturnThis(),
-            json: vi.fn()
-        }
-        const next = vi.fn()
-        return { req, res, next }
-    }
-
-    test('should return 403 if req.user is missing', () => {
-        const { req, res, next } = createMock(undefined)
-        const middleware = authorizeRoles(...rolesAllowed)
-
-        middleware(req, res, next)
-
-        expect(res.status).toHaveBeenCalledWith(403)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'error',
-            message: 'Access denied'
-        })
-        expect(next).not.toHaveBeenCalled()
+describe('role.middleware', () => {
+    let req, res, next
+    beforeEach(() => {
+        req = { user: { role: 'user' } }
+        res = {}
+        next = vi.fn()
     })
 
-    test('should return 403 if user role is not authorized', () => {
-        const { req, res, next } = createMock({ role: 'user' })
-        const middleware = authorizeRoles(...rolesAllowed)
-
-        middleware(req, res, next)
-
-        expect(res.status).toHaveBeenCalledWith(403)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'error',
-            message: 'Access denied'
-        })
-        expect(next).not.toHaveBeenCalled()
+    it('debería permitir si el rol está autorizado', () => {
+        const mw = authorizeRoles('user', 'admin')
+        mw(req, res, next)
+        expect(next).toHaveBeenCalledWith()
     })
 
-    test('should call next if user role is authorized', () => {
-        const { req, res, next } = createMock({ role: 'admin' })
-        const middleware = authorizeRoles(...rolesAllowed)
+    it('debería rechazar con 403 si no hay user', () => {
+        req.user = null
+        const mw = authorizeRoles('admin')
+        mw(req, res, next)
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(403)
+    })
 
-        middleware(req, res, next)
-
-        expect(next).toHaveBeenCalled()
-        expect(res.status).not.toHaveBeenCalled()
-        expect(res.json).not.toHaveBeenCalled()
+    it('debería rechazar con 403 si el rol no coincide', () => {
+        const mw = authorizeRoles('admin')
+        mw(req, res, next)
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(403)
     })
 })

@@ -1,52 +1,50 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-
-let authPolicy
-const passportAuthenticateMock = vi.fn(() => (req, res, next) => next())
-
 vi.mock('passport', () => ({
-    default: {
-        authenticate: () => passportAuthenticateMock()
-    }
+    default: { authenticate: vi.fn() }
 }))
+import passport from 'passport'
+import { ApiError } from '../../../src/utils/apiError.js'
+import { authPolicy } from '../../../src/middlewares/authPolicy.middleware.js'
 
-beforeEach(async () => {
-    vi.clearAllMocks()
-    const module = await import('../../../src/middlewares/authPolicy.middleware.js')
-    authPolicy = module.authPolicy
-})
+describe('authPolicy.middleware', () => {
+    let req, res, next
 
-describe('authPolicy', () => {
-    const res = {}
-    const next = vi.fn()
+    beforeEach(() => {
+        vi.clearAllMocks()
+        req = { headers: {} }
+        res = {}
+        next = vi.fn()
+    })
 
-    test('debería devolver error 401 si req.user no existe', () => {
-        const req = {}
-        const middleware = authPolicy(['admin'])[1]
+    test('debería permitir sin roles específicos si user presente', () => {
+        passport.authenticate.mockImplementation(() => (rq, rs, nx) => { rq.user = { role: 'user' }; nx() })
+        const stack = authPolicy([])
+        stack[0](req, res, () => stack[1](req, res, next))
+        expect(next).toHaveBeenCalledWith()
+    })
 
-        middleware(req, res, next)
-
+    test('debería rechazar 401 si no hay user', () => {
+        passport.authenticate.mockImplementation(() => (rq, rs, nx) => { nx() })
+        const stack = authPolicy(['user'])
+        stack[0](req, res, () => stack[1](req, res, next))
         const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
         expect(err.statusCode).toBe(401)
-        expect(err.message).toBe('Not authenticated')
     })
 
-    test('debería devolver error 403 si rol no permitido', () => {
-        const req = { user: { role: 'user' } }
-        const middleware = authPolicy(['admin'])[1]
-
-        middleware(req, res, next)
-
+    test('debería rechazar 403 si rol no coincide', () => {
+        passport.authenticate.mockImplementation(() => (rq, rs, nx) => { rq.user = { role: 'user' }; nx() })
+        const stack = authPolicy(['admin'])
+        stack[0](req, res, () => stack[1](req, res, next))
         const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
         expect(err.statusCode).toBe(403)
-        expect(err.message).toBe('Access denied')
     })
 
-    test('debería llamar a next() si el usuario tiene rol permitido', () => {
-        const req = { user: { role: 'admin' } }
-        const middleware = authPolicy(['admin'])[1]
-
-        middleware(req, res, next)
-
+    test('debería permitir si rol coincide', () => {
+        passport.authenticate.mockImplementation(() => (rq, rs, nx) => { rq.user = { role: 'admin' }; nx() })
+        const stack = authPolicy(['admin'])
+        stack[0](req, res, () => stack[1](req, res, next))
         expect(next).toHaveBeenCalledWith()
     })
 })

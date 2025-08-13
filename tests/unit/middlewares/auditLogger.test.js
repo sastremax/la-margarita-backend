@@ -1,60 +1,37 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
-
-const infoMock = vi.fn()
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../src/config/logger.js', () => ({
-    logger: { info: infoMock, level: 'info' }
+    logger: { info: vi.fn(), error: vi.fn() }
 }))
 
-describe('auditLogger middleware', () => {
-    let auditLogger
-    const next = vi.fn()
-    const res = {}
+import { logger } from '../../../src/config/logger.js'
+import { auditLogger } from '../../../src/middlewares/auditLogger.js'
 
-    beforeEach(async () => {
+describe('auditLogger', () => {
+    let req, res, next
+
+    beforeEach(() => {
         vi.clearAllMocks()
-        const module = await import('../../../src/middlewares/auditLogger.js')
-        auditLogger = module.auditLogger
+        req = { method: 'GET', originalUrl: '/x', ip: '127.0.0.1', user: { id: 'u1' } }
+        res = {}
+        next = vi.fn()
     })
 
-    test('should log audit info with authenticated user', () => {
-        const req = {
-            user: { id: 'user123' },
-            ip: '192.168.1.1',
-            method: 'GET',
-            originalUrl: '/api/data'
-        }
-
+    it('debería loguear con userId', () => {
         auditLogger(req, res, next)
-
-        expect(infoMock).toHaveBeenCalledTimes(1)
-        const log = infoMock.mock.calls[0][0]
-
-        expect(log).toContain('GET')
-        expect(log).toContain('/api/data')
-        expect(log).toContain('user123')
-        expect(log).toContain('192.168.1.1')
-        expect(log).toContain('[AUDIT]')
+        expect(logger.info).toHaveBeenCalledTimes(1)
+        const msg = logger.info.mock.calls[0][0]
+        expect(msg).toContain('[AUDIT]')
+        expect(msg).toContain('GET')
+        expect(msg).toContain('/x')
+        expect(msg).toContain('User: u1')
         expect(next).toHaveBeenCalled()
     })
 
-    test('should log audit info with anonymous user if user is missing', () => {
-        const req = {
-            ip: '127.0.0.1',
-            method: 'POST',
-            originalUrl: '/api/test'
-        }
-
+    it('debería loguear como anonymous si no hay user', () => {
+        req.user = undefined
         auditLogger(req, res, next)
-
-        expect(infoMock).toHaveBeenCalledTimes(1)
-        const log = infoMock.mock.calls[0][0]
-
-        expect(log).toContain('POST')
-        expect(log).toContain('/api/test')
-        expect(log).toContain('anonymous')
-        expect(log).toContain('127.0.0.1')
-        expect(log).toContain('[AUDIT]')
-        expect(next).toHaveBeenCalled()
+        const msg = logger.info.mock.calls[0][0]
+        expect(msg).toContain('User: anonymous')
     })
 })

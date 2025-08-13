@@ -1,35 +1,23 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-const mongoSanitizeMock = vi.fn(() => 'mongoSanitizeMocked')
-const xssMock = vi.fn(() => 'xssMocked')
-
-vi.mock('express-mongo-sanitize', () => ({
-    default: mongoSanitizeMock
-}))
-
-vi.mock('xss-clean', () => ({
-    default: xssMock
-}))
-
-let sanitizeMiddleware
-
-beforeEach(async () => {
-    mongoSanitizeMock.mockClear()
-    xssMock.mockClear()
-    const module = await import('../../../src/middlewares/sanitize.middleware.js')
-    sanitizeMiddleware = module.sanitizeMiddleware
+vi.mock('express-mongo-sanitize', () => {
+    const f = vi.fn(() => 'mongoSanitize-mw')
+    return { default: f }
 })
 
-describe('sanitizeMiddleware', () => {
-    test('should call mongoSanitize and xss', () => {
-        expect(mongoSanitizeMock).toHaveBeenCalledWith({
-            replaceWith: '_',
-            onSanitize: expect.any(Function)
-        })
-        expect(xssMock).toHaveBeenCalled()
-    })
+vi.mock('xss-clean', () => {
+    const f = vi.fn(() => 'xss-mw')
+    return { default: f }
+})
 
-    test('should return expected array', () => {
-        expect(sanitizeMiddleware).toEqual(['mongoSanitizeMocked', 'xssMocked'])
+import mongoSanitize from 'express-mongo-sanitize'
+import xss from 'xss-clean'
+import { sanitizeMiddleware } from '../../../src/middlewares/sanitize.middleware.js'
+
+describe('sanitize.middleware', () => {
+    it('debería exportar arreglo [mongoSanitize, xss]', () => {
+        expect(sanitizeMiddleware).toEqual(['mongoSanitize-mw', 'xss-mw'])
+        expect(mongoSanitize).toHaveBeenCalled()
+        expect(xss).toHaveBeenCalled()
     })
 })

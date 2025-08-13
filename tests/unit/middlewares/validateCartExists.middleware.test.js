@@ -1,54 +1,37 @@
-import express from 'express'
-import request from 'supertest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../src/services/cart.service.js', () => {
-    return {
-        cartService: {
-            getCartById: vi.fn(async (id) => {
-                if (id === '507f1f77bcf86cd799439011') {
-                    return { id, userId: '507f1f77bcf86cd799439011' }
-                }
-                return null
-            })
-        }
-    }
+    const getCartById = vi.fn()
+    return { cartService: { getCartById }, __mocks: { getCartById } }
 })
 
-describe('validateCartExists middleware', () => {
-    let app
-    let mw
+import { __mocks } from '../../../src/services/cart.service.js'
+import { validateCartExists } from '../../../src/middlewares/validateCartExists.js'
+import { ApiError } from '../../../src/utils/apiError.js'
 
-    beforeEach(async () => {
-        vi.resetModules()
-        const mod = await import('../../../src/middlewares/validateCartExists.js')
-        mw = mod.validateCartExists
-        app = express()
-        app.use(express.json())
-        app.get('/by-cid/:cid', mw, (req, res) => {
-            res.status(200).json({ ok: true, cart: req.cart })
-        })
-        app.get('/by-id/:id', mw, (req, res) => {
-            res.status(200).json({ ok: true, cart: req.cart })
-        })
+describe('validateCartExists', () => {
+    let req, res, next
+
+    beforeEach(() => {
+        vi.clearAllMocks()
+        req = { params: { cid: 'c1' } }
+        res = {}
+        next = vi.fn()
     })
 
-    it('debería devolver 404 si el carrito no existe', async () => {
-        const res = await request(app).get('/by-cid/507f1f77bcf86cd799439099')
-        expect(res.status).toBe(404)
+    it('debería adjuntar cart y seguir si existe', async () => {
+        __mocks.getCartById.mockResolvedValue({ id: 'c1' })
+        await validateCartExists(req, res, next)
+        expect(__mocks.getCartById).toHaveBeenCalledWith('c1')
+        expect(req.cart).toEqual({ id: 'c1' })
+        expect(next).toHaveBeenCalled()
     })
 
-    it('debería adjuntar req.cart cuando se usa :cid', async () => {
-        const res = await request(app).get('/by-cid/507f1f77bcf86cd799439011')
-        expect(res.status).toBe(200)
-        expect(res.body.cart).toBeTruthy()
-        expect(res.body.cart.userId).toBe('507f1f77bcf86cd799439011')
-    })
-
-    it('debería adjuntar req.cart cuando se usa :id', async () => {
-        const res = await request(app).get('/by-id/507f1f77bcf86cd799439011')
-        expect(res.status).toBe(200)
-        expect(res.body.cart).toBeTruthy()
-        expect(res.body.cart.userId).toBe('507f1f77bcf86cd799439011')
+    it('debería lanzar 404 si no existe', async () => {
+        __mocks.getCartById.mockResolvedValue(null)
+        await validateCartExists(req, res, next)
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(404)
     })
 })

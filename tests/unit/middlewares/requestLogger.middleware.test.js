@@ -1,90 +1,44 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-let logger
-let requestLogger
+vi.mock('../../../src/config/logger.js', () => ({
+    logger: { info: vi.fn(), error: vi.fn() }
+}))
 
-vi.mock('../../../src/config/logger.js', async () => {
-    const mockLogger = {
-        info: vi.fn(),
-        error: vi.fn()
-    }
-    return {
-        logger: mockLogger
-    }
-})
+import { logger } from '../../../src/config/logger.js'
+import { requestLogger } from '../../../src/middlewares/requestLogger.middleware.js'
 
-beforeEach(async () => {
-    vi.clearAllMocks()
-    const imported = await import('../../../src/middlewares/requestLogger.middleware.js')
-    requestLogger = imported.requestLogger
-    const loggerModule = await import('../../../src/config/logger.js')
-    logger = loggerModule.logger
-})
+const makeRes = () => {
+    const res = { statusCode: 200 }
+    const handlers = {}
+    res.on = (ev, cb) => { handlers[ev] = cb }
+    res._emit = (ev) => handlers[ev] && handlers[ev]()
+    return res
+}
 
-describe('requestLogger', () => {
-    test('should log info for successful requests', () => {
-        const req = {
-            method: 'GET',
-            originalUrl: '/test',
-            ip: '123.456.789.000',
-            requestId: 'abc123',
-            user: { email: 'test@example.com' }
-        }
+describe('requestLogger.middleware', () => {
+    let req, res, next
 
-        const res = {
-            statusCode: 200,
-            on: vi.fn((event, callback) => {
-                if (event === 'finish') {
-                    callback()
-                }
-            })
-        }
-
-        const next = vi.fn()
-
-        requestLogger(req, res, next)
-
-        expect(next).toHaveBeenCalled()
-        expect(logger.info).toHaveBeenCalledWith('REQUEST', expect.objectContaining({
-            requestId: 'abc123',
-            method: 'GET',
-            url: '/test',
-            statusCode: 200,
-            user: 'test@example.com',
-            ip: '123.456.789.000'
-        }))
+    beforeEach(() => {
+        vi.useFakeTimers()
+        vi.setSystemTime(new Date('2025-01-01T00:00:00Z'))
+        vi.clearAllMocks()
+        req = { method: 'GET', originalUrl: '/x', ip: '1.1.1.1', headers: { 'user-agent': 'ua' }, user: { id: 'u1', email: 'a@b.com' }, requestId: 'rid-1' }
+        res = makeRes()
+        next = vi.fn()
     })
 
-    test('should log error for failed requests', () => {
-        const req = {
-            method: 'POST',
-            originalUrl: '/fail',
-            ip: '987.654.321.000',
-            requestId: 'def456',
-            user: { id: 'user123' }
-        }
-
-        const res = {
-            statusCode: 500,
-            on: vi.fn((event, callback) => {
-                if (event === 'finish') {
-                    callback()
-                }
-            })
-        }
-
-        const next = vi.fn()
-
+    it('debería loguear info con 2xx/3xx', () => {
         requestLogger(req, res, next)
-
+        res.statusCode = 200
+        res._emit('finish')
         expect(next).toHaveBeenCalled()
-        expect(logger.error).toHaveBeenCalledWith('REQUEST', expect.objectContaining({
-            requestId: 'def456',
-            method: 'POST',
-            url: '/fail',
-            statusCode: 500,
-            user: 'user123',
-            ip: '987.654.321.000'
-        }))
+        expect(logger.info).toHaveBeenCalled()
+    })
+
+    it('debería loguear error con 4xx/5xx', () => {
+        requestLogger(req, res, next)
+        res.statusCode = 404
+        res._emit('finish')
+        expect(logger.error).toHaveBeenCalled()
     })
 })

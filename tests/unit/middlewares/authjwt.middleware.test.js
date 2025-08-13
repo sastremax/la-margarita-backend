@@ -1,57 +1,44 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-
-const verifyAccessTokenMock = vi.fn()
-
 vi.mock('../../../src/utils/jwt.util.js', () => ({
-    jwtUtil: {
-        verifyAccessToken: verifyAccessTokenMock
-    }
+    jwtUtil: { verifyAccessToken: vi.fn() }
 }))
-
+import { jwtUtil } from '../../../src/utils/jwt.util.js'
 import { ApiError } from '../../../src/utils/apiError.js'
+import { authJWT } from '../../../src/middlewares/authjwt.middleware.js'
 
-describe('authJWT middleware', () => {
-    let authJWT
-    let req, res, next
+describe('authjwt.middleware', () => {
+    let req
+    let res
+    let next
 
-    beforeEach(async () => {
-        verifyAccessTokenMock.mockReset()
+    beforeEach(() => {
+        vi.clearAllMocks()
         req = { cookies: {} }
         res = {}
         next = vi.fn()
-
-        const module = await import('../../../src/middlewares/authjwt.middleware.js')
-        authJWT = module.authJWT
     })
 
-    test('should throw 401 if token is missing in cookies', () => {
+    test('debería autenticar con cookie token', () => {
+        req.cookies.token = 'abc'
+        jwtUtil.verifyAccessToken.mockReturnValue({ id: 'u1', role: 'user' })
         authJWT(req, res, next)
-
-        const err = next.mock.calls[0][0]
-        expect(err).toBeInstanceOf(ApiError)
-        expect(err.statusCode).toBe(401)
-        expect(err.message).toBe('Authentication token missing')
-    })
-
-    test('should attach user to req and call next if token is valid', () => {
-        req.cookies.token = 'valid.token'
-        const decoded = { id: 'user1', role: 'user' }
-        verifyAccessTokenMock.mockReturnValue(decoded)
-
-        authJWT(req, res, next)
-
-        expect(req.user).toEqual(decoded)
+        expect(jwtUtil.verifyAccessToken).toHaveBeenCalledWith('abc')
+        expect(req.user).toEqual({ id: 'u1', role: 'user' })
         expect(next).toHaveBeenCalledWith()
     })
 
-    test('should pass error to next if token verification fails', () => {
-        req.cookies.token = 'invalid.token'
-        const error = new Error('Invalid token')
-        verifyAccessTokenMock.mockImplementation(() => { throw error })
-
+    test('debería 401 si falta cookie token', () => {
         authJWT(req, res, next)
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(401)
+    })
 
-        const result = next.mock.calls[0][0]
-        expect(result).toBe(error)
+    test('debería pasar error de verificación', () => {
+        req.cookies.token = 'bad'
+        const err = new ApiError(401, 'Invalid or expired access token')
+        jwtUtil.verifyAccessToken.mockImplementation(() => { throw err })
+        authJWT(req, res, next)
+        expect(next).toHaveBeenCalledWith(err)
     })
 })

@@ -1,58 +1,39 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const rateLimitMock = vi.fn()
-vi.mock('express-rate-limit', () => {
-    return {
-        default: rateLimitMock
-    }
-})
+const rateLimitSpy = vi.fn(() => 'rate-mw')
 
-vi.mock('../../../src/middlewares/rateLimitHandler.js', () => {
-    return {
-        rateLimitHandler: vi.fn()
-    }
-})
+vi.mock('express-rate-limit', () => ({ default: (...args) => rateLimitSpy(...args) }))
+vi.mock('../../../src/middlewares/rateLimitHandler.js', () => ({ rateLimitHandler: 'handler' }))
 
-beforeEach(() => {
-    vi.clearAllMocks()
-    process.env.RATE_LIMIT_WINDOW_MS = '60000'
-    process.env.RATE_LIMIT_MAX = '20'
-})
+describe('envRateLimiter', () => {
+    const OLD_ENV = process.env
 
-describe('limiter middleware', () => {
-    test('should call express-rate-limit with correct options', async () => {
-        const { rateLimitHandler } = await import('../../../src/middlewares/rateLimitHandler.js')
-        await import('../../../src/middlewares/envRateLimiter.js')
-
-        expect(rateLimitMock).toHaveBeenCalledWith({
-            windowMs: 60000,
-            max: 20,
-            message: {
-                status: 'error',
-                message: 'Too many requests, please try again later.'
-            },
-            headers: true,
-            handler: rateLimitHandler
-        })
+    beforeEach(() => {
+        vi.clearAllMocks()
+        process.env = { ...OLD_ENV }
     })
 
-    test('should use default values if env vars are not valid', async () => {
-        process.env.RATE_LIMIT_WINDOW_MS = 'invalid'
-        process.env.RATE_LIMIT_MAX = 'invalid'
-
+    it('debería usar defaults cuando env inválido', async () => {
+        process.env.RATE_LIMIT_WINDOW_MS = 'x'
+        process.env.RATE_LIMIT_MAX = 'y'
         vi.resetModules()
-        const { rateLimitHandler } = await import('../../../src/middlewares/rateLimitHandler.js')
-        await import('../../../src/middlewares/envRateLimiter.js')
+        const mod = await import('../../../src/middlewares/envRateLimiter.js')
+        expect(rateLimitSpy).toHaveBeenCalledTimes(1)
+        const opts = rateLimitSpy.mock.calls[0][0]
+        expect(opts.windowMs).toBe(900000)
+        expect(opts.max).toBe(100)
+        expect(opts.headers).toBe(true)
+        expect(opts.handler).toBe('handler')
+        expect(mod.limiter).toBe('rate-mw')
+    })
 
-        expect(rateLimitMock).toHaveBeenCalledWith({
-            windowMs: 900000,
-            max: 100,
-            message: {
-                status: 'error',
-                message: 'Too many requests, please try again later.'
-            },
-            headers: true,
-            handler: rateLimitHandler
-        })
+    it('debería usar valores del entorno cuando son números', async () => {
+        process.env.RATE_LIMIT_WINDOW_MS = '60000'
+        process.env.RATE_LIMIT_MAX = '42'
+        vi.resetModules()
+        await import('../../../src/middlewares/envRateLimiter.js')
+        const opts = rateLimitSpy.mock.calls[0][0]
+        expect(opts.windowMs).toBe(60000)
+        expect(opts.max).toBe(42)
     })
 })

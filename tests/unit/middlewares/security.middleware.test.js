@@ -1,17 +1,12 @@
-import { beforeEach, describe, expect, test, vi, } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-let helmetMock
+vi.mock('helmet', () => ({ default: vi.fn(() => 'helmet-mw') }))
+import helmet from 'helmet'
+import { securityMiddleware } from '../../../src/middlewares/security.middleware.js'
 
-beforeEach(async () => {
-    helmetMock = vi.fn(() => 'helmet middleware')
-    vi.mock('helmet', () => ({ default: helmetMock }))
-})
-
-describe('securityMiddleware', () => {
-    test('should include helmet middleware in the array', async () => {
-        const { securityMiddleware } = await import('../../../src/middlewares/security.middleware.js')
-
-        expect(helmetMock).toHaveBeenCalled()
-        expect(securityMiddleware).toEqual(['helmet middleware'])
+describe('security.middleware', () => {
+    it('debería exportar arreglo con helmet()', () => {
+        expect(securityMiddleware).toEqual(['helmet-mw'])
+        expect(helmet).toHaveBeenCalled()
     })
 })

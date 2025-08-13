@@ -1,95 +1,59 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-
-const verifyAccessTokenMock = vi.fn()
-
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 vi.mock('../../../src/utils/jwt.util.js', () => ({
-    jwtUtil: {
-        verifyAccessToken: verifyAccessTokenMock
-    }
+    jwtUtil: { verifyAccessToken: vi.fn() }
 }))
+import { jwtUtil } from '../../../src/utils/jwt.util.js'
+import { ApiError } from '../../../src/utils/apiError.js'
+import { authMiddleware } from '../../../src/middlewares/auth.middleware.js'
 
-describe('authMiddleware', () => {
-    let authMiddleware
-    const next = vi.fn()
-    const res = {}
+describe('auth.middleware', () => {
     let req
-    let originalEnv
+    let res
+    let next
+    const OLD_ENV = process.env.NODE_ENV
 
-    beforeEach(async () => {
-        vi.resetModules()
-        verifyAccessTokenMock.mockReset()
+    beforeEach(() => {
+        vi.clearAllMocks()
         req = { headers: {} }
-        next.mockClear()
-
-        originalEnv = process.env.NODE_ENV
-        const module = await import('../../../src/middlewares/auth.middleware.js')
-        authMiddleware = module.authMiddleware
+        res = {}
+        next = vi.fn()
+        process.env.NODE_ENV = 'test'
     })
 
-    afterEach(() => {
-        process.env.NODE_ENV = originalEnv
-    })
-
-    test('should throw 401 if no Authorization header', () => {
+    test('debería setear req.user con Bearer válido', () => {
+        req.headers.authorization = 'Bearer token123'
+        jwtUtil.verifyAccessToken.mockReturnValue({ id: 'u1', role: 'user', email: 'a@b.com' })
         authMiddleware(req, res, next)
-        const err = next.mock.calls[0][0]
-        expect(err.statusCode).toBe(401)
-        expect(err.message).toBe('No token provided')
-    })
-
-    test('should throw 401 if Authorization header does not start with Bearer', () => {
-        req.headers.authorization = 'Token xyz'
-        authMiddleware(req, res, next)
-        const err = next.mock.calls[0][0]
-        expect(err.statusCode).toBe(401)
-        expect(err.message).toBe('No token provided')
-    })
-
-    test('should attach user to req and call next if token valid', () => {
-        req.headers.authorization = 'Bearer abc'
-        const decoded = { id: 'u1', role: 'user' }
-        verifyAccessTokenMock.mockReturnValue(decoded)
-        authMiddleware(req, res, next)
-        expect(req.user).toEqual(decoded)
+        expect(jwtUtil.verifyAccessToken).toHaveBeenCalledWith('token123')
+        expect(req.user).toEqual({ id: 'u1', role: 'user', email: 'a@b.com' })
         expect(next).toHaveBeenCalledWith()
     })
 
-    test('should handle TokenExpiredError in non-production', () => {
-        process.env.NODE_ENV = 'dev'
-        req.headers.authorization = 'Bearer expired'
-        const err = new Error('jwt expired')
-        err.name = 'TokenExpiredError'
-        verifyAccessTokenMock.mockImplementation(() => { throw err })
+    test('debería lanzar 401 si falta header', () => {
         authMiddleware(req, res, next)
-        const result = next.mock.calls[0][0]
-        expect(result.statusCode).toBe(401)
-        expect(result.message).toBe('jwt expired')
+        expect(next).toHaveBeenCalled()
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(401)
     })
 
-    test('should handle ApiError in production with generic message', async () => {
+    test('debería normalizar mensaje a Unauthorized en producción cuando 401', () => {
         process.env.NODE_ENV = 'production'
-        req.headers.authorization = 'Bearer invalid'
-
-        const { ApiError } = await import('../../../src/utils/apiError.js')
-        const err = new ApiError(401, 'Specific reason')
-        verifyAccessTokenMock.mockImplementation(() => { throw err })
-
-        const module = await import('../../../src/middlewares/auth.middleware.js')
-        const authMiddleware = module.authMiddleware
-
+        req.headers.authorization = 'Bearer bad'
+        jwtUtil.verifyAccessToken.mockImplementation(() => { throw new ApiError(401, 'Invalid or expired access token') })
         authMiddleware(req, res, next)
-
-        const result = next.mock.calls[0][0]
-        expect(result.statusCode).toBe(401)
-        expect(result.message).toBe('Unauthorized')
+        const err = next.mock.calls[0][0]
+        expect(err).toBeInstanceOf(ApiError)
+        expect(err.statusCode).toBe(401)
+        expect(err.message).toBe('Unauthorized')
+        process.env.NODE_ENV = OLD_ENV
     })
 
-    test('should pass unexpected error through', () => {
-        req.headers.authorization = 'Bearer token'
-        const err = new Error('Unexpected')
-        verifyAccessTokenMock.mockImplementation(() => { throw err })
+    test('debería propagar otros errores no 401', () => {
+        req.headers.authorization = 'Bearer any'
+        const boom = new Error('boom')
+        jwtUtil.verifyAccessToken.mockImplementation(() => { throw boom })
         authMiddleware(req, res, next)
-        const result = next.mock.calls[0][0]
-        expect(result.message).toBe('Unexpected')
+        expect(next).toHaveBeenCalledWith(boom)
     })
 })

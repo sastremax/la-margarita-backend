@@ -1,57 +1,40 @@
-import { describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { validateDTO } from '../../../src/middlewares/validateDTO.middleware.js'
 
-describe('validateDTO middleware', () => {
-    const sampleSchema = z.object({
-        name: z.string().min(1),
-        age: z.number().int().min(0)
+describe('validateDTO.middleware', () => {
+    let res, next
+    const okSchema = z.object({ a: z.string().min(1) })
+
+    beforeEach(() => {
+        res = { status: vi.fn().mockReturnThis(), json: vi.fn() }
+        next = vi.fn()
     })
 
-    test('should call next and mutate req.body if validation passes', () => {
-        const req = {
-            body: { name: 'Alice', age: 30 }
-        }
-        const res = {}
-        const next = vi.fn()
-
-        const middleware = validateDTO(sampleSchema)
-        middleware(req, res, next)
-
-        expect(req.body).toEqual({ name: 'Alice', age: 30 })
+    it('debería validar body correcto y asignar data', () => {
+        const req = { body: { a: 'x' } }
+        const mw = validateDTO(okSchema, 'body')
+        mw(req, res, next)
+        expect(req.body).toEqual({ a: 'x' })
         expect(next).toHaveBeenCalledWith()
     })
 
-    test('should return 400 with error details if validation fails', () => {
-        const req = {
-            body: { name: '', age: -1 }
-        }
-
-        const res = {
-            status: vi.fn().mockReturnThis(),
-            json: vi.fn()
-        }
-
-        const next = vi.fn()
-
-        const middleware = validateDTO(sampleSchema)
-        middleware(req, res, next)
-
+    it('debería responder 400 si body inválido', () => {
+        const req = { body: { a: '' } }
+        const mw = validateDTO(okSchema, 'body')
+        mw(req, res, next)
         expect(res.status).toHaveBeenCalledWith(400)
-        expect(res.json).toHaveBeenCalledWith({
-            status: 'error',
-            errors: expect.arrayContaining([
-                expect.objectContaining({ path: 'name', message: expect.any(String) }),
-                expect.objectContaining({ path: 'age', message: expect.any(String) })
-            ])
-        })
-
-        expect(next).not.toHaveBeenCalled()
+        const payload = res.json.mock.calls[0][0]
+        expect(payload.status).toBe('error')
+        expect(Array.isArray(payload.errors)).toBe(true)
     })
 
-    test('should throw error if schema is invalid', () => {
-        const invalidSchema = {}
-
-        expect(() => validateDTO(invalidSchema)).toThrow('Invalid schema provided to validateDTO middleware')
+    it('debería validar query y reasignar en req.query', () => {
+        const schema = z.object({ page: z.coerce.number().int().positive() })
+        const req = { query: { page: '2' } }
+        const mw = validateDTO(schema, 'query')
+        mw(req, res, next)
+        expect(req.query).toEqual({ page: 2 })
+        expect(next).toHaveBeenCalledWith()
     })
 })

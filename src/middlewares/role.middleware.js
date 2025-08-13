@@ -1,7 +1,9 @@
+import { ApiError } from '../utils/apiError.js'
+
 export const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         if (!req.user || !roles.includes(req.user.role)) {
-            return res.status(403).json({ status: 'error', message: 'Access denied' })
+            return next(new ApiError(403, 'Access denied'))
         }
         next()
     }
