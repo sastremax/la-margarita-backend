@@ -43,7 +43,18 @@ describe('ReservationService', () => {
     test('getReservationsByLodging', async () => {
         reservationDAO.getReservationsByLodging.mockResolvedValue([{ _id: 'r1', lodging: 'l1' }])
         const result = await reservationService.getReservationsByLodging('l1')
-        expect(result).toEqual([{ id: 'r1', lodgingId: 'l1', userId: null, checkIn: undefined, checkOut: undefined, guests: undefined, totalPrice: undefined, status: undefined }])
+        expect(result).toEqual([
+            {
+                id: 'r1',
+                lodgingId: 'l1',
+                userId: null,
+                checkIn: null,
+                checkOut: null,
+                guests: null,
+                totalPrice: 0,
+                status: null
+            }
+        ])
     })
 
     test('getReservationsWithFilters', async () => {
@@ -63,23 +74,23 @@ describe('ReservationService', () => {
 
     test('createReservation throws if lodging not found', async () => {
         lodgingDAO.getLodgingById.mockResolvedValue(null)
-        await expect(reservationService.createReservation({
-            userId: 'u1',
-            lodgingId: 'l1',
-            checkIn: '2025-08-01',
-            checkOut: '2025-08-02'
-        })).rejects.toThrow('Lodging not found or inactive')
+        await expect(
+            reservationService.createReservation({
+                userId: 'u1',
+                lodgingId: 'l1',
+                checkIn: '2025-08-01',
+                checkOut: '2025-08-02'
+            })
+        ).rejects.toThrow('Lodging not found or inactive')
     })
 
     test('cancelReservation throws if not authorized', async () => {
         reservationDAO.getReservationById.mockResolvedValue({ _id: 'r1', user: 'u1', status: 'confirmed' })
-        await expect(reservationService.cancelReservation('r1', 'wrongUser'))
-            .rejects.toThrow('Not authorized to cancel this reservation')
+        await expect(reservationService.cancelReservation('r1', 'wrongUser')).rejects.toThrow('Not authorized to cancel this reservation')
     })
 
     test('cancelReservation throws if already cancelled', async () => {
         reservationDAO.getReservationById.mockResolvedValue({ _id: 'r1', user: 'u1', status: 'cancelled' })
-        await expect(reservationService.cancelReservation('r1', 'u1'))
-            .rejects.toThrow('Reservation already cancelled')
+        await expect(reservationService.cancelReservation('r1', 'u1')).rejects.toThrow('Reservation already cancelled')
     })
 })

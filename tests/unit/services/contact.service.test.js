@@ -60,7 +60,10 @@ describe('ContactService', () => {
             name: 'Alice',
             email: 'alice@example.com',
             message: 'Hello, this is a test.',
-            createdAt: '2025-07-30T00:00:00Z'
+            replied: false,
+            replyNote: '',
+            createdAt: '2025-07-30T00:00:00Z',
+            updatedAt: null
         })
     })
 
@@ -73,7 +76,10 @@ describe('ContactService', () => {
                 name: 'Alice',
                 email: 'alice@example.com',
                 message: 'Hello, this is a test.',
-                createdAt: '2025-07-30T00:00:00Z'
+                replied: false,
+                replyNote: '',
+                createdAt: '2025-07-30T00:00:00Z',
+                updatedAt: null
             }
         ])
     })
@@ -86,7 +92,10 @@ describe('ContactService', () => {
             name: 'Alice',
             email: 'alice@example.com',
             message: 'Hello, this is a test.',
-            createdAt: '2025-07-30T00:00:00Z'
+            replied: false,
+            replyNote: '',
+            createdAt: '2025-07-30T00:00:00Z',
+            updatedAt: null
         })
     })
 
@@ -96,14 +105,17 @@ describe('ContactService', () => {
     })
 
     test('updateReplyStatus', async () => {
-        const result = await contactService.updateReplyStatus('c1', { replied: true })
+        const result = await contactService.updateReplyStatus('c1', { replied: true, replyNote: 'OK' })
 
         expect(result).toEqual({
             id: 'c1',
             name: 'Alice',
             email: 'alice@example.com',
             message: 'Hello, this is a test.',
-            createdAt: '2025-07-30T00:00:00Z'
+            replied: false,
+            replyNote: '',
+            createdAt: '2025-07-30T00:00:00Z',
+            updatedAt: null
         })
     })
 
