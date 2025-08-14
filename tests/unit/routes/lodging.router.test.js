@@ -2,24 +2,34 @@ import express from 'express'
 import request from 'supertest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('passport', () => {
-    return {
-        default: {
-            authenticate: vi.fn(() => {
-                return (req, res, next) => {
-                    const role = req.headers['x-test-role'] || 'user'
-                    const uid = req.headers['x-test-user-id'] || 'u1'
-                    req.user = { id: uid, role }
-                    next()
-                }
-            })
+vi.mock('../../../src/middlewares/authPolicy.middleware.js', () => ({
+    authPolicy: (roles = []) => [
+        (req, res, next) => {
+            const role = req.headers['x-test-role']
+            const uid = req.headers['x-test-user-id']
+            if (role) req.user = { id: uid || 'u1', role }
+            next()
+        },
+        (req, res, next) => {
+            if (!req.user) return next({ statusCode: 401, message: 'Not authenticated' })
+            if (roles.length && !roles.includes(req.user.role)) return next({ statusCode: 403, message: 'Access denied' })
+            next()
         }
-    }
-})
+    ]
+}))
 
 vi.mock('../../../src/middlewares/existsLodging.middleware.js', () => ({
     existsLodging: (req, res, next) => {
         req.lodging = { id: req.params.lid }
+        next()
+    }
+}))
+
+vi.mock('../../../src/middlewares/validateRequest.middleware.js', () => ({
+    validateRequest: (req, res, next) => {
+        const isHex24 = s => typeof s === 'string' && /^[a-f\d]{24}$/i.test(s)
+        const { uid, lid } = req.params || {}
+        if ((uid && !isHex24(uid)) || (lid && !isHex24(lid))) return next({ statusCode: 400, message: 'Invalid id' })
         next()
     }
 }))
@@ -80,21 +90,9 @@ describe('lodging.router', () => {
     })
 
     it('debería exigir mismo usuario o admin en GET /lodgings/owner/:uid', async () => {
-        const mismatch = await request(app)
-            .get('/lodgings/owner/507f1f77bcf86cd799439012')
-            .set('x-test-role', 'user')
-            .set('x-test-user-id', '507f1f77bcf86cd799439013')
-
-        const match = await request(app)
-            .get('/lodgings/owner/507f1f77bcf86cd799439011')
-            .set('x-test-role', 'user')
-            .set('x-test-user-id', '507f1f77bcf86cd799439011')
-
-        const admin = await request(app)
-            .get('/lodgings/owner/507f1f77bcf86cd799439012')
-            .set('x-test-role', 'admin')
-            .set('x-test-user-id', '507f1f77bcf86cd799439099')
-
+        const mismatch = await request(app).get('/lodgings/owner/507f1f77bcf86cd799439012').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439013')
+        const match = await request(app).get('/lodgings/owner/507f1f77bcf86cd799439011').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439011')
+        const admin = await request(app).get('/lodgings/owner/507f1f77bcf86cd799439012').set('x-test-role', 'admin')
         expect(mismatch.status).toBe(403)
         expect(match.status).toBe(200)
         expect(admin.status).toBe(200)
