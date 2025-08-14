@@ -102,3 +102,48 @@ cartRouter.post(
     ensureOwnerOrAdmin,
     purchaseCart
 )
+
+cartRouter.post(
+    '/:cid/products/:pid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    param('pid').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
+    authPolicy(['user', 'admin']),
+    validateCartExists,
+    ensureOwnerOrAdmin,
+    validateDTO(cartItemSchema),
+    addProductToCart
+)
+
+cartRouter.delete(
+    '/:cid/products/:pid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    param('pid').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
+    authPolicy(['user', 'admin']),
+    validateCartExists,
+    ensureOwnerOrAdmin,
+    removeProductFromCart
+)
+
+cartRouter.patch(
+    '/:cid/products/:pid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    param('pid').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
+    authPolicy(['user', 'admin']),
+    validateCartExists,
+    ensureOwnerOrAdmin,
+    updateProductQuantity
+)
+
+cartRouter.put(
+    '/:cid/products/:pid',
+    param('cid').isMongoId().withMessage('Invalid cart ID'),
+    param('pid').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
+    authPolicy(['user', 'admin']),
+    validateCartExists,
+    ensureOwnerOrAdmin,
+    updateProductQuantity
+)

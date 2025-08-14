@@ -128,8 +128,9 @@ export class CartDAO {
         if (amount <= 0) {
             return null
         }
+        const purchaser = user?.email || String(user?.id || user?._id)
         const ticket = await TicketModel.create({
-            purchaser: user.email,
+            purchaser,
             amount,
             products: productsForTicket
         })

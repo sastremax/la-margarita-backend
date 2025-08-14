@@ -21,8 +21,8 @@ export class CartService {
         return asPublicCart(cart)
     }
 
-    async createCart(cartData) {
-        const cart = await this.dao.createCart(cartData)
+    async createCart(userId) {
+        const cart = await this.dao.createCart({ user: userId, products: [] })
         return asPublicCart(cart)
     }
 

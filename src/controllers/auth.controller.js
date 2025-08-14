@@ -17,15 +17,17 @@ export const postLogin = async (req, res, next) => {
 
         res.cookie('token', accessToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
             maxAge: 15 * 60 * 1000
         })
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
@@ -47,10 +49,35 @@ export const postLogin = async (req, res, next) => {
                 ip: req.ip,
                 userAgent: req.headers['user-agent']
             })
-        } catch (auditError) {
-            logger.warn('Failed to log failed login attempt', auditError)
-        }
+        } catch { }
+        next(error)
+    }
+}
 
+export const postLogout = async (req, res, next) => {
+    try {
+        res.clearCookie('token', { path: '/' })
+        res.clearCookie('refreshToken', { path: '/' })
+
+        await AuditService.logEvent({
+            userId: req.user?._id || null,
+            event: 'logout',
+            success: true,
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        })
+
+        res.status(200).json({ status: 'success', message: 'User logged out successfully' })
+    } catch (error) {
+        try {
+            await AuditService.logEvent({
+                userId: req.user?._id || null,
+                event: 'logout',
+                success: false,
+                ip: req.ip,
+                userAgent: req.headers['user-agent']
+            })
+        } catch { }
         next(error)
     }
 }
@@ -86,33 +113,3 @@ export const postRegister = async (req, res, next) => {
     }
 }
 
-export const postLogout = async (req, res, next) => {
-    try {
-        res.clearCookie('token')
-        res.clearCookie('refreshToken')
-
-        await AuditService.logEvent({
-            userId: req.user?._id || null,
-            event: 'logout',
-            success: true,
-            ip: req.ip,
-            userAgent: req.headers['user-agent']
-        })
-
-        res.status(200).json({ status: 'success', message: 'User logged out successfully' })
-    } catch (error) {
-        try {
-            await AuditService.logEvent({
-                userId: req.user?._id || null,
-                event: 'logout',
-                success: false,
-                ip: req.ip,
-                userAgent: req.headers['user-agent']
-            })
-        } catch (auditError) {
-            logger.warn('Failed to log failed logout attempt', auditError)
-        }
-
-        next(error)
-    }
-}

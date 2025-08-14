@@ -9,25 +9,22 @@ export const cartSchema = z.object({
     items: z.array(cartItemSchema).min(1)
 })
 
-export const asPublicCart = (cart) => {
-    if (!cart) return null
-    const id = cart._id?.toString?.() || cart.id || null
-    const userId =
-        cart.user?._id?.toString?.() ||
-        cart.user?.toString?.() ||
-        cart.user?.id ||
-        null
-    const products = Array.isArray(cart.products)
-        ? cart.products.map((p) => ({
-            productId:
-                p.product?._id?.toString?.() ||
-                p.product?.toString?.() ||
-                p.product?.id ||
-                null,
-            title: p.product?.title || '',
-            price: Number.isFinite(p.product?.price) ? p.product.price : 0,
-            quantity: p.quantity
-        }))
-        : []
-    return { id, userId, products }
+export const asPublicCart = (doc) => {
+    if (!doc) return null
+    return {
+        id: doc._id.toString(),
+        userId: doc.user && typeof doc.user === 'object' && doc.user._id ? doc.user._id.toString() : (doc.user?.toString?.() ?? doc.user ?? null),
+        products: (doc.products || []).map(p => {
+            const prod = p.product
+            const publicProduct = prod && prod._id
+                ? { id: prod._id.toString(), title: prod.title, price: prod.price }
+                : (typeof prod === 'object' && prod?.toString ? prod.toString() : prod)
+            return {
+                product: publicProduct,
+                quantity: p.quantity
+            }
+        }),
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt
+    }
 }

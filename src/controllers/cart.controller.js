@@ -2,7 +2,9 @@ import { cartService } from '../services/cart.service.js'
 
 export const createCart = async (req, res, next) => {
     try {
-        const cart = await cartService.createCart()
+        const userId = req.user?.id || req.user?._id
+        if (!userId) return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+        const cart = await cartService.createCart(userId)
         res.status(201).json({ status: 'success', data: cart })
     } catch (error) {
         next(error)
