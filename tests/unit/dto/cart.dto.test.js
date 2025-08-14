@@ -54,7 +54,7 @@ describe('asPublicCart', () => {
         }
         const dto = asPublicCart(cart)
         expect(dto.products).toEqual([
-            { productId: 'p1', title: 'A', price: 10, quantity: 3 }
+            { product: { id: 'p1', title: 'A', price: 10 }, quantity: 3 }
         ])
     })
 
@@ -68,8 +68,11 @@ describe('asPublicCart', () => {
             ]
         }
         const dto = asPublicCart(cart)
-        expect(dto.products[0]).toEqual({ productId: 'p2', title: '', price: 0, quantity: 1 })
-        expect(dto.products[1]).toEqual({ productId: 'p3', title: '', price: 0, quantity: 2 })
+        expect(dto.products[0]).toEqual({ product: 'p2', quantity: 1 })
+        expect(dto.products[1].product.id).toBe('p3')
+        expect(dto.products[1].product.title).toBeUndefined()
+        expect(Number.isNaN(dto.products[1].product.price)).toBe(true)
+        expect(dto.products[1].quantity).toBe(2)
     })
 
     it('debería devolver products vacío cuando no hay array', () => {
