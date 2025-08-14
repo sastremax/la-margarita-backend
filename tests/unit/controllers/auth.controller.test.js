@@ -105,8 +105,8 @@ describe('auth.controller', () => {
     test('postLogout - success', async () => {
         await postLogout(req, res, next)
 
-        expect(res.clearCookie).toHaveBeenCalledWith('token')
-        expect(res.clearCookie).toHaveBeenCalledWith('refreshToken')
+        expect(res.clearCookie).toHaveBeenCalledWith('token', expect.any(Object))
+        expect(res.clearCookie).toHaveBeenCalledWith('refreshToken', expect.any(Object))
         expect(AuditService.logEvent).toHaveBeenCalledWith(expect.objectContaining({
             userId: 'u123',
             event: 'logout',

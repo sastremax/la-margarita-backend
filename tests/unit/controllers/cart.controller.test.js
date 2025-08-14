@@ -20,7 +20,7 @@ beforeEach(() => {
 
 describe('cart.controller', () => {
     test('debería crear carrito y devolver 201', async () => {
-        const req = {}
+        const req = { user: { id: 'u1' } }
         const res = mockRes()
         cartService.createCart.mockResolvedValue({ id: 'c1', userId: 'u1', products: [] })
         await cartController.createCart(req, res, next)
