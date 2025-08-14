@@ -21,8 +21,9 @@ export class CartService {
         return asPublicCart(cart)
     }
 
-    async createCart(userId) {
-        const cart = await this.dao.createCart({ user: userId, products: [] })
+    async createCart(input) {
+        const data = typeof input === 'string' ? { user: input } : input
+        const cart = await this.dao.createCart(data)
         return asPublicCart(cart)
     }
 
