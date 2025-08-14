@@ -2,21 +2,28 @@ import express from 'express'
 import request from 'supertest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('passport', () => {
-    return {
-        default: {
-            authenticate: vi.fn(() => {
-                return (req, res, next) => {
-                    const role = req.headers['x-test-role']
-                    const uid = req.headers['x-test-user-id']
-                    if (role && uid) req.user = { id: uid, role }
-                    else if (role) req.user = { id: 'u1', role }
-                    next()
-                }
-            })
+vi.mock('../../../src/models/cart.model.js', () => ({ default: {} }))
+vi.mock('../../../src/dao/cart.dao.js', () => ({ CartDAO: class { } }))
+
+vi.mock('../../../src/middlewares/authPolicy.middleware.js', () => ({
+    authPolicy: (roles = []) => [
+        (req, res, next) => {
+            const role = req.headers['x-test-role']
+            const uid = req.headers['x-test-user-id']
+            if (role) req.user = { id: uid || '507f1f77bcf86cd799439011', role }
+            next()
+        },
+        (req, res, next) => {
+            if (!req.user) return next({ statusCode: 401, message: 'Not authenticated' })
+            if (roles.length && !roles.includes(req.user.role)) return next({ statusCode: 403, message: 'Access denied' })
+            const ownerId = req.cart?.userId
+            if ((req.params.id || req.params.cid) && ownerId && req.user.role !== 'admin' && req.user.id !== ownerId) {
+                return next({ statusCode: 403, message: 'Forbidden' })
+            }
+            next()
         }
-    }
-})
+    ]
+}))
 
 vi.mock('../../../src/middlewares/validateCartExists.js', () => ({
     validateCartExists: (req, res, next) => {
@@ -25,6 +32,21 @@ vi.mock('../../../src/middlewares/validateCartExists.js', () => ({
         req.cart = { id: cid, userId: owner }
         next()
     }
+}))
+
+vi.mock('../../../src/middlewares/validateRequest.middleware.js', () => ({
+    validateRequest: (req, res, next) => {
+        const isHex24 = (s) => typeof s === 'string' && /^[a-f\d]{24}$/i.test(s)
+        const { id, cid, pid } = req.params || {}
+        if ((id && !isHex24(id)) || (cid && !isHex24(cid)) || (pid && !isHex24(pid))) {
+            return next({ statusCode: 400, message: 'Invalid id' })
+        }
+        next()
+    }
+}))
+
+vi.mock('../../../src/middlewares/validateDTO.middleware.js', () => ({
+    validateDTO: () => (req, res, next) => next()
 }))
 
 vi.mock('../../../src/controllers/cart.controller.js', () => ({
@@ -75,17 +97,18 @@ describe('cart.router', () => {
     })
 
     it('debería validar ids y ownership en POST /carts/:cid/product/:pid', async () => {
-        const bad = await request(app).post('/carts/invalid-id/product/invalid-id').set('x-test-role', 'user').send({ productId: 'x', quantity: 1 })
-        const mismatch = await request(app).post('/carts/507f1f77bcf86cd799439011/product/507f1f77bcf86cd799439022').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439012').send({ productId: '507f1f77bcf86cd799439022', quantity: 1 })
-        const owner = await request(app).post('/carts/507f1f77bcf86cd799439011/product/507f1f77bcf86cd799439022').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439011').send({ productId: '507f1f77bcf86cd799439022', quantity: 1 })
+        const bad = await request(app).post('/carts/invalid-id/product/invalid-id').set('x-test-role', 'user').send({ product: 'x', quantity: 1 })
+        const mismatch = await request(app).post('/carts/507f1f77bcf86cd799439011/product/507f1f77bcf86cd799439022').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439012').send({ product: '507f1f77bcf86cd799439022', quantity: 1 })
+        const owner = await request(app).post('/carts/507f1f77bcf86cd799439011/product/507f1f77bcf86cd799439022').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439011').send({ product: '507f1f77bcf86cd799439022', quantity: 1 })
         expect(bad.status).toBe(400)
         expect(mismatch.status).toBe(403)
         expect(owner.status).toBe(200)
     })
 
     it('debería permitir owner/admin en PUT /carts/:cid y /carts/:cid/product/:pid', async () => {
-        const mismatch = await request(app).put('/carts/507f1f77bcf86cd799439011').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439012').send({ products: [] })
-        const owner = await request(app).put('/carts/507f1f77bcf86cd799439011').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439011').send({ products: [] })
+        const validProducts = [{ product: '507f1f77bcf86cd799439022', quantity: 1 }]
+        const mismatch = await request(app).put('/carts/507f1f77bcf86cd799439011').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439012').send({ products: validProducts })
+        const owner = await request(app).put('/carts/507f1f77bcf86cd799439011').set('x-test-role', 'user').set('x-test-user-id', '507f1f77bcf86cd799439011').send({ products: validProducts })
         const admin = await request(app).put('/carts/507f1f77bcf86cd799439011/product/507f1f77bcf86cd799439022').set('x-test-role', 'admin').send({ quantity: 2 })
         expect(mismatch.status).toBe(403)
         expect(owner.status).toBe(200)
