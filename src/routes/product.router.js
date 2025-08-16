@@ -1,13 +1,6 @@
 import express from 'express'
 import { param } from 'express-validator'
-
-import {
-    createProduct,
-    deleteProduct,
-    getAllProducts,
-    getProductById,
-    updateProduct
-} from '../controllers/product.controller.js'
+import { createProduct, deleteProduct, getAllProducts, getProductById, updateProduct } from '../controllers/product.controller.js'
 import { productSchema } from '../dto/product.dto.js'
 import { authPolicy } from '../middlewares/authPolicy.middleware.js'
 import { validateDTO } from '../middlewares/validateDTO.middleware.js'
@@ -29,6 +22,15 @@ productRouter.post(
     authPolicy(['admin']),
     validateDTO(productSchema),
     createProduct
+)
+
+productRouter.patch(
+    '/:id',
+    param('id').isMongoId().withMessage('Invalid product ID'),
+    validateRequest,
+    authPolicy(['admin']),
+    validateDTO(productSchema.partial()),
+    updateProduct
 )
 
 productRouter.put(
