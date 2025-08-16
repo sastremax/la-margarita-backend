@@ -2,21 +2,21 @@ import express from 'express'
 import request from 'supertest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('passport', () => {
-    return {
-        default: {
-            authenticate: vi.fn(() => {
-                return (req, res, next) => {
-                    const role = req.headers['x-test-role']
-                    const uid = req.headers['x-test-user-id']
-                    if (role && uid) req.user = { id: uid, role }
-                    else if (role) req.user = { id: 'u1', role }
-                    next()
-                }
-            })
+vi.mock('../../../src/middlewares/authPolicy.middleware.js', () => ({
+    authPolicy: (roles = []) => [
+        (req, res, next) => {
+            const role = req.headers['x-test-role']
+            const uid = req.headers['x-test-user-id']
+            if (role) req.user = { id: uid || 'u1', role }
+            next()
+        },
+        (req, res, next) => {
+            if (!req.user) return next({ statusCode: 401, message: 'Not authenticated' })
+            if (roles.length && !roles.includes(req.user.role)) return next({ statusCode: 403, message: 'Access denied' })
+            next()
         }
-    }
-})
+    ]
+}))
 
 vi.mock('../../../src/controllers/image.controller.js', () => ({
     uploadImage: (req, res) => res.status(201).json({ route: 'uploadImage' }),
