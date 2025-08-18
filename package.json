@@ -17,7 +17,9 @@
 		"test:func": "npm run fix:admin:test && cross-env NODE_ENV=test vitest -c vitest.functional.config.js run",
 		"test:func:one": "npm run fix:admin:test && cross-env NODE_ENV=test vitest -c vitest.functional.config.js run tests/functional/auth/login.functional.test.js",
 		"test:func:watch": "npm run fix:admin:test && cross-env NODE_ENV=test vitest -c vitest.functional.config.js",
-		"show-config": "node scripts/show-config.mjs"
+		"show-config": "node scripts/show-config.mjs",
+		"serve:postman:test": "cross-env NODE_ENV=test PORT=4001 node -r dotenv/config src/appServer.js dotenv_config_path=.env.test",
+		"dev:test": "cross-env NODE_ENV=test PORT=4001 nodemon -r dotenv/config src/appServer.js dotenv_config_path=.env.test"
 	},
 	"keywords": [
 		"backend",
