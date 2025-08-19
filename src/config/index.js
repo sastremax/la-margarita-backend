@@ -1,27 +1,30 @@
-import dotenv from 'dotenv'
+import dotenvFlow from 'dotenv-flow'
 
-const envPath = process.env.DOTENV_CONFIG_PATH || (process.env.NODE_ENV === 'test' ? '.env.test' : '.env')
-dotenv.config({ path: envPath })
+dotenvFlow.config()
 
 export const config = {
+    mode: process.env.NODE_ENV || 'development',
     nodeEnv: process.env.NODE_ENV || 'development',
-    port: parseInt(process.env.PORT || '4000', 10),
-    mongoUri: process.env.MONGODB_URI || process.env.MONGO_URI_TEST || process.env.MONGO_URI || '',
-    persistence: (process.env.PERSISTENCE || 'mongodb').toLowerCase(),
+    port: parseInt(process.env.PORT, 10) || 4000,
+    mongoUri:
+        process.env.NODE_ENV === 'test'
+            ? (process.env.MONGO_URI_TEST || process.env.MONGODB_URI || process.env.MONGO_URI)
+            : (process.env.MONGO_URI || process.env.MONGODB_URI),
+    persistence: process.env.PERSISTENCE || 'mongodb',
     jwt: {
-        secret: process.env.JWT_SECRET || '',
-        refresh: process.env.JWT_REFRESH_SECRET || '',
-        expires: process.env.JWT_EXPIRES || '15m'
+        secret: process.env.JWT_SECRET,
+        refreshSecret: process.env.JWT_REFRESH_SECRET,
+        expires: process.env.JWT_EXPIRES
     },
     mail: {
-        user: process.env.MAIL_USER || '',
-        pass: process.env.MAIL_PASS || ''
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS
     },
-    corsOrigin: process.env.CORS_ORIGIN || '*',
-    logLevel: process.env.LOG_LEVEL || 'info',
+    corsOrigin: process.env.CORS_ORIGIN,
+    logLevel: process.env.LOG_LEVEL,
     cloudinary: {
-        cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
-        apiKey: process.env.CLOUDINARY_API_KEY || '',
-        apiSecret: process.env.CLOUDINARY_API_SECRET || ''
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+        apiKey: process.env.CLOUDINARY_API_KEY,
+        apiSecret: process.env.CLOUDINARY_API_SECRET
     }
 }

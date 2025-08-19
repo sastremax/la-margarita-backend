@@ -1,26 +1,9 @@
-import jwt from 'jsonwebtoken'
-import { config } from '../config/index.js'
-import { ApiError } from '../utils/apiError.js'
+import { jwtUtil } from '../utils/jwt.util.js'
 
-const generateAccessToken = (payload) => {
-    if (!config.jwt.secret) throw new ApiError(500, 'JWT secret is missing')
-    return jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expires || '15m' })
-}
-
-const generateRefreshToken = (payload) => {
-    if (!config.jwt.refreshSecret) throw new ApiError(500, 'JWT refresh secret is missing')
-    return jwt.sign(payload, config.jwt.refreshSecret, { expiresIn: '7d' })
-}
-
-const verifyAccessToken = (token) => {
-    if (!config.jwt.secret) throw new ApiError(500, 'JWT secret is missing')
-    return jwt.verify(token, config.jwt.secret)
-}
-
-const verifyRefreshToken = (token) => {
-    if (!config.jwt.refreshSecret) throw new ApiError(500, 'JWT refresh secret is missing')
-    return jwt.verify(token, config.jwt.refreshSecret)
-}
+const generateAccessToken = (subject) => jwtUtil.createAccessToken(subject)
+const generateRefreshToken = (subject) => jwtUtil.createRefreshToken(subject)
+const verifyAccessToken = (token) => jwtUtil.verifyAccessToken(token)
+const verifyRefreshToken = (token) => jwtUtil.verifyRefreshToken(token)
 
 export const tokenService = {
     generateAccessToken,
