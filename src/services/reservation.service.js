@@ -2,6 +2,8 @@ import dayjs from 'dayjs'
 import { LodgingDAO } from '../dao/lodging.dao.js'
 import { ReservationDAO } from '../dao/reservation.dao.js'
 import { asPublicReservation } from '../dto/reservation.dto.js'
+import { ApiError } from '../utils/apiError.js'
+import { calculateTotalPrice } from '../utils/reservation.utils.js'
 
 export class ReservationService {
     constructor(reservationDAO, lodgingDAO) {
@@ -11,16 +13,12 @@ export class ReservationService {
 
     async getReservationById(id) {
         const reservation = await this.reservationDAO.getReservationById(id)
+        if (!reservation) throw new ApiError(404, 'Reservation not found')
         return asPublicReservation(reservation)
     }
 
-    async getReservationsByUserId(userId) {
+    async getReservationsByUser(userId) {
         const reservations = await this.reservationDAO.getReservationsByUserId(userId)
-        return reservations.map(asPublicReservation)
-    }
-
-    async getReservationsByLodging(lodgingId) {
-        const reservations = await this.reservationDAO.getReservationsByLodging(lodgingId)
         return reservations.map(asPublicReservation)
     }
 
@@ -29,77 +27,47 @@ export class ReservationService {
         if (userId) query.user = userId
         if (lodgingId) query.lodging = lodgingId
         if (status) query.status = status
-
         const result = await this.reservationDAO.getReservations(query, { page, limit })
-        result.data = result.data.map(asPublicReservation)
-        return result
+        return {
+            total: result.total,
+            page: result.page,
+            pages: result.pages,
+            data: result.data.map(asPublicReservation)
+        }
     }
 
-    async createReservation(reservationData) {
-        const { userId, lodgingId, checkIn, checkOut } = reservationData
-
+    async createReservation(data) {
+        const { userId, lodgingId, checkIn, checkOut, guests } = data
+        if (!userId) throw new ApiError(400, 'User ID is required')
         const lodging = await this.lodgingDAO.getLodgingById(lodgingId)
-        if (!lodging?.isActive) {
-            throw new Error('Lodging not found or inactive')
-        }
-
-        const conflict = await this.reservationDAO.isLodgingAvailable(lodgingId, checkIn, checkOut)
-        if (conflict) {
-            throw new Error('The lodging is not available for the selected dates')
-        }
-
-        const nights = dayjs(checkOut).diff(dayjs(checkIn), 'day')
-        if (nights < 1) {
-            throw new Error('Reservation must be at least 1 night')
-        }
-
-        const priceMap = lodging.pricing
-        if (!priceMap || priceMap.size === 0) {
-            throw new Error('No pricing available for this lodging')
-        }
-
-        let totalPrice = 0
-
-        if (priceMap.has(String(nights))) {
-            totalPrice = priceMap.get(String(nights))
-        } else {
-            const maxKey = Math.max(...Array.from(priceMap.keys()).map(Number))
-            const basePrice = priceMap.get(String(maxKey))
-            const extraNights = nights - maxKey
-            const pricePerNight = basePrice / maxKey
-            totalPrice = basePrice + (extraNights * pricePerNight)
-        }
-
-        const finalReservation = {
+        if (!lodging || lodging.isActive === false) throw new ApiError(400, 'Lodging not found or inactive')
+        const overlap = await this.reservationDAO.isLodgingAvailable(lodgingId, new Date(checkIn), new Date(checkOut))
+        if (overlap) throw new ApiError(400, 'The lodging is not available for the selected dates')
+        const totalPrice = calculateTotalPrice(lodging.pricing, checkIn, checkOut)
+        const payload = {
             user: userId,
             lodging: lodgingId,
-            checkIn,
-            checkOut,
-            guests: reservationData.guests || 1,
-            totalPrice
+            checkIn: new Date(checkIn),
+            checkOut: new Date(checkOut),
+            guests: guests || 1,
+            totalPrice,
+            status: 'confirmed'
         }
-
-        const created = await this.reservationDAO.createReservation(finalReservation)
+        const created = await this.reservationDAO.createReservation(payload)
         return asPublicReservation(created)
     }
 
     async updateReservation(id, updateData) {
-        const reservation = await this.reservationDAO.updateReservation(id, updateData)
-        return asPublicReservation(reservation)
+        const updated = await this.reservationDAO.updateReservation(id, updateData)
+        if (!updated) throw new ApiError(404, 'Reservation not found')
+        return asPublicReservation(updated)
     }
 
     async cancelReservation(id, userId) {
         const reservation = await this.reservationDAO.getReservationById(id)
-        if (!reservation) throw new Error('Reservation not found')
-
-        if (String(reservation.user) !== String(userId)) {
-            throw new Error('Not authorized to cancel this reservation')
-        }
-
-        if (reservation.status === 'cancelled') {
-            throw new Error('Reservation already cancelled')
-        }
-
+        if (!reservation) throw new ApiError(404, 'Reservation not found')
+        if (String(reservation.user) !== String(userId)) throw new ApiError(403, 'Not authorized to cancel this reservation')
+        if (reservation.status === 'cancelled') throw new ApiError(400, 'Reservation already cancelled')
         const updated = await this.reservationDAO.updateReservation(id, { status: 'cancelled' })
         return asPublicReservation(updated)
     }

@@ -69,10 +69,18 @@ const tryResolveCurrentUserId = async (target, cookie) => {
 
 export const loginAdmin = async () => {
     const target = await getSupertestTarget()
+
+    const email = process.env.ADMIN_EMAIL
+    const password = process.env.ADMIN_PASSWORD
+    if (!email || !password) {
+        throw new Error('Missing ADMIN_EMAIL or ADMIN_PASSWORD in environment')
+    }
+
     const logins = [
-        { method: 'post', url: '/api/sessions/login', body: { email: 'maxi@example.com', password: '12345678' } },
-        { method: 'post', url: '/api/auth/login', body: { email: 'maxi@example.com', password: '12345678' } }
+        { method: 'post', url: '/api/sessions/login', body: { email, password } },
+        { method: 'post', url: '/api/auth/login', body: { email, password } }
     ]
+
     let last = null
     for (const c of logins) {
         const r = await request(target)[c.method](c.url).send(c.body).set('Accept', 'application/json')
@@ -86,6 +94,7 @@ export const loginAdmin = async () => {
         }
         if (r.status !== 404) break
     }
+
     const detail = last ? JSON.stringify(last.body || {}, null, 2) : 'no response'
     const status = last ? last.status : 'no-status'
     throw new Error(`Login failed with status ${status}. Body: ${detail}`)

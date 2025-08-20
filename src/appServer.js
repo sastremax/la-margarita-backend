@@ -1,9 +1,9 @@
-import passport from 'passport'
-import { connectToDB } from './config/db.js'
 import { config } from './config/index.js'
 import { logger } from './config/logger.js'
-import './config/passport.config.js'
 import { app } from './appExpress.js'
+import { connectToDB } from './config/db.js'
+import passport from 'passport'
+import './config/passport.config.js'
 
 const PORT = config.port
 
@@ -25,5 +25,3 @@ export const startServer = async () => {
         process.exit(1)
     }
 }
-
-startServer()

@@ -21,8 +21,8 @@ async function run() {
 
     const UserModel = await load('../src/models/user.model.js', 'UserModel')
 
-    const email = 'maxi@example.com'
-    const plain = '12345678'
+    const email = (process.env.ADMIN_EMAIL || 'admin@test.com')
+    const plain = (process.env.ADMIN_PASSWORD || 'Admin$12345')
 
     const user = await UserModel.findOne({ email: email.toLowerCase() }).select('+password +passwordHash')
     if (!user) throw new Error('Admin not found')

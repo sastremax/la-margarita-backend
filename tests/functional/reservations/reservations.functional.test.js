@@ -78,7 +78,7 @@ describe('Reservations', () => {
         adminCookie = admin.cookie
 
         const email = `reservas.${uniqueCode('USR')}@example.com`
-        const password = '12345678'
+        const password = 'Test1234!'
 
         const reg = await request(target)
             .post('/api/sessions/register')
@@ -103,10 +103,13 @@ describe('Reservations', () => {
             .set('Cookie', adminCookie)
             .send({
                 title: `Lodging ${uniqueCode('LG')}`,
-                description: 'Test lodging',
-                location: { country: 'AR', city: 'Buenos Aires' },
-                isActive: true,
-                pricing: { '1': 100, '2': 180, '3': 250 }
+                description: 'Test lodging with enough characters',
+                images: [],
+                location: { country: 'AR', province: 'Buenos Aires', city: 'Buenos Aires' },
+                capacity: 2,
+                pricing: { weekday: 100, weekend: 180, holiday: 250 },
+                owner: admin.id || userId,
+                isActive: true
             })
 
         expect(createLodging.status).toBeTypeOf('number')
@@ -197,7 +200,7 @@ describe('Reservations', () => {
 
     it('debería impedir ver una reserva ajena sin rol admin', async () => {
         const email = `otro.${uniqueCode('USR')}@example.com`
-        const password = '12345678'
+        const password = 'Reservas123*'
         const reg = await request(target).post('/api/sessions/register').send({ firstName: 'Otro', lastName: 'User', email, password })
         expect([200, 201, 409]).toContain(reg.status)
         const login = await request(target).post('/api/sessions/login').send({ email, password })

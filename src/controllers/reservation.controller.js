@@ -16,28 +16,26 @@ export const getAllReservations = async (req, res, next) => {
     }
 }
 
-export const getReservationById = async (req, res, next) => {
-    try {
-        const reservation = await reservationService.getReservationById(req.params.rid)
-        res.status(200).json({ status: 'success', data: reservation })
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const getReservationsByLodging = async (req, res, next) => {
-    try {
-        const reservations = await reservationService.getReservationsByLodging(req.params.lid)
-        res.status(200).json({ status: 'success', data: reservations })
-    } catch (error) {
-        next(error)
-    }
-}
-
 export const getReservationsByUser = async (req, res, next) => {
     try {
-        const reservations = await reservationService.getReservationsByUserId(req.user.id)
-        res.status(200).json({ status: 'success', data: reservations })
+        const userId = req.user?.id || req.user?._id || req.user?.uid || req.user?.sub
+        const data = await reservationService.getReservationsByUser(userId)
+        res.status(200).json({ status: 'success', data })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getReservationById = async (req, res, next) => {
+    try {
+        const id = req.params?.rid
+        const reservation = await reservationService.getReservationById(id)
+        const uid = req.user?.id || req.user?._id || req.user?.uid || req.user?.sub
+        const role = req.user?.role
+        if (role !== 'admin' && reservation.userId !== String(uid)) {
+            return res.status(403).json({ status: 'error', message: 'Access denied' })
+        }
+        res.status(200).json({ status: 'success', data: reservation })
     } catch (error) {
         next(error)
     }
@@ -45,26 +43,9 @@ export const getReservationsByUser = async (req, res, next) => {
 
 export const createReservation = async (req, res, next) => {
     try {
-        const reservation = await reservationService.createReservation(req.body)
-        res.status(201).json({ status: 'success', data: reservation })
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const updateReservation = async (req, res, next) => {
-    try {
-        const updated = await reservationService.updateReservation(req.params.rid, req.body)
-        res.status(200).json({ status: 'success', data: updated })
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const cancelReservation = async (req, res, next) => {
-    try {
-        const updated = await reservationService.cancelReservation(req.params.rid, req.user.id)
-        res.status(200).json({ status: 'success', data: updated })
+        const uid = req.user?.id || req.user?._id || req.user?.uid || req.user?.sub
+        const data = await reservationService.createReservation({ ...req.body, userId: uid })
+        res.status(201).json({ status: 'success', data })
     } catch (error) {
         next(error)
     }
@@ -72,8 +53,9 @@ export const cancelReservation = async (req, res, next) => {
 
 export const deleteReservation = async (req, res, next) => {
     try {
-        await reservationService.deleteReservation(req.params.rid)
-        res.status(204).end()
+        const id = req.params?.rid
+        await reservationService.deleteReservation(id)
+        res.status(200).json({ status: 'success' })
     } catch (error) {
         next(error)
     }

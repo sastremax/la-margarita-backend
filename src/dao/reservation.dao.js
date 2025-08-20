@@ -113,4 +113,12 @@ export class ReservationDAO {
             averageDuration: Math.round(summary.averageDuration)
         }
     }
+
+    async deleteReservation(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error('Invalid reservation ID')
+        }
+        return await ReservationModel.findByIdAndDelete(id)
+    }
+
 }
