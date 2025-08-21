@@ -3,8 +3,24 @@ import { reviewService } from '../services/review.service.js'
 
 export const getAllReviews = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1
-        const limit = parseInt(req.query.limit) || 10
+        const page = Number.parseInt(req.query.page) || 1
+        const limit = Number.parseInt(req.query.limit) || 10
+        const lodgingId = req.query.lodgingId
+        if (lodgingId) {
+            const filters = {}
+            if (typeof req.query.hasReply !== 'undefined') {
+                const v = String(req.query.hasReply).toLowerCase()
+                filters.hasReply = v === 'true' || v === '1'
+            }
+            if (typeof req.query.minRating !== 'undefined') {
+                const n = Number.parseInt(req.query.minRating)
+                if (!Number.isNaN(n)) filters.minRating = n
+            }
+            const result = await reviewService.getReviewsByLodgingId(lodgingId, { page, limit, filters })
+            const data = result.reviews || result.data || []
+            res.status(200).json({ status: 'success', total: result.total ?? data.length, page, pages: result.pages ?? 1, data })
+            return
+        }
         const result = await reviewService.getAllReviews({ page, limit })
         res.status(200).json({ status: 'success', total: result.total, page: result.page, pages: result.pages, data: result.data })
     } catch (error) {
@@ -12,66 +28,13 @@ export const getAllReviews = async (req, res, next) => {
     }
 }
 
-export const getReviewsByLodging = async (req, res, next) => {
-    try {
-        const { page = 1, limit = 10, hasReply, minRating } = req.query
-        const numericPage = parseInt(page, 10)
-        const numericLimit = parseInt(limit, 10)
-        const numericMinRating = minRating ? parseFloat(minRating) : null
-        const filters = { hasReply: hasReply === 'true', minRating: numericMinRating }
-        const result = await reviewService.getReviewsByLodgingId(req.params.lodgingId, { page: numericPage, limit: numericLimit, filters })
-        res.status(200).json({ status: 'success', data: result })
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const createReview = async (req, res, next) => {
-    try {
-        const review = await reviewService.createReview(req.body)
-        res.status(201).json({ status: 'success', data: review })
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const getReviewSummary = async (req, res, next) => {
-    try {
-        const { lodgingId } = req.params
-        const summary = await reviewService.getReviewSummary(lodgingId)
-        res.status(200).json({ status: 'success', data: summary })
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const deleteReview = async (req, res, next) => {
-    try {
-        const reviewId = req.params.rid
-        await reviewService.deleteReview(reviewId)
-        res.status(200).json({ status: 'success', message: 'Review deleted' })
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const putAdminReply = async (req, res, next) => {
-    try {
-        const { id } = req.params
-        const parsed = reviewReplySchema.parse(req.body)
-        const updatedReview = await reviewService.replyToReview(id, parsed.message)
-        res.status(200).json({ status: 'success', data: updatedReview })
-    } catch (error) {
-        next(error)
-    }
-}
-
 export const getReviewById = async (req, res, next) => {
     try {
-        const reviewId = req.params.rid
+        const reviewId = req.params.rid || req.params.id
         const review = await reviewService.getReviewById(reviewId)
         if (!review) {
-            return res.status(404).json({ status: 'error', message: 'Review not found' })
+            res.status(404).json({ status: 'error', error: 'Review not found' })
+            return
         }
         res.status(200).json({ status: 'success', data: review })
     } catch (error) {
@@ -79,11 +42,10 @@ export const getReviewById = async (req, res, next) => {
     }
 }
 
-export const getRepliedReviewsByLodging = async (req, res, next) => {
+export const createReview = async (req, res, next) => {
     try {
-        const { lodgingId } = req.params
-        const reviews = await reviewService.getRepliedReviewsByLodging(lodgingId)
-        res.status(200).json({ status: 'success', data: reviews })
+        const created = await reviewService.createReview(req.body)
+        res.status(201).json({ status: 'success', data: created })
     } catch (error) {
         next(error)
     }
@@ -91,11 +53,32 @@ export const getRepliedReviewsByLodging = async (req, res, next) => {
 
 export const updateReview = async (req, res, next) => {
     try {
-        const reviewId = req.params.rid
-        const userId = req.user.id
+        const reviewId = req.params.rid || req.params.id
+        const userId = req.user?.id
         const updateData = req.body
         const updatedReview = await reviewService.updateReview(reviewId, userId, updateData)
         res.status(200).json({ status: 'success', data: updatedReview })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const deleteReview = async (req, res, next) => {
+    try {
+        const reviewId = req.params.rid || req.params.id
+        const result = await reviewService.deleteReview(reviewId)
+        res.status(200).json({ status: 'success', data: result })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const replyToReview = async (req, res, next) => {
+    try {
+        const reviewId = req.params.rid || req.params.id
+        const parsed = reviewReplySchema.parse(req.body || {})
+        const replied = await reviewService.replyToReview(reviewId, parsed.message)
+        res.status(201).json({ status: 'success', data: replied })
     } catch (error) {
         next(error)
     }
