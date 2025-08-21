@@ -15,8 +15,7 @@ export const lodgingSchema = z.object({
         weekend: z.coerce.number().min(0),
         holiday: z.coerce.number().min(0).optional()
     }),
-    owner: z.string().min(1),
-    isActive: z.boolean().optional()
+    ownerId: z.string().min(1)
 })
 
 export function asPublicLodging(lodging) {

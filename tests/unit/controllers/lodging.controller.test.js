@@ -77,15 +77,15 @@ describe('lodging.controller', () => {
 
     test('debería crear con body válido y devolver 201', async () => {
         const req = {
+            user: { id: '64b0f0c0c0c0c0c0c0c0c0c0', role: 'admin' },
             body: {
                 title: 'Casa',
-                description: 'Hermosa casa con parque y pileta',
+                description: 'Desc',
                 images: ['https://example.com/a.jpg'],
-                location: { country: 'AR', province: 'BA', city: 'Tandil' },
-                capacity: 4,
-                pricing: { weekday: 100, weekend: 150 },
-                owner: 'u1',
-                isActive: true
+                location: { country: 'AR', province: 'BA', city: 'LP' },
+                capacity: 6,
+                pricing: { weekday: 100, weekend: 200, holiday: 300 },
+                ownerId: '64b0f0c0c0c0c0c0c0c0c0c0'
             }
         }
         const res = mockRes()
@@ -104,14 +104,15 @@ describe('lodging.controller', () => {
         expect((next.mock.calls[0][0].statusCode || next.mock.calls[0][0].status)).toBe(400)
 
         req = {
-            params: { lid: 'l1' }, user: {}, body: {
+            params: { lid: 'l1' },
+            body: {
                 title: 'Casa',
                 description: 'Hermosa casa con parque y pileta',
                 images: ['https://example.com/a.jpg'],
                 location: { country: 'AR', province: 'BA', city: 'Tandil' },
                 capacity: 4,
                 pricing: { weekday: 100, weekend: 150 },
-                owner: 'u1',
+                ownerId: '64b0f0c0c0c0c0c0c0c0c0c0',
                 isActive: true
             }
         }
@@ -129,7 +130,7 @@ describe('lodging.controller', () => {
                 location: { country: 'AR', province: 'BA', city: 'Tandil' },
                 capacity: 4,
                 pricing: { weekday: 100, weekend: 150 },
-                owner: 'u1',
+                ownerId: 'u1',
                 isActive: true
             }
         }
@@ -147,7 +148,7 @@ describe('lodging.controller', () => {
                 location: { country: 'AR', province: 'BA', city: 'Tandil' },
                 capacity: 4,
                 pricing: { weekday: 100, weekend: 150 },
-                owner: 'u1',
+                ownerId: 'u1',
                 isActive: true
             }
         }

@@ -4,20 +4,19 @@ import { asPublicLodging, lodgingSchema } from '../../../src/dto/lodging.dto.js'
 describe('lodgingSchema', () => {
     it('debería validar payload correcto y coercionar números', () => {
         const data = {
-            title: 'Casa de Campo',
-            description: 'Hermosa casa con parque y pileta',
+            title: 'Casa',
+            description: 'Desc',
             images: ['https://example.com/a.jpg'],
-            location: { country: 'Argentina', province: 'BA', city: 'Tandil' },
-            capacity: '6',
-            pricing: { weekday: '100', weekend: 150 },
-            owner: 'u1',
-            isActive: true
+            location: { country: 'AR', province: 'BA', city: 'LP' },
+            capacity: 6,
+            pricing: { weekday: 100, weekend: 200, holiday: 300 },
+            ownerId: '64b0f0c0c0c0c0c0c0c0c0c0'
         }
         const parsed = lodgingSchema.parse(data)
         expect(parsed.capacity).toBe(6)
         expect(parsed.pricing.weekday).toBe(100)
-        expect(parsed.pricing.weekend).toBe(150)
-        expect(parsed.pricing.holiday).toBeUndefined()
+        expect(parsed.pricing.weekend).toBe(200)
+        expect(parsed.pricing.holiday).toBe(300)
     })
 
     it('debería rechazar pricing sin weekday o weekend', () => {
@@ -27,7 +26,7 @@ describe('lodgingSchema', () => {
             location: { country: 'AR', province: 'CBA', city: 'Córdoba' },
             capacity: 2,
             pricing: { weekend: 120 },
-            owner: 'u1'
+            ownerId: 'u1'
         }
         const bad2 = {
             title: 'X',
@@ -35,7 +34,7 @@ describe('lodgingSchema', () => {
             location: { country: 'AR', province: 'CBA', city: 'Córdoba' },
             capacity: 2,
             pricing: { weekday: 100 },
-            owner: 'u1'
+            ownerId: 'u1'
         }
         expect(() => lodgingSchema.parse(bad1)).toThrow()
         expect(() => lodgingSchema.parse(bad2)).toThrow()

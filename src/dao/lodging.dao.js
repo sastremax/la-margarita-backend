@@ -46,14 +46,20 @@ export class LodgingDAO {
     }
 
     async createLodging(lodgingData) {
-        return await Lodging.create(lodgingData)
+        const { ownerId, ...rest } = lodgingData
+        if (!mongoose.Types.ObjectId.isValid(ownerId)) {
+            throw new Error('Invalid owner ID')
+        }
+        return await Lodging.create({ ...rest, owner: ownerId })
     }
 
     async updateLodging(id, updateData) {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new Error('Invalid lodging ID')
         }
-        return await Lodging.findByIdAndUpdate(id, updateData, { new: true })
+        const { ownerId, ...rest } = updateData
+        const update = ownerId ? { ...rest, owner: ownerId } : rest
+        return await Lodging.findByIdAndUpdate(id, update, { new: true })
     }
 
     async disableLodging(id) {

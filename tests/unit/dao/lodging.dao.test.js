@@ -29,7 +29,7 @@ describe('LodgingDAO', () => {
             location: { country: 'Argentina', province: 'Buenos Aires', city: 'La Plata' },
             capacity: 4,
             pricing: { weekday: 100, weekend: 150 },
-            owner: owner._id,
+            ownerId: owner._id,
             isActive: true
         })
         l2 = await dao.createLodging({
@@ -39,7 +39,7 @@ describe('LodgingDAO', () => {
             location: { country: 'Argentina', province: 'Cordoba', city: 'Cordoba' },
             capacity: 6,
             pricing: { weekday: 120, weekend: 170 },
-            owner: owner._id,
+            ownerId: owner._id,
             isActive: false
         })
         l3 = await dao.createLodging({
@@ -49,7 +49,7 @@ describe('LodgingDAO', () => {
             location: { country: 'Uruguay', province: 'Maldonado', city: 'Punta' },
             capacity: 2,
             pricing: { weekday: 90, weekend: 140 },
-            owner: owner._id,
+            ownerId: owner._id,
             isActive: true
         })
     })
@@ -154,7 +154,7 @@ describe('LodgingDAO', () => {
             location: { country: 'Argentina', province: 'Santa Fe', city: 'Rosario' },
             capacity: 3,
             pricing: { weekday: 110, weekend: 160 },
-            owner: owner._id,
+            ownerId: owner._id,
             isActive: true
         })
         const deleted = await dao.deleteLodging(temp._id.toString())

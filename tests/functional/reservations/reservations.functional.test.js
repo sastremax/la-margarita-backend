@@ -35,7 +35,7 @@ const decodeJwtUserId = (token) => {
         const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
         const json = Buffer.from(b64, 'base64').toString('utf8')
         const payload = JSON.parse(json)
-        return payload.id || payload._id || payload.uid || payload.sub || null
+        return payload.id || payload._id || payload.uid || null
     } catch {
         return null
     }
@@ -108,7 +108,7 @@ describe('Reservations', () => {
                 location: { country: 'AR', province: 'Buenos Aires', city: 'Buenos Aires' },
                 capacity: 2,
                 pricing: { weekday: 100, weekend: 180, holiday: 250 },
-                owner: admin.id || userId,
+                ownerId: userId,
                 isActive: true
             })
 
