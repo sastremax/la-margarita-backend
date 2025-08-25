@@ -31,7 +31,8 @@ vi.mock('../../../src/controllers/review.controller.js', () => ({
     getReviewById: (req, res) => res.status(200).json({ route: 'getReviewById', id: req.params.id }),
     createReview: (req, res) => res.status(201).json({ route: 'createReview' }),
     updateReview: (req, res) => res.status(200).json({ route: 'updateReview', id: req.params.id }),
-    deleteReview: (req, res) => res.status(200).json({ route: 'deleteReview', id: req.params.id })
+    deleteReview: (req, res) => res.status(200).json({ route: 'deleteReview', id: req.params.id }),
+    replyToReview: (req, res) => res.status(200).json({ route: 'replyToReview', id: req.params.id })
 }))
 
 const errorHandler = (err, req, res, next) => {

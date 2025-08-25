@@ -1,21 +1,28 @@
 import express from 'express'
 import { param } from 'express-validator'
 
-import { createReview, deleteReview, getAllReviews, getReviewById, updateReview } from '../controllers/review.controller.js'
+import { createReview, deleteReview, getAllReviews, getReviewById, updateReview, replyToReview } from '../controllers/review.controller.js'
 import { reviewDTO } from '../dto/review.dto.js'
+import { reviewReplySchema } from '../dto/reviewReply.dto.js'
 import { authPolicy } from '../middlewares/authPolicy.middleware.js'
 import { validateReviewExists } from '../middlewares/exists/validateReviewExists.js'
 import { validateDTO } from '../middlewares/validateDTO.middleware.js'
 import { validateRequest } from '../middlewares/validateRequest.middleware.js'
-import { ApiError } from '../utils/apiError.js'
 
 const router = express.Router()
 
 const ensureOwnerOrAdmin = (req, res, next) => {
     if (req.user?.role === 'admin') return next()
-    const ownerId = req.review?.user?.id || req.review?.userId || null
-    if (req.user?.id && ownerId && req.user.id === ownerId) return next()
-    next(new ApiError(403, 'Access denied'))
+    const ownerId = String(
+        req.review?.user?._id ||
+        req.review?.user?.id ||
+        req.review?.user ||
+        ''
+    )
+    const currentUserId = String(req.user?.id || '')
+    if (!currentUserId) return res.status(401).json({ status: 'error', error: 'Unauthorized' })
+    if (!ownerId || ownerId !== currentUserId) return res.status(403).json({ status: 'error', error: 'Forbidden' })
+    return next()
 }
 
 router.get(
@@ -51,6 +58,15 @@ router.put(
     ensureOwnerOrAdmin,
     validateDTO(reviewDTO.reviewUpdateSchema),
     updateReview
+)
+
+router.put(
+    '/:id/reply',
+    param('id').isMongoId().withMessage('Invalid review ID'),
+    validateRequest,
+    authPolicy(['admin']),
+    validateDTO(reviewReplySchema),
+    replyToReview
 )
 
 router.delete(
