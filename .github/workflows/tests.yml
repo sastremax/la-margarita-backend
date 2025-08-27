@@ -4,6 +4,7 @@ on:
     branches: [ SWAGGER ]
   pull_request:
     branches: [ SWAGGER ]
+  workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
