@@ -17,3 +17,7 @@ export const logger = (() => {
 })()
 
 logger.level = logLevel
+
+if (!logger.fatal) {
+    logger.fatal = (...args) => logger.error(...args)
+}
