@@ -6,6 +6,18 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Image'
     post:
       tags: [Images]
       summary: Subir imagen
@@ -22,6 +34,10 @@ paths:
       responses:
         '201':
           description: Creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
       security:
         - cookieAuth: []
   /api/images/{id}:
@@ -37,6 +53,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
         '404':
           description: No encontrado
     delete:

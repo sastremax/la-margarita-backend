@@ -1,0 +1,1084 @@
+openapi: 3.0.3
+info:
+  title: La Margarita API
+  version: 1.0.0
+  description: API de La Margarita. Textos descriptivos en español.
+  contact:
+    name: Soporte La Margarita
+    email: soporte@lamargarita.com
+servers:
+  - url: http://localhost:4000/api
+    description: Desarrollo local
+  - url: https://api.lamargarita.com/api
+    description: Producción
+tags:
+  - name: Auth
+    description: Autenticación y sesiones
+  - name: Users
+    description: Gestión de usuarios
+  - name: Products
+    description: Productos
+  - name: Carts
+    description: Carritos
+  - name: Reservations
+    description: Reservas
+  - name: Reviews
+    description: Opiniones
+  - name: Images
+    description: Imágenes
+  - name: Contacts
+    description: Contacto
+  - name: Lodgings
+    description: Alojamientos
+  - name: Tickets
+    description: Tickets de compra
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        total:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - products
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+      required:
+        - productId
+        - quantity
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - message
+    Image:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+          format: uri
+        name:
+          type: string
+        type:
+          type: string
+        refId:
+          type: string
+        publicId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - url
+        - name
+    Lodging:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        pricePerNight:
+          type: number
+        capacity:
+          type: integer
+        images:
+          type: array
+          items:
+            type: string
+        amenities:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - location
+        - pricePerNight
+        - capacity
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        code:
+          type: string
+        price:
+          type: number
+        stock:
+          type: integer
+        status:
+          type: string
+        description:
+          type: string
+        thumbnails:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - code
+        - price
+        - stock
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        lodgingId:
+          type: string
+        checkIn:
+          type: string
+          format: date
+        checkOut:
+          type: string
+          format: date
+        guests:
+          type: integer
+        status:
+          type: string
+          example: confirmed
+        totalPrice:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - lodgingId
+        - checkIn
+        - checkOut
+        - guests
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        reservationId:
+          type: string
+        lodgingId:
+          type: string
+        userId:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - reservationId
+        - userId
+        - rating
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        amount:
+          type: number
+        purchaser:
+          type: string
+        purchaseDatetime:
+          type: string
+          format: date-time
+        cartId:
+          type: string
+      required:
+        - id
+        - code
+        - amount
+        - purchaser
+        - purchaseDatetime
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 64f1c9e8a1f5b1b2c3d4e5f6
+        email:
+          type: string
+          format: email
+          example: maxi@example.com
+        role:
+          type: string
+          example: admin
+        firstName:
+          type: string
+        lastName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+        - role
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /api/sessions/login:
+    post:
+      tags:
+        - Auth
+      summary: Iniciar sesión
+      description: Inicia sesión del usuario y setea cookie httpOnly
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: maxi@example.com
+                password:
+                  type: string
+                  example: 12345678
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Sesión iniciada
+        '401':
+          description: Credenciales inválidas
+      security: []
+  /api/sessions/logout:
+    post:
+      tags:
+        - Auth
+      summary: Cerrar sesión
+      responses:
+        '204':
+          description: Sesión cerrada
+      security:
+        - cookieAuth: []
+  /api/sessions/current:
+    get:
+      tags:
+        - Auth
+      summary: Usuario actual
+      responses:
+        '200':
+          description: Información del usuario
+      security:
+        - cookieAuth: []
+  /api/carts/{cid}:
+    get:
+      tags:
+        - Carts
+      summary: Obtener carrito por id
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/carts:
+    post:
+      tags:
+        - Carts
+      summary: Crear carrito
+      responses:
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+      security:
+        - cookieAuth: []
+  /api/carts/{cid}/products/{pid}:
+    post:
+      tags:
+        - Carts
+      summary: Agregar producto al carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+              required:
+                - quantity
+      responses:
+        '200':
+          description: Agregado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags:
+        - Carts
+      summary: Quitar producto del carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Quitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    put:
+      tags:
+        - Carts
+      summary: Actualizar cantidad de producto
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+              required:
+                - quantity
+      responses:
+        '200':
+          description: Actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/carts/{cid}/products:
+    put:
+      tags:
+        - Carts
+      summary: Reemplazar productos del carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartItem'
+      responses:
+        '200':
+          description: Actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/carts/{cid}/purchase:
+    post:
+      tags:
+        - Carts
+      summary: Comprar carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ticket generado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Carrito vacío
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/contacts:
+    get:
+      tags:
+        - Contacts
+      summary: Listado de contactos
+      responses:
+        '200':
+          description: OK
+      security:
+        - cookieAuth: []
+    post:
+      tags:
+        - Contacts
+      summary: Crear contacto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '201':
+          description: Creado
+  /api/contacts/{id}:
+    get:
+      tags:
+        - Contacts
+      summary: Obtener contacto por id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    delete:
+      tags:
+        - Contacts
+      summary: Eliminar contacto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/images:
+    get:
+      tags:
+        - Images
+      summary: Listado de imágenes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Image'
+    post:
+      tags:
+        - Images
+      summary: Subir imagen
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+      security:
+        - cookieAuth: []
+  /api/images/{id}:
+    get:
+      tags:
+        - Images
+      summary: Obtener imagen por id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+        '404':
+          description: No encontrado
+    delete:
+      tags:
+        - Images
+      summary: Eliminar imagen
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/lodgings:
+    get:
+      tags:
+        - Lodgings
+      summary: Listado de alojamientos
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+        - Lodgings
+      summary: Crear alojamiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lodging'
+      responses:
+        '201':
+          description: Creado
+      security:
+        - cookieAuth: []
+  /api/lodgings/{lid}:
+    get:
+      tags:
+        - Lodgings
+      summary: Obtener alojamiento por id
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    patch:
+      tags:
+        - Lodgings
+      summary: Actualizar alojamiento
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lodging'
+      responses:
+        '200':
+          description: Actualizado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags:
+        - Lodgings
+      summary: Eliminar alojamiento
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/products:
+    get:
+      tags:
+        - Products
+      summary: Listado de productos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      tags:
+        - Products
+      summary: Crear producto
+      description: Requiere rol admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Creado
+        '401':
+          description: No autenticado
+        '403':
+          description: Prohibido
+      security:
+        - cookieAuth: []
+  /api/products/{pid}:
+    get:
+      tags:
+        - Products
+      summary: Obtener producto por id
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    patch:
+      tags:
+        - Products
+      summary: Actualizar producto
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Actualizado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags:
+        - Products
+      summary: Eliminar producto
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/reservations:
+    get:
+      tags:
+        - Reservations
+      summary: Listado de reservas
+      responses:
+        '200':
+          description: OK
+      security:
+        - cookieAuth: []
+    post:
+      tags:
+        - Reservations
+      summary: Crear reserva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '201':
+          description: Creada
+      security:
+        - cookieAuth: []
+  /api/reservations/{rid}:
+    get:
+      tags:
+        - Reservations
+      summary: Obtener reserva por id
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    patch:
+      tags:
+        - Reservations
+      summary: Actualizar reserva
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '200':
+          description: Actualizada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags:
+        - Reservations
+      summary: Eliminar reserva
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/reviews:
+    get:
+      tags:
+        - Reviews
+      summary: Listado de opiniones
+      parameters:
+        - in: query
+          name: lodgingId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+        - Reviews
+      summary: Crear opinión
+      description: Requiere reserva confirmada y check-out finalizado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        '201':
+          description: Creada
+        '400':
+          description: Regla de negocio incumplida
+      security:
+        - cookieAuth: []
+  /api/reviews/{id}:
+    get:
+      tags:
+        - Reviews
+      summary: Obtener opinión por id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    delete:
+      tags:
+        - Reviews
+      summary: Eliminar opinión
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/tickets:
+    get:
+      tags:
+        - Tickets
+      summary: Listado de tickets
+      responses:
+        '200':
+          description: OK
+      security:
+        - cookieAuth: []
+  /api/tickets/{tid}:
+    get:
+      tags:
+        - Tickets
+      summary: Obtener ticket por id
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: Listado de usuarios
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+      security:
+        - cookieAuth: []
+  /api/users/{uid}:
+    get:
+      tags:
+        - Users
+      summary: Obtener usuario por id
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags:
+        - Users
+      summary: Eliminar usuario
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
