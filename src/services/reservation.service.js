@@ -22,6 +22,10 @@ export class ReservationService {
         return reservations.map(asPublicReservation)
     }
 
+    async getReservationsByUserId(userId) {
+        return await this.getReservationsByUser(userId)
+    }
+
     async getReservationsWithFilters({ page = 1, limit = 10, userId, lodgingId, status }) {
         const query = {}
         if (userId) query.user = userId
