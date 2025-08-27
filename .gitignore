@@ -16,3 +16,6 @@ logs/
 
 # Otros
 coverage/
+
+# OpenAPI generated bundle
+openapi.bundle.yaml
