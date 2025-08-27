@@ -19,7 +19,9 @@
 		"seed:admin:test": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=.env.test node -r dotenv/config scripts/seed-test-admin.mjs",
 		"show:config:test": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=.env.test node -r dotenv/config scripts/show-config.mjs",
 		"serve:postman:test": "cross-env NODE_ENV=test PORT=4001 FORCE_LISTEN=true DOTENV_CONFIG_PATH=.env.test node -r dotenv/config src/appServer.js",
-		"dev:test": "cross-env FORCE_LISTEN=true NODE_ENV=test PORT=4001 DOTENV_CONFIG_PATH=.env.test nodemon -r dotenv/config src/appServer.js"
+		"dev:test": "cross-env FORCE_LISTEN=true NODE_ENV=test PORT=4001 DOTENV_CONFIG_PATH=.env.test nodemon -r dotenv/config src/appServer.js",
+		"openapi:bundle": "node tools/bundle-openapi.js",
+		"openapi:lint": "openapi lint openapi.bundle.yaml"
 	},
 	"keywords": [
 		"backend",
@@ -43,13 +45,11 @@
 		"express-rate-limit": "^7.5.1",
 		"express-validator": "^7.2.1",
 		"helmet": "^8.1.0",
-		"js-yaml": "^4.1.0",
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.16.0",
 		"passport": "^0.7.0",
 		"passport-jwt": "^4.0.1",
 		"swagger-jsdoc": "^6.2.8",
-		"swagger-ui-express": "^5.0.1",
 		"uuid": "^11.1.0",
 		"winston": "^3.17.0",
 		"xss-clean": "^0.1.4",
@@ -59,8 +59,10 @@
 		"@biomejs/biome": "^2.1.2",
 		"c8": "^10.1.3",
 		"cross-env": "^7.0.3",
+		"js-yaml": "^4.1.0",
 		"nodemon": "^3.1.10",
 		"supertest": "^7.1.1",
+		"swagger-ui-express": "^5.0.1",
 		"vitest": "^3.2.4"
 	}
 }
