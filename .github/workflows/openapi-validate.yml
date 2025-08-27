@@ -1,9 +1,9 @@
 name: OpenAPI Validate
 on:
   push:
-    branches: [ SWAGGER ]
+    branches: [ main ]
   pull_request:
-    branches: [ SWAGGER ]
+    branches: [ main ]
 jobs:
   validate:
     runs-on: ubuntu-latest

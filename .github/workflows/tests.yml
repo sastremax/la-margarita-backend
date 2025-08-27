@@ -1,9 +1,9 @@
 name: Tests
 on:
   push:
-    branches: [ SWAGGER ]
+    branches: [ main ]
   pull_request:
-    branches: [ SWAGGER ]
+    branches: [ main ]
   workflow_dispatch:
 jobs:
   test:
