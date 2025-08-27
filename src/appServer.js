@@ -1,9 +1,11 @@
+import passport from 'passport'
+import swaggerUi from 'swagger-ui-express'
+import { connectToDB } from './config/db.js'
 import { config } from './config/index.js'
 import { logger } from './config/logger.js'
-import { app } from './appExpress.js'
-import { connectToDB } from './config/db.js'
-import passport from 'passport'
 import './config/passport.config.js'
+import { swaggerSpec } from './docs/swagger/index.js'
+import { app } from './appExpress.js'
 
 const PORT = config.port
 
@@ -15,6 +17,9 @@ export const startServer = async () => {
     }
     try {
         await connectToDB()
+        if (process.env.NODE_ENV === 'development') {
+            app.use('/apidocs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true, swaggerOptions: { supportedSubmitMethods: ['get', 'post', 'put', 'patch', 'delete'] } }))
+        }
         app.use(passport.initialize())
         app.listen(PORT, () => {
             logger.info(`Server listening on port ${PORT}`)
