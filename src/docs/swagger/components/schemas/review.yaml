@@ -1,0 +1,25 @@
+Review:
+  type: object
+  properties:
+    id:
+      type: string
+    reservationId:
+      type: string
+    lodgingId:
+      type: string
+    userId:
+      type: string
+    rating:
+      type: integer
+      minimum: 1
+      maximum: 5
+    comment:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+  required:
+    - id
+    - reservationId
+    - userId
+    - rating

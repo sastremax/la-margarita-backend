@@ -1,0 +1,27 @@
+paths:
+  /api/tickets:
+    get:
+      tags: [Tickets]
+      summary: Listado de tickets
+      responses:
+        '200':
+          description: OK
+      security:
+        - cookieAuth: []
+  /api/tickets/{tid}:
+    get:
+      tags: [Tickets]
+      summary: Obtener ticket por id
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

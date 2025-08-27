@@ -1,0 +1,10 @@
+openapi: 3.0.3
+info:
+  title: La Margarita API
+  version: 1.0.0
+  description: API de La Margarita. Textos descriptivos en español.
+servers:
+  - url: http://localhost:4000/api
+    description: Desarrollo local
+  - url: https://api.lamargarita.com/api
+    description: Producción

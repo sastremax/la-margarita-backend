@@ -1,0 +1,35 @@
+Reservation:
+  type: object
+  properties:
+    id:
+      type: string
+    userId:
+      type: string
+    lodgingId:
+      type: string
+    checkIn:
+      type: string
+      format: date
+    checkOut:
+      type: string
+      format: date
+    guests:
+      type: integer
+    status:
+      type: string
+      example: confirmed
+    totalPrice:
+      type: number
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+  required:
+    - id
+    - userId
+    - lodgingId
+    - checkIn
+    - checkOut
+    - guests

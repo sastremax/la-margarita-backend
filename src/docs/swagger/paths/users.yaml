@@ -1,0 +1,55 @@
+paths:
+  /api/users:
+    get:
+      tags: [Users]
+      summary: Listado de usuarios
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+      security:
+        - cookieAuth: []
+  /api/users/{uid}:
+    get:
+      tags: [Users]
+      summary: Obtener usuario por id
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags: [Users]
+      summary: Eliminar usuario
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

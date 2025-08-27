@@ -1,0 +1,53 @@
+paths:
+  /api/contacts:
+    get:
+      tags: [Contacts]
+      summary: Listado de contactos
+      responses:
+        '200':
+          description: OK
+      security:
+        - cookieAuth: []
+    post:
+      tags: [Contacts]
+      summary: Crear contacto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '201':
+          description: Creado
+  /api/contacts/{id}:
+    get:
+      tags: [Contacts]
+      summary: Obtener contacto por id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    delete:
+      tags: [Contacts]
+      summary: Eliminar contacto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

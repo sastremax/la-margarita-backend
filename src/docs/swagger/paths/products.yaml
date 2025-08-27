@@ -1,0 +1,92 @@
+paths:
+  /api/products:
+    get:
+      tags: [Products]
+      summary: Listado de productos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      tags: [Products]
+      summary: Crear producto
+      description: Requiere rol admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Creado
+        '401':
+          description: No autenticado
+        '403':
+          description: Prohibido
+      security:
+        - cookieAuth: []
+  /api/products/{pid}:
+    get:
+      tags: [Products]
+      summary: Obtener producto por id
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    patch:
+      tags: [Products]
+      summary: Actualizar producto
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Actualizado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags: [Products]
+      summary: Eliminar producto
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

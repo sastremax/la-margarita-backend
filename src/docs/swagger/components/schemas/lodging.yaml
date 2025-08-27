@@ -1,0 +1,35 @@
+Lodging:
+  type: object
+  properties:
+    id:
+      type: string
+    title:
+      type: string
+    description:
+      type: string
+    location:
+      type: string
+    pricePerNight:
+      type: number
+    capacity:
+      type: integer
+    images:
+      type: array
+      items:
+        type: string
+    amenities:
+      type: array
+      items:
+        type: string
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+  required:
+    - id
+    - title
+    - location
+    - pricePerNight
+    - capacity

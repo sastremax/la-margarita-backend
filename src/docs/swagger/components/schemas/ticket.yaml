@@ -1,0 +1,22 @@
+Ticket:
+  type: object
+  properties:
+    id:
+      type: string
+    code:
+      type: string
+    amount:
+      type: number
+    purchaser:
+      type: string
+    purchaseDatetime:
+      type: string
+      format: date-time
+    cartId:
+      type: string
+  required:
+    - id
+    - code
+    - amount
+    - purchaser
+    - purchaseDatetime

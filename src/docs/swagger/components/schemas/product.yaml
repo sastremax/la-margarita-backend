@@ -1,0 +1,33 @@
+Product:
+  type: object
+  properties:
+    id:
+      type: string
+    title:
+      type: string
+    code:
+      type: string
+    price:
+      type: number
+    stock:
+      type: integer
+    status:
+      type: string
+    description:
+      type: string
+    thumbnails:
+      type: array
+      items:
+        type: string
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+  required:
+    - id
+    - title
+    - code
+    - price
+    - stock

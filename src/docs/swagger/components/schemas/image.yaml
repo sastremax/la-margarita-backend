@@ -1,0 +1,26 @@
+Image:
+  type: object
+  properties:
+    id:
+      type: string
+    url:
+      type: string
+      format: uri
+    name:
+      type: string
+    type:
+      type: string
+    refId:
+      type: string
+    publicId:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+  required:
+    - id
+    - url
+    - name

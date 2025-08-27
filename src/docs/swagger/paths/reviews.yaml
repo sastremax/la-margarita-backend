@@ -1,0 +1,61 @@
+paths:
+  /api/reviews:
+    get:
+      tags: [Reviews]
+      summary: Listado de opiniones
+      parameters:
+        - in: query
+          name: lodgingId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [Reviews]
+      summary: Crear opinión
+      description: Requiere reserva confirmada y check-out finalizado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        '201':
+          description: Creada
+        '400':
+          description: Regla de negocio incumplida
+      security:
+        - cookieAuth: []
+  /api/reviews/{id}:
+    get:
+      tags: [Reviews]
+      summary: Obtener opinión por id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    delete:
+      tags: [Reviews]
+      summary: Eliminar opinión
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

@@ -1,0 +1,75 @@
+paths:
+  /api/lodgings:
+    get:
+      tags: [Lodgings]
+      summary: Listado de alojamientos
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [Lodgings]
+      summary: Crear alojamiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lodging'
+      responses:
+        '201':
+          description: Creado
+      security:
+        - cookieAuth: []
+  /api/lodgings/{lid}:
+    get:
+      tags: [Lodgings]
+      summary: Obtener alojamiento por id
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    patch:
+      tags: [Lodgings]
+      summary: Actualizar alojamiento
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lodging'
+      responses:
+        '200':
+          description: Actualizado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags: [Lodgings]
+      summary: Eliminar alojamiento
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

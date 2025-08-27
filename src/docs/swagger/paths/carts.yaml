@@ -1,0 +1,155 @@
+paths:
+  /api/carts/{cid}:
+    get:
+      tags: [Carts]
+      summary: Obtener carrito por id
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/carts:
+    post:
+      tags: [Carts]
+      summary: Crear carrito
+      responses:
+        '201':
+          description: Creado
+      security:
+        - cookieAuth: []
+  /api/carts/{cid}/products/{pid}:
+    post:
+      tags: [Carts]
+      summary: Agregar producto al carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+              required: [quantity]
+      responses:
+        '200':
+          description: Agregado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags: [Carts]
+      summary: Quitar producto del carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Quitado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    put:
+      tags: [Carts]
+      summary: Actualizar cantidad de producto
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+              required: [quantity]
+      responses:
+        '200':
+          description: Actualizado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/carts/{cid}/products:
+    put:
+      tags: [Carts]
+      summary: Reemplazar productos del carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartItem'
+      responses:
+        '200':
+          description: Actualizado
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+  /api/carts/{cid}/purchase:
+    post:
+      tags: [Carts]
+      summary: Comprar carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ticket generado
+        '400':
+          description: Carrito vacío
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

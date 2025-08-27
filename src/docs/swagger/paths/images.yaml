@@ -1,0 +1,57 @@
+paths:
+  /api/images:
+    get:
+      tags: [Images]
+      summary: Listado de imágenes
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [Images]
+      summary: Subir imagen
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Creada
+      security:
+        - cookieAuth: []
+  /api/images/{id}:
+    get:
+      tags: [Images]
+      summary: Obtener imagen por id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+    delete:
+      tags: [Images]
+      summary: Eliminar imagen
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []

@@ -1,0 +1,79 @@
+paths:
+  /api/reservations:
+    get:
+      tags: [Reservations]
+      summary: Listado de reservas
+      responses:
+        '200':
+          description: OK
+      security:
+        - cookieAuth: []
+    post:
+      tags: [Reservations]
+      summary: Crear reserva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '201':
+          description: Creada
+      security:
+        - cookieAuth: []
+  /api/reservations/{rid}:
+    get:
+      tags: [Reservations]
+      summary: Obtener reserva por id
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    patch:
+      tags: [Reservations]
+      summary: Actualizar reserva
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '200':
+          description: Actualizada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
+    delete:
+      tags: [Reservations]
+      summary: Eliminar reserva
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminada
+        '404':
+          description: No encontrado
+      security:
+        - cookieAuth: []
