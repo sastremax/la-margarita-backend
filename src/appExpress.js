@@ -14,6 +14,7 @@ import { csrfMiddleware } from './middlewares/csrf.middleware.js'
 import { swaggerUiInstance, specs } from './config/swagger.config.js'
 import { config } from './config/index.js'
 import { auditLogger } from './middlewares/auditLogger.js'
+import { healthRouter } from './routes/health.router.js'
 
 export const app = express()
 if (typeof app?.set === 'function') app.set('trust proxy', 1)
@@ -28,6 +29,9 @@ app.use(express.urlencoded({ extended: true }))
 app.use(trimBody)
 app.use(sanitizeMiddleware)
 app.use(limiter)
+app.use('/',
+    healthRouter
+)
 app.use(csrfMiddleware)
 
 if (config.mode !== 'test') {
