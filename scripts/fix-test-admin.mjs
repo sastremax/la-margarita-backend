@@ -15,20 +15,26 @@ const load = async (rel, named) => {
     return m[named] || m.default
 }
 
+const requireStrongPassword = (pwd) => {
+    const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$/
+    return re.test(String(pwd || ''))
+}
+
 async function run() {
     if ((process.env.NODE_ENV || '').toLowerCase() !== 'test') throw new Error('Refusing to run outside test')
     await mongoose.connect(appConfig.mongoUri)
 
     const UserModel = await load('../src/models/user.model.js', 'UserModel')
 
-    const email = (process.env.ADMIN_EMAIL || 'admin@test.com')
-    const plain = (process.env.ADMIN_PASSWORD || 'Admin$12345')
+    const email = (process.env.ADMIN_EMAIL || 'maxi@example.com')
+    const plain = (process.env.ADMIN_PASSWORD || 'Adm1n!2345')
+
+    if (!requireStrongPassword(plain)) throw new Error('Weak ADMIN_PASSWORD')
 
     const user = await UserModel.findOne({ email: email.toLowerCase() }).select('+password +passwordHash')
     if (!user) throw new Error('Admin not found')
 
     const has = (p) => Boolean(UserModel.schema.path(p))
-
     let changed = false
 
     if (has('role') && user.role !== 'admin') { user.role = 'admin'; changed = true }

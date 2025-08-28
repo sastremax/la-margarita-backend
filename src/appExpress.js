@@ -16,7 +16,7 @@ import { config } from './config/index.js'
 import { auditLogger } from './middlewares/auditLogger.js'
 
 export const app = express()
-app.set('trust proxy', 1)
+if (typeof app?.set === 'function') app.set('trust proxy', 1)
 
 app.use(cookieParser())
 app.use(loggerMiddleware)

@@ -5,7 +5,7 @@ import { app } from '../../../src/appExpress.js'
 import { connectToDB } from '../../../src/config/db.js'
 
 const adminEmail = process.env.ADMIN_EMAIL || 'maxi@example.com'
-const adminPassword = process.env.ADMIN_PASSWORD || '12345678'
+const adminPassword = process.env.ADMIN_PASSWORD || 'Adm1n!2345'
 
 const getAuthCookie = async () => {
     const res = await request(app).post('/api/sessions/login').send({ email: adminEmail, password: adminPassword })

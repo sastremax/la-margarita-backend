@@ -16,7 +16,7 @@ const load = async (rel, named) => {
 }
 
 const requireStrongPassword = (pwd) => {
-    const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/
+    const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$/
     return re.test(String(pwd || ''))
 }
 
@@ -26,15 +26,11 @@ async function run() {
     if (!appConfig.mongoUri) throw new Error('mongoUri is empty')
 
     const email = String(process.env.ADMIN_EMAIL || 'maxi@example.com').toLowerCase()
-    const plain = String(process.env.ADMIN_PASSWORD || '')
+    const plain = String(process.env.ADMIN_PASSWORD || 'Adm1n!2345')
 
-    if (!requireStrongPassword(plain)) {
-        throw new Error('ADMIN_PASSWORD must include letters, numbers, symbols and be at least 8 chars')
-    }
+    if (!requireStrongPassword(plain)) throw new Error('Weak ADMIN_PASSWORD')
 
-    console.log(JSON.stringify({ step: 'connect', mongoUri: appConfig.mongoUri, NODE_ENV: env, email }, null, 2))
     await mongoose.connect(appConfig.mongoUri)
-    console.log(JSON.stringify({ step: 'connected' }, null, 2))
 
     const UserModel = await load('../src/models/user.model.js', 'UserModel')
     const CartModel = await load('../src/models/cart.model.js', 'CartModel')
@@ -58,7 +54,6 @@ async function run() {
             age: 24
         }
         user = await UserModel.create(base)
-        console.log(JSON.stringify({ step: 'user_created', userId: String(user._id) }, null, 2))
     } else {
         let changed = false
         const ok = await bcrypt.compare(plain, user.password || '')
@@ -68,25 +63,16 @@ async function run() {
         if (user.isActive !== true) { user.isActive = true; changed = true }
         if (user.failedLoginAttempts !== 0) { user.failedLoginAttempts = 0; changed = true }
         if (user.lockUntil) { user.lockUntil = null; changed = true }
-        if (changed) {
-            await user.save()
-            console.log(JSON.stringify({ step: 'user_updated', userId: String(user._id) }, null, 2))
-        } else {
-            console.log(JSON.stringify({ step: 'user_noop', userId: String(user._id) }, null, 2))
-        }
+        if (changed) await user.save()
     }
 
     if (!user.cart) {
         const cart = await CartModel.create({ user: user._id, products: [] })
         user.cart = cart._id
         await user.save()
-        console.log(JSON.stringify({ step: 'cart_created', cartId: String(cart._id) }, null, 2))
-    } else {
-        console.log(JSON.stringify({ step: 'cart_exists', cartId: String(user.cart) }, null, 2))
     }
 
     await mongoose.connection.close()
-    console.log(JSON.stringify({ step: 'done' }, null, 2))
 }
 
 run().catch(async (e) => {
