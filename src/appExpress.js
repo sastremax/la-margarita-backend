@@ -37,7 +37,7 @@ app.use(csrfMiddleware)
 if (config.mode !== 'test') {
     app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs))
 }
-
+app.use('/api', healthRouter)
 app.use('/api', router)
 
 app.use(notFound)
