@@ -1,10 +1,10 @@
+import express from 'express'
 import { createRequire } from 'node:module'
-import { Router } from 'express'
 
 const require = createRequire(import.meta.url)
 const pkg = require('../../package.json')
 
-export const healthRouter = Router()
+export const healthRouter = express.Router()
 
 healthRouter.get('/', (req, res) => {
     res.status(200).json({ status: 'ok' })
