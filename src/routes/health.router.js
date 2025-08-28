@@ -11,6 +11,6 @@ healthRouter.head('/', (req, res) => {
     res.sendStatus(200)
 })
 
-healthRouter.get('/api/version', (req, res) => {
+healthRouter.get('/version', (req, res) => {
     res.status(200).json({ name: pkg.name, version: pkg.version })
 })
