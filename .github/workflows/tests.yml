@@ -8,9 +8,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
     env:
       NODE_ENV: test
       CI: true
+      MONGO_URI: mongodb://localhost:27017/testdb
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,4 +29,10 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Wait for Mongo
+        run: |
+          for i in `seq 1 30`; do
+            (echo > /dev/tcp/127.0.0.1/27017) >/dev/null 2>&1 && break
+            sleep 1
+          done
       - run: npx vitest run --coverage
