@@ -29,14 +29,18 @@ app.use(express.urlencoded({ extended: true }))
 app.use(trimBody)
 app.use(sanitizeMiddleware)
 app.use(limiter)
-mountHealth(app, '')
+
+if (config.mode !== 'test') {
+    mountHealth(app, '')
+}
+
 app.use(csrfMiddleware)
 
 if (config.mode !== 'test') {
     app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs))
+    mountHealth(app, '/api')
 }
 
-mountHealth(app, '/api')
 app.use('/api', router)
 
 app.use(notFound)
