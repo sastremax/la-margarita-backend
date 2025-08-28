@@ -8,6 +8,7 @@ export const connectToDB = async () => {
         logger.info('MongoDB connected')
     } catch (error) {
         logger.fatal('DB connection error:', error)
+        if (process.env.NODE_ENV === 'test') throw error
         process.exit(1)
     }
 }

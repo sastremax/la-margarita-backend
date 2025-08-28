@@ -18,6 +18,11 @@ export const logger = (() => {
 
 logger.level = logLevel
 
-if (!logger.fatal) {
-    logger.fatal = (...args) => logger.error(...args)
+if (!('fatal' in logger)) {
+    Object.defineProperty(logger, 'fatal', {
+        value: (...args) => logger.error(...args),
+        writable: false,
+        enumerable: false,
+        configurable: true
+    })
 }
