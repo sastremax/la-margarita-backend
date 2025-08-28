@@ -3,6 +3,8 @@ node_modules/
 
 # variables de entorno
 .env
+.env.prod
+.env.test
 .env.*
 !.env.template
 

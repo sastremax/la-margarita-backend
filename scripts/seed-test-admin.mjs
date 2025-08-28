@@ -15,31 +15,40 @@ const load = async (rel, named) => {
     return m[named] || m.default
 }
 
+const requireStrongPassword = (pwd) => {
+    const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/
+    return re.test(String(pwd || ''))
+}
+
 async function run() {
     const env = (process.env.NODE_ENV || '').toLowerCase()
     if (env !== 'test') throw new Error(`Refusing to seed outside test. NODE_ENV=${env}`)
     if (!appConfig.mongoUri) throw new Error('mongoUri is empty')
 
-    console.log(JSON.stringify({ step: 'connect', mongoUri: appConfig.mongoUri, NODE_ENV: env }, null, 2))
+    const email = String(process.env.ADMIN_EMAIL || 'maxi@example.com').toLowerCase()
+    const plain = String(process.env.ADMIN_PASSWORD || '')
+
+    if (!requireStrongPassword(plain)) {
+        throw new Error('ADMIN_PASSWORD must include letters, numbers, symbols and be at least 8 chars')
+    }
+
+    console.log(JSON.stringify({ step: 'connect', mongoUri: appConfig.mongoUri, NODE_ENV: env, email }, null, 2))
     await mongoose.connect(appConfig.mongoUri)
     console.log(JSON.stringify({ step: 'connected' }, null, 2))
 
     const UserModel = await load('../src/models/user.model.js', 'UserModel')
     const CartModel = await load('../src/models/cart.model.js', 'CartModel')
 
-    const email = 'maxi@example.com'
-    const plain = '12345678'
-
     const hasPassword = Boolean(UserModel.schema.path('password'))
     if (!hasPassword) throw new Error('UserModel requires password field')
 
-    let user = await UserModel.findOne({ email: email.toLowerCase() })
+    let user = await UserModel.findOne({ email })
 
     if (!user) {
         const base = {
             firstName: 'Maxi',
             lastName: 'Admin',
-            email: email.toLowerCase(),
+            email,
             password: plain,
             role: 'admin',
             isVerified: true,

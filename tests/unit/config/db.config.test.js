@@ -26,11 +26,12 @@ describe('config/db connectToDB', () => {
     })
 
     it('debería loguear fatal y salir en error', async () => {
+        process.env.NODE_ENV = 'production'
         mongoose.connect.mockRejectedValue(new Error('fail'))
         const { connectToDB } = await import('../../../src/config/db.js')
         await connectToDB()
         expect(logger.fatal).toHaveBeenCalled()
         expect(process.exit).toHaveBeenCalledWith(1)
-        process.exit = exit
+        process.env.NODE_ENV = 'test'
     })
 })
