@@ -1,4 +1,4 @@
-import { logger } from '../config/logger.js'
+import { safeLogger } from '../utils/safeLogger.js'
 
 export const auditLogger = (req, res, next) => {
     const userId = req.user?.id || 'anonymous'
@@ -6,9 +6,6 @@ export const auditLogger = (req, res, next) => {
     const method = req.method
     const url = req.originalUrl
     const timestamp = new Date().toISOString()
-
-    logger.info(`[AUDIT] ${method} ${url} - User: ${userId} - IP: ${ip} - Time: ${timestamp}`)
-
+    safeLogger('info', `[AUDIT] ${method} ${url} - User: ${userId} - IP: ${ip} - Time: ${timestamp}`)
     next()
 }
-

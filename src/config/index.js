@@ -1,6 +1,8 @@
-import dotenvFlow from 'dotenv-flow'
+import { config as dotenvFlow } from 'dotenv-flow'
 
-dotenvFlow.config()
+if (process.env.NODE_ENV !== 'production') {
+    dotenvFlow({ silent: true })
+}
 
 export const config = {
     mode: process.env.NODE_ENV || 'development',
