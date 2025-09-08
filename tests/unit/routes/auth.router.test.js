@@ -55,7 +55,7 @@ describe('auth.router', () => {
     })
 
     it('debería atender POST /sessions/register aplicando validateDTO', async () => {
-        const res = await request(app).post('/sessions/register').send({ firstName: 'A', lastName: 'B', email: 'a@b.c', password: '12345678' })
+        const res = await request(app).post('/sessions/register').send({ firstName: 'A', lastName: 'B', email: 'a@b.c', password: 'Admin$12345' })
         expect(res.status).toBe(201)
         expect(res.body.route).toBe('register')
     })

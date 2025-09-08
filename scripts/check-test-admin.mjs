@@ -24,7 +24,7 @@ async function run() {
     const email = 'maxi@example.com'
     const user = await UserModel.findOne({ email: email.toLowerCase() }).select('+password +passwordHash').lean()
 
-    const bcryptOk = user ? await bcrypt.compare('12345678', user.password || user.passwordHash || '') : false
+    const bcryptOk = user ? await bcrypt.compare('Admin$12345', user.password || user.passwordHash || '') : false
 
     const result = {
         exists: !!user,

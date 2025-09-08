@@ -21,7 +21,8 @@ describe('config/db connectToDB', () => {
         mongoose.connect.mockResolvedValue({})
         const { connectToDB } = await import('../../../src/config/db.js')
         await connectToDB()
-        expect(mongoose.connect).toHaveBeenCalledWith('mongodb://test')
+        expect(mongoose.connect).toHaveBeenCalledWith('mongodb://test', expect.any(Object))
+
         expect(logger.info).toHaveBeenCalled()
     })
 

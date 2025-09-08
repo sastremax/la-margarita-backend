@@ -50,7 +50,7 @@ describe('UserDAO', () => {
     })
 
     test('createUser should call create with user data', async () => {
-        const data = { email: 'new@example.com', password: '12345678' }
+        const data = { email: 'new@example.com', password: 'Admin$12345' }
         await userDAO.createUser(data)
         expect(UserModel.create).toHaveBeenCalledWith(data)
     })

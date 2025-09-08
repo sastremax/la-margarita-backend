@@ -25,7 +25,7 @@ const run = async () => {
             firstName: 'Maxi',
             lastName: 'Sastre',
             email: 'maxi@example.com',
-            password: '12345678',
+            password: 'Admin$12345',
             role: 'admin',
             cart: cart._id,
             age: 24

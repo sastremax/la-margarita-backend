@@ -8,7 +8,7 @@ describe('AuthDAO', () => {
     const dao = new AuthDAO()
     const unique = Date.now()
     const email = `authdao_${unique}@example.com`
-    const plainPassword = '12345678'
+    const plainPassword = 'Admin$12345'
     let createdUser
 
     beforeAll(async () => {

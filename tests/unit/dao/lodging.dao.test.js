@@ -19,7 +19,7 @@ describe('LodgingDAO', () => {
             firstName: 'Owner',
             lastName: 'Test',
             email: `owner_${unique}@example.com`,
-            password: '12345678',
+            password: 'Admin$12345',
             role: 'user'
         })
         l1 = await dao.createLodging({

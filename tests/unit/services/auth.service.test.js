@@ -82,7 +82,7 @@ describe('Auth Service', () => {
                 firstName: 'A',
                 lastName: 'B',
                 email: 'exists@example.com',
-                password: '12345678'
+                password: 'Admin$12345'
             })
         ).rejects.toThrow(ApiError)
     })
