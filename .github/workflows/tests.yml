@@ -22,6 +22,7 @@ jobs:
       NODE_ENV: test
       CI: true
       MONGO_URI: mongodb://localhost:27017/testdb
+      JWT_SECRET: SuperTestSecret_ChangeMe123!
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
