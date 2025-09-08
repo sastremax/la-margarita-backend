@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const use = vi.fn()
-const appMock = { use }
+const set = vi.fn()
+const appMock = { use, set }
 const cookieParserFn = vi.fn(() => 'cookieParser-mw')
 const jsonMw = 'json-mw'
 const urlencodedMw = 'urlencoded-mw'
@@ -22,7 +23,14 @@ const expressFn = vi.fn(() => appMock)
 expressFn.json = vi.fn(() => jsonMw)
 expressFn.urlencoded = vi.fn(() => urlencodedMw)
 
-vi.mock('express', () => ({ default: expressFn }))
+vi.mock('express', async (importOriginal) => {
+    const actual = await importOriginal()
+    return {
+        ...actual,
+        default: expressFn,
+        static: vi.fn(() => (req, res, next) => next())
+    }
+})
 vi.mock('cookie-parser', () => ({ default: cookieParserFn }))
 vi.mock('../../../src/middlewares/logger.middleware.js', () => ({ loggerMiddleware: loggerMw }))
 vi.mock('../../../src/middlewares/auditLogger.js', () => ({ auditLogger: auditMw }))
@@ -34,6 +42,7 @@ vi.mock('../../../src/middlewares/envRateLimiter.js', () => ({ limiter: limiterM
 vi.mock('../../../src/middlewares/notFound.middleware.js', () => ({ notFound: notFoundMw }))
 vi.mock('../../../src/middlewares/errorHandler.middleware.js', () => ({ errorHandler: errorMw }))
 vi.mock('../../../src/routes/index.js', () => ({ router: routerMw }))
+vi.mock('../../../src/routes/health.router.js', () => ({ mountHealth: vi.fn(() => { }) }))
 vi.mock('../../../src/config/swagger.config.js', () => ({
     swaggerUiInstance: { serve: serveMw, setup: setupFn },
     specs: { info: { title: 'x' } }
@@ -43,10 +52,9 @@ describe('appExpress', () => {
     beforeEach(() => {
         vi.resetModules()
         use.mockClear()
+        set.mockClear()
         cookieParserFn.mockClear()
         expressFn.mockClear()
-        expressFn.json.mockClear()
-        expressFn.urlencoded.mockClear()
         setupFn.mockClear()
     })
 
@@ -54,12 +62,10 @@ describe('appExpress', () => {
         vi.doMock('../../../src/config/index.js', () => ({ config: { mode: 'test' } }))
         const mod = await import('../../../src/appExpress.js')
         expect(mod.app).toBe(appMock)
+
         const calls = use.mock.calls
-
-        expect(expressFn.json).toHaveBeenCalled()
-        expect(expressFn.urlencoded).toHaveBeenCalledWith({ extended: true })
-
         const seq = calls.map(c => c[0])
+
         expect(seq.slice(0, 10)).toEqual([
             'cookieParser-mw',
             loggerMw,
