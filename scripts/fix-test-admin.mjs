@@ -26,32 +26,55 @@ async function run() {
 
     const UserModel = await load('../src/models/user.model.js', 'UserModel')
 
-    const email = (process.env.ADMIN_EMAIL || 'maxi@example.com')
+    const email = (process.env.ADMIN_EMAIL || 'maxi@example.com').toLowerCase()
     const plain = (process.env.ADMIN_PASSWORD || 'Adm1n!2345')
 
     if (!requireStrongPassword(plain)) throw new Error('Weak ADMIN_PASSWORD')
 
-    const user = await UserModel.findOne({ email: email.toLowerCase() }).select('+password +passwordHash')
-    if (!user) throw new Error('Admin not found')
-
+    let user = await UserModel.findOne({ email }).select('+password +passwordHash')
     const has = (p) => Boolean(UserModel.schema.path(p))
-    let changed = false
+    const now = new Date()
 
-    if (has('role') && user.role !== 'admin') { user.role = 'admin'; changed = true }
-    if (has('isActive') && user.isActive !== true) { user.isActive = true; changed = true }
-    if (has('isVerified') && user.isVerified !== true) { user.isVerified = true; changed = true }
-    if (has('emailVerified') && user.emailVerified !== true) { user.emailVerified = true; changed = true }
-    if (has('failedLoginAttempts') && user.failedLoginAttempts !== 0) { user.failedLoginAttempts = 0; changed = true }
-    if (has('lockUntil') && user.lockUntil) { user.lockUntil = null; changed = true }
+    if (!user) {
+        const data = {
+            firstName: 'Maxi',
+            lastName: 'Admin',
+            email,
+            role: 'admin',
+            isActive: true,
+            emailVerified: true,
+            createdAt: now,
+            updatedAt: now
+        }
+        if (has('password')) data.password = plain
+        else if (has('passwordHash')) data.passwordHash = await bcrypt.hash(plain, 10)
+        user = new UserModel(data)
+        await user.save()
+    } else {
+        let changed = false
+        if (has('firstName') && user.firstName !== 'Maxi') { user.firstName = 'Maxi'; changed = true }
+        if (has('lastName') && user.lastName !== 'Admin') { user.lastName = 'Admin'; changed = true }
+        if (has('role') && user.role !== 'admin') { user.role = 'admin'; changed = true }
+        if (has('isActive') && user.isActive !== true) { user.isActive = true; changed = true }
+        if (has('emailVerified') && user.emailVerified !== true) { user.emailVerified = true; changed = true }
+        if (has('isVerified') && user.isVerified !== true) { user.isVerified = true; changed = true }
+        if (has('failedLoginAttempts') && user.failedLoginAttempts !== 0) { user.failedLoginAttempts = 0; changed = true }
+        if (has('lockUntil') && user.lockUntil) { user.lockUntil = null; changed = true }
+        if (has('password')) { user.password = plain; changed = true }
+        else if (has('passwordHash')) { user.passwordHash = await bcrypt.hash(plain, 10); changed = true }
 
-    if (has('password')) { user.password = plain; changed = true }
-    else if (has('passwordHash')) { user.passwordHash = await bcrypt.hash(plain, 10); changed = true }
-
-    if (changed) await user.save()
+        if (changed) {
+            user.updatedAt = now
+            await user.save()
+        }
+    }
 
     const out = {
         id: String(user._id),
+        email: user.email,
         role: has('role') ? user.role : null,
+        firstName: has('firstName') ? user.firstName : null,
+        lastName: has('lastName') ? user.lastName : null,
         emailVerified: has('emailVerified') ? user.emailVerified === true : null,
         isVerified: has('isVerified') ? user.isVerified === true : null,
         isActive: has('isActive') ? user.isActive === true : null
