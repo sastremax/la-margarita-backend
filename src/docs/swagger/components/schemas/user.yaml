@@ -1,5 +1,6 @@
 User:
   type: object
+  required: [id, email, role]
   properties:
     id:
       type: string
@@ -21,7 +22,3 @@ User:
     updatedAt:
       type: string
       format: date-time
-  required:
-    - id
-    - email
-    - role

@@ -7,9 +7,9 @@ info:
     name: Soporte La Margarita
     email: soporte@lamargarita.com
 servers:
-  - url: http://localhost:4000/api
+  - url: http://localhost:3000
     description: Desarrollo local
-  - url: https://api.lamargarita.com/api
+  - url: https://api.lamargarita.com
     description: Producción
 tags:
   - name: Auth

@@ -34,15 +34,20 @@ if (config.mode !== 'test') {
     mountHealth(app, '')
 }
 
-app.use(csrfMiddleware)
-
 if (config.mode !== 'test') {
-    app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs))
+    app.get('/api-docs.json', (req, res) => {
+        res.json(specs)
+    })
+    app.use('/api-docs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs, { explorer: true }))
+    app.get('/apidocs.json', (req, res) => {
+        res.json(specs)
+    })
+    app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs, { explorer: true }))
     mountHealth(app, '/api')
 }
 
+app.use(csrfMiddleware)
 app.use('/api', router)
-
 app.use(notFound)
 app.use(errorHandler)
 
