@@ -3,31 +3,42 @@ Product:
   properties:
     id:
       type: string
+      example: 68c066e5957c91ae4a535e43
     title:
       type: string
-    code:
-      type: string
-    price:
-      type: number
-    stock:
-      type: integer
-    status:
-      type: string
+      example: Parrillada completa
     description:
       type: string
-    thumbnails:
+      example: Menú para 4 personas con bebidas incluidas
+    price:
+      type: number
+      example: 25000
+    code:
+      type: string
+      example: FOOD-001
+    category:
+      type: string
+      enum: [food, service]
+      example: food
+    stock:
+      type: integer
+      example: 10
+    images:
       type: array
       items:
         type: string
+        format: uri
+      example:
+        - https://ejemplo.com/img/parrillada.jpg
+    status:
+      type: boolean
+      example: true
     createdAt:
       type: string
       format: date-time
+      nullable: true
     updatedAt:
       type: string
       format: date-time
-  required:
-    - id
-    - title
-    - code
-    - price
-    - stock
+      nullable: true
+  required: [id, title, price, code, category, stock, images, status]

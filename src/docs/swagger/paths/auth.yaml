@@ -1,4 +1,42 @@
 paths:
+  /api/sessions/register:
+    post:
+      tags: [Auth]
+      summary: Registrar usuario
+      description: Crea un usuario nuevo. No permite asignar rol admin desde esta ruta.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: Maxi
+                lastName:
+                  type: string
+                  example: Admin
+                email:
+                  type: string
+                  format: email
+                  example: maxi.dev@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Newword123!
+              required: [firstName, lastName, email, password]
+      responses:
+        '201':
+          description: Usuario creado
+        '400':
+          description: Datos inválidos o email duplicado
+        '403':
+          description: CSRF inválido
+        '500':
+          description: Error interno
+      security:
+        - csrfHeader: []
   /api/sessions/login:
     post:
       tags: [Auth]
@@ -23,7 +61,12 @@ paths:
           description: Sesión iniciada
         '401':
           description: Credenciales inválidas
-      security: []
+        '403':
+          description: CSRF inválido
+        '500':
+          description: Error interno
+      security:
+        - csrfHeader: []
   /api/sessions/logout:
     post:
       tags: [Auth]
@@ -32,7 +75,7 @@ paths:
         '204':
           description: Sesión cerrada
       security:
-        - cookieAuth: []
+        - csrfHeader: []
   /api/sessions/current:
     get:
       tags: [Auth]
@@ -41,4 +84,4 @@ paths:
         '200':
           description: Información del usuario
       security:
-        - cookieAuth: []
+        - csrfHeader: []

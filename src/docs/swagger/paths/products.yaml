@@ -14,10 +14,11 @@ paths:
                   status:
                     type: string
                     example: success
-                  payload:
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Product'
+                required: [status, data]
     post:
       tags: [Products]
       summary: Crear producto
