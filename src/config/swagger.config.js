@@ -7,18 +7,22 @@ const options = {
         info: {
             title: 'API La Margarita',
             version: '1.0.0',
-            description: 'Documentación de la API para el sistema de reservas de campo La Margarita'
+            description:
+                'Documentación de la API para el sistema de reservas de campo La Margarita',
         },
         servers: [
             {
                 url: 'http://localhost:3000/api',
-                description: 'Servidor local'
-            }
-        ]
+                description: 'Servidor local',
+            },
+            {
+                url: 'https://la-margarita-backend.onrender.com/api',
+                description: 'Producción Render',
+            },
+        ],
     },
-    apis: ['./src/docs/**/*.yaml']
+    apis: ['./src/docs/**/*.yaml'],
 }
 
 export const specs = swaggerJsdoc(options)
 export const swaggerUiInstance = swaggerUi
-
