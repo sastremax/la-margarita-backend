@@ -35,14 +35,14 @@ if (config.mode !== 'test') {
 }
 
 if (config.mode !== 'test') {
-    app.get('/api-docs.json', (req, res) => {
+    app.use('/api-docs.json', (req, res) => {
         res.json(specs)
     })
-    app.use('/api-docs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs, { explorer: true }))
-    app.get('/apidocs.json', (req, res) => {
+    app.use('/api-docs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs))
+    app.use('/apidocs.json', (req, res) => {
         res.json(specs)
     })
-    app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs, { explorer: true }))
+    app.use('/apidocs', swaggerUiInstance.serve, swaggerUiInstance.setup(specs))
     mountHealth(app, '/api')
 }
 

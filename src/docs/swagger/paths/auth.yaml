@@ -83,5 +83,8 @@ paths:
       responses:
         '200':
           description: Información del usuario
+        '401':
+          description: No autorizado
       security:
+        - bearerAuth: []
         - csrfHeader: []

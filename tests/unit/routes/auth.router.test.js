@@ -9,6 +9,7 @@ const universalAuthMock = vi.fn((req, res, next) => {
 })
 
 vi.mock('../../../src/controllers/auth.controller.js', () => ({
+    getCurrent: vi.fn((req, res) => res.status(200).json({ route: 'current' })),
     postLogin: vi.fn((req, res) => res.status(200).json({ route: 'login' })),
     postRegister: vi.fn((req, res) => res.status(201).json({ route: 'register' })),
     postLogout: vi.fn((req, res) => res.status(200).json({ route: 'logout' }))

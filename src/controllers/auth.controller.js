@@ -44,3 +44,12 @@ export const postLogout = async (req, res, next) => {
         next(error)
     }
 }
+
+export const getCurrent = (req, res) => {
+    if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+    const { id, _id, firstName, lastName, email, role, cart } = req.user
+    const userId = typeof id?.toString === 'function' ? id.toString() : (typeof _id?.toString === 'function' ? _id.toString() : null)
+    const fullName = [firstName, lastName].filter(Boolean).join(' ')
+    const cartId = typeof cart?.toString === 'function' ? cart.toString() : (cart ?? null)
+    return res.status(200).json({ status: 'success', data: { user: { id: userId, fullName, email, role, cartId } } })
+}
